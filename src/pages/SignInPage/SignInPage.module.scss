@@ -1,0 +1,78 @@
+.wapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: calc(100vh);
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0), rgb(94, 180, 251));
+
+    .wapper-content {
+        margin-right: 30px;
+        margin-top: 80px;
+        padding-right: 20px;
+        width: 32%;
+
+        .app-name {
+            display: flex;
+            justify-content: center;
+            font-size: 30px;
+            color: #4176cb;
+            font-weight: 500;
+
+            span {
+                color: #4176cb;
+                margin-left: 5px;
+            }
+        }
+
+        .form {
+            padding: 20px 30px 40px 30px;
+            margin-left: 30px;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 6px rgba(0, 0, 0, 0.19);
+
+            .form-title {
+                margin-bottom: 40px;
+                text-align: center;
+                font-size: 27px;
+                font-weight: 500;
+            }
+
+            .form-label {
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-weight: 400;
+                font-size: 1.2rem;
+            }
+
+            input {
+                width: 100%;
+                font-size: 1.1rem;
+            }
+
+            .forgot-password {
+                float: right;
+                color: blue;
+                text-decoration: none;
+            }
+
+            .btn-form {
+                width: 100%;
+                margin-top: 40px;
+                font-size: 1.2rem;
+                background-color: #4176cb;
+                color: #ffffff;
+            }
+
+            .btn-form:hover {
+                color: #bfbebe;
+            }
+        }
+    }
+
+    .image {
+        padding-top: 90px;
+    }
+}
