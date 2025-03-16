@@ -1,0 +1,118 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(32, 33, 36, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+  
+  .modalContent {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .modalHeader {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+  
+    h2 {
+      flex-grow: 1;
+      margin: 0;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #202124;
+    }
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    
+    &:hover {
+      color: #202124;
+    }
+  }
+  
+  .sessionGroup {
+    margin-bottom: 20px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    h3 {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #5f6368;
+      margin: 0 0 12px 0;
+    }
+  }
+  
+  .slotGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .timeSlot {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    padding: 12px;
+    border: 1px solid #e8eaed;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    color: #33ADE3;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #e8f0fe;
+      border-color: #1a73e8;
+    }
+    
+    &.selected {
+      background-color: #e8f0fe;
+      border-color: #1a73e8;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .modalContent {
+      max-width: 90%;
+      margin: 0 16px;
+    }
+    
+    .timeSlot {
+      min-width: calc(50% - 4px);
+    }
+  }
+  
+  

@@ -4,6 +4,11 @@ import { useSelector } from 'react-redux';
 
 import Loading from '../Loading/Loading';
 import * as message from '../Message/Message';
+import classNames from 'classnames/bind';
+
+import styles from './TableComp.module.scss';
+
+const cx = classNames.bind(styles);
 
 function TableComp({
     selectionType = 'checkbox',
@@ -13,6 +18,7 @@ function TableComp({
     onRow,
     refetch,
     mutation,
+    defaultPageSize,
 }) {
     const user = useSelector((state) => state?.user);
     const [rowSelectedKey, setRowSelectedKey] = useState([]);
@@ -28,7 +34,7 @@ function TableComp({
     const dataTable = useMemo(
         () =>
             data?.length &&
-            data?.map((product) => {
+            data?.data?.map((product) => {
                 return { ...product, key: product._id };
             }),
         [data],
@@ -90,10 +96,10 @@ function TableComp({
                 onRow={onRow}
                 pagination={{
                     position: ['bottomCenter'],
-                    defaultPageSize: 6,
+                    defaultPageSize: defaultPageSize,
                     total: data?.total,
                 }}
-                style={{ marginTop: '12px' }}
+                className={cx('customTable')}
             />
         </Loading>
     );

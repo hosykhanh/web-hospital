@@ -8,6 +8,8 @@ import styles from './DoctorPage.module.scss';
 import DoctorProfile from '../../components/DoctorProfile/DoctorProfile';
 import PatientManagement from '../../components/PatientManagement/PatientManagement';
 import images from '../../assets';
+import AppointmentManagement from '../../components/AppointmentManagement/AppointmentManagement';
+import ScheduleSettings from '../../components/ScheduleSettings/ScheduleSettings';
 // import * as postsService from '../../services/postsService';
 // import * as chatService from '../../services/chatService';
 // import { useQuery } from 'react-query';
@@ -22,7 +24,7 @@ function DoctorPage() {
         getItem('Hồ sơ bác sĩ', 'docterProflie', <UserOutlined />),
         getItem('Quản lý bệnh nhân', 'patient', <AuditOutlined />),
         getItem('Quản lý lịch khám', 'appointment', <ScheduleOutlined />),
-        getItem('Cài đặt lịch', 'calendarSetting', <SettingOutlined />),
+        getItem('Cài đặt lịch', 'ScheduleSettings', <SettingOutlined />),
     ];
     const handleOnClick = ({ key }) => {
         setKeySelected(key);
@@ -62,6 +64,10 @@ function DoctorPage() {
                 return <DoctorProfile />;
             case 'patient':
                 return <PatientManagement />;
+            case 'appointment':
+                return <AppointmentManagement />;
+            case 'ScheduleSettings':
+                return <ScheduleSettings />;
             // case 'posts':
             //     return <TablePosts isLoading={isLoadingPosts} data={dataPosts} refetch={refetchPosts} />;
             // case 'groupChat':

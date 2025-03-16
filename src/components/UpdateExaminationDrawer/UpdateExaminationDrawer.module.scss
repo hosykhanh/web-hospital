@@ -1,0 +1,293 @@
+// Biến màu sắc chính
+$primary-color: #1a73e8;
+$primary-light: #e8f0fe;
+$primary-dark: #0d47a1;
+$success-color: #34a853;
+$warning-color: #fbbc05;
+$error-color: #ea4335;
+$text-primary: #202124;
+$text-secondary: #5f6368;
+$border-color: #dadce0;
+$background-light: #f8f9fa;
+$white: #ffffff;
+
+// Mixins
+@mixin box-shadow($level: 1) {
+  @if $level == 1 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  } @else if $level == 2 {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  } @else if $level == 3 {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  }
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+// Styles chính
+.examination-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  .form-title {
+    margin-bottom: 24px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 16px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, $primary-color, $primary-light);
+      border-radius: 3px;
+    }
+    
+    h3 {
+      color: $primary-color;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  .form-item {
+    margin-bottom: 20px;
+    
+    :global {
+      .ant-form-item-label {
+        padding-bottom: 6px;
+        
+        label {
+          font-weight: 500;
+          color: $text-primary;
+          font-size: 14px;
+          
+          &::before {
+            color: $error-color !important;
+          }
+        }
+      }
+      
+      .ant-select,
+      .ant-input,
+      .ant-picker {
+        width: 100%;
+        border-radius: 8px;
+        @include transition;
+      }
+      
+      .ant-select-selector,
+      .ant-input,
+      .ant-picker {
+        border: 1px solid $border-color;
+        padding: 8px 12px;
+        min-height: 42px;
+        
+        &:hover {
+          border-color: $primary-color;
+        }
+        
+        &:focus,
+        &:focus-within {
+          border-color: $primary-color;
+          @include box-shadow(1);
+        }
+      }
+      
+      .ant-select-selector {
+        display: flex;
+        align-items: center;
+        
+        .ant-select-selection-placeholder,
+        .ant-select-selection-item {
+          line-height: 24px;
+        }
+      }
+      
+      .ant-picker {
+        padding: 8px 12px;
+      }
+      
+      .ant-form-item-explain-error {
+        color: $error-color;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      
+      .ant-input-affix-wrapper {
+        padding: 0;
+        border-radius: 8px;
+        
+        .ant-input {
+          border: none;
+          border-radius: 8px;
+          
+          &:focus {
+            box-shadow: none;
+          }
+        }
+        
+        &:hover,
+        &:focus,
+        &-focused {
+          border-color: $primary-color;
+        }
+      }
+    }
+  }
+  
+  .date-picker {
+    width: 100%;
+    
+    :global {
+      .ant-picker-input > input {
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .text-area {
+    resize: none;
+    border-radius: 8px;
+    min-height: 100px;
+    
+    &:hover {
+      border-color: $primary-color;
+    }
+    
+    &:focus {
+      border-color: $primary-color;
+      @include box-shadow(1);
+    }
+  }
+}
+
+.drawer-footer {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  
+  .save-button {
+    min-width: 140px;
+    height: 44px;
+    font-weight: 500;
+    border-radius: 8px;
+    font-size: 15px;
+    background: linear-gradient(to right, $primary-color, $primary-dark);
+    border: none;
+    @include transition;
+    @include box-shadow(1);
+    
+    &:hover {
+      transform: translateY(-2px);
+      @include box-shadow(2);
+      background: linear-gradient(to right, lighten($primary-color, 5%), $primary-color);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      @include box-shadow(1);
+    }
+  }
+}
+
+:global {
+  .ant-drawer-header {
+    background-color: $primary-color;
+    border-bottom: none;
+    padding: 20px 24px;
+    
+    .ant-drawer-title {
+      color: $white;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+    }
+    
+    .ant-drawer-close {
+      color: $white;
+      
+      &:hover {
+        color: rgba($white, 0.8);
+      }
+    }
+  }
+  
+  .ant-drawer-body {
+    padding: 24px;
+    background-color: $white;
+  }
+  
+  .ant-drawer-content {
+    border-radius: 16px 0 0 16px;
+    overflow: hidden;
+  }
+  
+  .ant-drawer-footer {
+    border-top: 1px solid $border-color;
+    padding: 16px 24px;
+    background-color: $background-light;
+  }
+  
+  // Tùy chỉnh DatePicker
+  .ant-picker-dropdown {
+    .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+      background-color: $primary-color;
+    }
+    
+    .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+      border-color: $primary-color;
+    }
+  }
+  
+  // Tùy chỉnh Select dropdown
+  .ant-select-dropdown {
+    border-radius: 8px;
+    @include box-shadow(2);
+    
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background-color: $primary-light;
+      color: $primary-color;
+      font-weight: 500;
+    }
+    
+    .ant-select-item {
+      padding: 10px 12px;
+      border-radius: 4px;
+      margin: 4px 8px;
+      @include transition;
+      
+      &:hover {
+        background-color: rgba($primary-light, 0.5);
+      }
+    }
+  }
+  
+  // Animation cho drawer
+  .ant-drawer-content-wrapper {
+    @include transition(transform, 0.4s, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+  
+  // Tùy chỉnh Form validation
+  .ant-form-item-has-error {
+    .ant-input,
+    .ant-picker,
+    .ant-select-selector {
+      border-color: $error-color !important;
+      
+      &:hover {
+        border-color: $error-color !important;
+      }
+    }
+  }
+}
+

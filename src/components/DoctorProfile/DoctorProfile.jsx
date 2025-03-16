@@ -4,12 +4,15 @@ import classNames from 'classnames/bind';
 import styles from './DoctorProfile.module.scss';
 import images from '../../assets';
 import { UserOutlined } from '@ant-design/icons';
-import { Input, Modal } from 'antd';
+import { DatePicker, Input, Modal, Radio } from 'antd';
 import Button from '../Button/Button';
+import dayjs from 'dayjs';
+import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
 
 const DoctorProfile = () => {
+    const [dateOfBirth, setDateOfBirth] = useState(new Date('2000-02-01'));
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
 
     const showModalEdit = () => {
@@ -26,44 +29,80 @@ const DoctorProfile = () => {
                 <div className={cx('content-left')}>
                     <div className={cx('wrapper-form')}>
                         <div className={cx('form')}>
+                            <div className={cx('title-form-top')}>Thông tin tài khoản</div>
+                            <div className={cx('form-user-email')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="User">HỌ VÀ TÊN</label>
+                                    <Input value="Nguyễn Văn A" className={cx('input')} required disabled={true} />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="email">EMAIL</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        disabled={true}
+                                        value="nguyenvana@gmail.com"
+                                    />
+                                </div>
+                            </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="User">Họ và tên</label>
+                                <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
+                                <Input className={cx('input')} required disabled={true} value="123456789" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="address">ĐỊA CHỈ</label>
+                                <Input className={cx('input')} required disabled={true} value="Hà Nội" />
+                            </div>
+                            <div className={cx('wrapper-btn')}>
+                                <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
+                                    Chỉnh sửa
+                                </Button>
+                            </div>
+                        </div>
+                        <div className={cx('form')}>
+                            <div className={cx('title-form-top')}>Thông tin chi tiết</div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="level">TRÌNH ĐỘ</label>
+                                <Radio.Group name="gender">
+                                    <Radio value="Male">THẠC SĨ</Radio>
+                                    <Radio value="Female">TIẾN SĨ</Radio>
+                                    <Radio value="Other">CHUYÊN KHOA A</Radio>
+                                </Radio.Group>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="gender">GIỚI TÍNH</label>
+                                <Radio.Group name="gender">
+                                    <Radio value="Male">Nam</Radio>
+                                    <Radio value="Female">Nữ</Radio>
+                                    <Radio value="Other">Khác</Radio>
+                                </Radio.Group>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="dateOfBirth">NGÀY SINH</label>
                                 <Input
-                                    // value={username}
-                                    id="username"
+                                    className={cx('input')}
                                     required
                                     disabled={true}
+                                    value={convertISODateToLocalDate(dateOfBirth || '2000-01-01')}
                                 />
                             </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="gender">Giới tính</label>
-                                <Input id="gender" required disabled={true} />
+                                <label htmlFor="specialty">CHUYÊN KHOA</label>
+                                <Input className={cx('input')} required disabled={true} value="Tiêu hóa" />
                             </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="dateOfBirth">Ngày sinh</label>
-                                <Input id="dateOfBirth" required disabled={true} />
+                                <label htmlFor="workplace">NƠI CÔNG TÁC</label>
+                                <Input className={cx('input')} required disabled={true} value="Hà Nội" />
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="address">Địa chỉ</label>
-                                <Input id="address" required disabled={true} />
+                            <div className={cx('more-info')}>
+                                <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
+                                <div className={cx('info')}></div>
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="workplace">Nơi công tác</label>
-                                <Input id="workplace" required disabled={true} />
+                            <div className={cx('wrapper-btn')}>
+                                <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
+                                    Chỉnh sửa
+                                </Button>
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="specialty">Chuyên khoa</label>
-                                <Input id="specialty" required disabled={true} />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="level">Trình độ</label>
-                                <Input id="level" required disabled={true} />
-                            </div>
-                        </div>
-                        <div className={cx('wrapper-btn')}>
-                            <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
-                                Chỉnh sửa
-                            </Button>
                         </div>
                     </div>
                 </div>
@@ -72,18 +111,8 @@ const DoctorProfile = () => {
                         <img className={cx('avatar')} src={images.avatar} alt="avatar" />
                     </div>
                     <div className={cx('content-right-info')}>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="email">Email:</label>
-                            <Input id="email" required disabled={true} />
-                        </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="phone">SDT:</label>
-                            <Input id="phone" required disabled={true} />
-                        </div>
-                        <div className={cx('more-info')}>
-                            <label htmlFor="introduce">Giới thiệu thêm:</label>
-                            <div className={cx('info')}></div>
-                        </div>
+                        <div className={cx('content-right-name')}>Bác sĩ Nguyễn Văn A</div>
+                        <div className={cx('content-right-specialty')}>Thạc sĩ</div>
                     </div>
                 </div>
             </div>
@@ -91,59 +120,70 @@ const DoctorProfile = () => {
                 title={<div className={cx('title-model-edit')}>Chỉnh sửa hồ sơ bác sỹ </div>}
                 open={isModalOpenEdit}
                 onCancel={handleCancelComment}
-                width="45%"
-                style={{ top: 10 }}
+                width="50%"
+                style={{ top: '5px' }}
                 footer={null}
             >
                 <div className={cx('footer-edit')}>
                     <div className={cx('content-send')}>
                         <div className={cx('form')}>
+                            <div className={cx('form-user-email')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="User">HỌ VÀ TÊN</label>
+                                    <Input value="Nguyễn Văn A" className={cx('input')} required />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="email">EMAIL</label>
+                                    <Input className={cx('input')} required value="nguyenvana@gmail.com" />
+                                </div>
+                            </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="User">Họ và tên</label>
-                                <Input
-                                    // value={username}
-                                    id="username"
-                                    required
+                                <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
+                                <Input className={cx('input')} required value="123456789" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="address">ĐỊA CHỈ</label>
+                                <Input className={cx('input')} required value="Hà Nội" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="level">TRÌNH ĐỘ</label>
+                                <Radio.Group name="gender">
+                                    <Radio value="Male">THẠC SĨ</Radio>
+                                    <Radio value="Female">TIẾN SĨ</Radio>
+                                    <Radio value="Other">CHUYÊN KHOA A</Radio>
+                                </Radio.Group>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="gender">GIỚI TÍNH</label>
+                                <Radio.Group name="gender">
+                                    <Radio value="Male">Nam</Radio>
+                                    <Radio value="Female">Nữ</Radio>
+                                    <Radio value="Other">Khác</Radio>
+                                </Radio.Group>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="dateOfBirth">NGÀY SINH</label>
+                                <DatePicker
+                                    format={'YYYY-MM-DD'}
+                                    value={dayjs(convertISODateToLocalDate(dateOfBirth || '2000-01-01'), 'YYYY-MM-DD')}
+                                    onChange={(date) => setDateOfBirth(date)}
+                                    dateFormat="yyyy-MM-dd"
                                 />
                             </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="gender">Giới tính</label>
-                                <Input id="gender" required />
+                                <label htmlFor="specialty">CHUYÊN KHOA</label>
+                                <Input className={cx('input')} required value="Tiêu hóa" />
                             </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="dateOfBirth">Ngày sinh</label>
-                                <Input id="dateOfBirth" required />
+                                <label htmlFor="workplace">NƠI CÔNG TÁC</label>
+                                <Input className={cx('input')} required value="Hà Nội" />
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="email">Email</label>
-                                <Input id="email" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="phone">SDT</label>
-                                <Input id="phone" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="address">Địa chỉ</label>
-                                <Input id="address" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="workplace">Nơi công tác</label>
-                                <Input id="workplace" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="specialty">Chuyên khoa</label>
-                                <Input id="specialty" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="level">Trình độ</label>
-                                <Input id="level" required />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="introduce">Giới thiệu thêm:</label>
-                                <textarea id="introduce" rows={10}></textarea>
+                            <div className={cx('more-info')}>
+                                <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
+                                <textarea className={cx('info')}></textarea>
                             </div>
                         </div>
-                        <div className={cx('wrapper-btn')}>
+                        <div className={cx('wrapper-btn-save')}>
                             <Button className={cx('btn')} type="primary">
                                 Lưu
                             </Button>

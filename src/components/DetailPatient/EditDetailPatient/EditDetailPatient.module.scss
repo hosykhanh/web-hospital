@@ -36,7 +36,7 @@
 
 .wrapper-btn {
     display: flex;
-    justify-content: left;
+    justify-content: center;
 
     .btn {
         font-size: 0.8rem;
@@ -57,10 +57,9 @@
     margin-bottom: 30px;
 
     .input {
-        padding: 3px;
+        padding: 5px;
         border-radius: 3px;
         border: 1px solid #e0e0e0;
-        margin-top: 5px;
         background-color: #ffffff;
         font-size: 1rem;
         color: #000000;
@@ -91,8 +90,7 @@
 
     .form-grid-3 {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 100px;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
 
         .form-label {
             display: flex;
