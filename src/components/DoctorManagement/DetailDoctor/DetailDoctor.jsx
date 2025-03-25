@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 
-import styles from './DoctorProfile.module.scss';
-import images from '../../assets';
+import styles from './DetailDoctor.module.scss';
+import images from '../../../assets';
 import { DatePicker, Input, Modal, Radio } from 'antd';
-import Button from '../Button/Button';
+import Button from '../../Button/Button';
 import dayjs from 'dayjs';
-import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
+import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import PersonalSchedule from '../PersonalSchedule/PersonalSchedule';
 
 const cx = classNames.bind(styles);
 
-const DoctorProfile = () => {
+const DetailDoctor = ({ onBack }) => {
     const [dateOfBirth, setDateOfBirth] = useState(new Date('2000-02-01'));
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
 
@@ -23,7 +25,12 @@ const DoctorProfile = () => {
     };
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('title')}>Hồ sơ bác sỹ</div>
+            <div>
+                <button onClick={onBack} className={cx('back')}>
+                    <ArrowLeftOutlined style={{ fontSize: '25px' }} />
+                </button>
+            </div>
+            <div className={cx('title')}>Thông tin bác sỹ</div>
             <div className={cx('wrapper-content')}>
                 <div className={cx('content-left')}>
                     <div className={cx('wrapper-form')}>
@@ -48,17 +55,10 @@ const DoctorProfile = () => {
                                 <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
                                 <Input className={cx('input')} required disabled={true} value="123456789" />
                             </div>
-                            <div className={cx('form-label')}>
+                            <div className={cx('form-label')} style={{marginBottom: '40px'}}>
                                 <label htmlFor="address">ĐỊA CHỈ</label>
                                 <Input className={cx('input')} required disabled={true} value="Hà Nội" />
                             </div>
-                            <div className={cx('wrapper-btn')}>
-                                <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
-                                    Chỉnh sửa
-                                </Button>
-                            </div>
-                        </div>
-                        <div className={cx('form')}>
                             <div className={cx('title-form-top')}>Thông tin chi tiết</div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="level">TRÌNH ĐỘ</label>
@@ -98,8 +98,11 @@ const DoctorProfile = () => {
                                 <div className={cx('info')}></div>
                             </div>
                             <div className={cx('wrapper-btn')}>
-                                <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
+                                <Button className={cx('btn-edit')} type="primary" onClick={showModalEdit}>
                                     Chỉnh sửa
+                                </Button>
+                                <Button className={cx('btn-delete')} type="primary" onClick={showModalEdit}>
+                                    Xóa
                                 </Button>
                             </div>
                         </div>
@@ -112,6 +115,9 @@ const DoctorProfile = () => {
                     <div className={cx('content-right-info')}>
                         <div className={cx('content-right-name')}>Bác sĩ Nguyễn Văn A</div>
                         <div className={cx('content-right-specialty')}>Thạc sĩ</div>
+                    </div>
+                    <div className={cx('schedule')}>
+                        <PersonalSchedule/>
                     </div>
                 </div>
             </div>
@@ -194,4 +200,4 @@ const DoctorProfile = () => {
     );
 };
 
-export default DoctorProfile;
+export default DetailDoctor;

@@ -23,13 +23,13 @@
 .title {
     font-size: 1.5rem;
     font-weight: 500;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: center;
     position: relative;
 }
 
-.wrapper{
+.wrapper {
     height: calc(100vh - 130px);
     overflow-y: auto;
 }
@@ -37,6 +37,7 @@
 .wrapper-btn {
     display: flex;
     justify-content: left;
+    margin-top: 30px;
 
     .btn {
         font-size: 0.8rem;
@@ -55,6 +56,15 @@
     border: 1px solid #e0e0e0;
     background-color: #ffffff;
     margin-bottom: 30px;
+
+    .title-form {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 12px;
+        color: #5780fa;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #dadce0;
+    }
 
     .input {
         padding: 3px;
@@ -84,23 +94,27 @@
     }
 
     .form-grid-2 {
+        // margin-bottom: 25px;
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            
+            .span {
+                font-size: 1.1rem;
+            }
+        }
+    }
+
+    .form-grid-3 {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 100px;
     }
 
-    .form-grid-3 {
+    .form-grid-4 {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 100px;
-
-        .form-label {
-            display: flex;
-            align-items: center;
-
-            .span {
-                font-size: 1.1rem;
-            }
-        }
     }
 }

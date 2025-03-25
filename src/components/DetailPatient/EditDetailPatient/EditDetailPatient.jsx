@@ -123,75 +123,99 @@ const EditDetailPatient = ({ onBack }) => {
                     </button>
                 </div>
                 <div className={cx('form')}>
-                    <div className={cx('form-grid-1')}>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
-                            <Input value="12345" className={cx('input')} required disabled={true} />
+                    <div className={cx('form-1')}>
+                        <div className={cx('title-form')}>Thông tin cá nhân</div>
+                        <div className={cx('form-grid-1')}>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
+                                <Input value="12345" className={cx('input')} required disabled={true} />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="User">HỌ VÀ TÊN</label>
+                                <Input value="Nguyễn Văn A" className={cx('input')} required />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="dateOfBirth" style={{ marginBottom: '5px' }}>
+                                    NGÀY SINH
+                                </label>
+                                <DatePicker
+                                    format={'YYYY-MM-DD'}
+                                    value={dayjs(convertISODateToLocalDate(dateOfBirth || '2000-01-01'), 'YYYY-MM-DD')}
+                                    onChange={(date) => setDateOfBirth(date)}
+                                    dateFormat="yyyy-MM-dd"
+                                />
+                            </div>
+                            <></>
                         </div>
                         <div className={cx('form-label')}>
-                            <label htmlFor="User">HỌ VÀ TÊN</label>
-                            <Input value="Nguyễn Văn A" className={cx('input')} required />
+                            <label htmlFor="gender">GIỚI TÍNH:</label>
+                            <Radio.Group name="gender">
+                                <Radio value="Male">Nam</Radio>
+                                <Radio value="Female">Nữ</Radio>
+                                <Radio value="Other">Khác</Radio>
+                            </Radio.Group>
                         </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="dateOfBirth" style={{ marginBottom: '5px' }}>
-                                NGÀY SINH
-                            </label>
-                            <DatePicker
-                                format={'YYYY-MM-DD'}
-                                value={dayjs(convertISODateToLocalDate(dateOfBirth || '2000-01-01'), 'YYYY-MM-DD')}
-                                onChange={(date) => setDateOfBirth(date)}
-                                dateFormat="yyyy-MM-dd"
-                            />
+                        <div className={cx('form-grid-2')}>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="email">EMAIL:</label>
+                                <Input className={cx('input')} required value="nguyenvana@gmail.com" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
+                                <Input className={cx('input')} required value="123456789" />
+                            </div>
                         </div>
-                        <></>
+                        <div className={cx('form-grid-2')}>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="conscious">TỈNH/ THÀNH PHỐ:</label>
+                                <Input className={cx('input')} required value="Hà Nội" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="district">QUẬN/ HUYỆN:</label>
+                                <Input className={cx('input')} required value="Hà Đông" />
+                            </div>
+                        </div>
+                        <div className={cx('form-grid-2')}>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="address">ĐỊA CHỈ:</label>
+                                <Input className={cx('input')} required value="Mỗ Lao" />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
+                                <Input className={cx('input')} required value="Mỗ Lao" />
+                            </div>
+                        </div>
                     </div>
-                    <div className={cx('form-label')}>
-                        <label htmlFor="gender">GIỚI TÍNH:</label>
-                        <Radio.Group name="gender">
-                            <Radio value="Male">Nam</Radio>
-                            <Radio value="Female">Nữ</Radio>
-                            <Radio value="Other">Khác</Radio>
-                        </Radio.Group>
-                    </div>
+                    <div className={cx('title-form')}>Hồ sơ sức khỏe</div>
                     <div className={cx('form-grid-2')}>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="blood">NHÓM MÁU:</label>
-                            <Select
-                                style={{
-                                    width: 80,
-                                }}
-                                value={secondCity}
-                                onChange={onSecondCityChange}
-                                options={cityData.map((city) => ({
-                                    label: city,
-                                    value: city,
-                                }))}
-                            />
+                        <div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="blood">NHÓM MÁU:</label>
+                                <Select
+                                    style={{
+                                        width: 80,
+                                    }}
+                                    value={secondCity}
+                                    onChange={onSecondCityChange}
+                                    options={cityData.map((city) => ({
+                                        label: city,
+                                        value: city,
+                                    }))}
+                                />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="phone">CHIỀU CAO:</label>
+                                <InputNumber formatter={(value) => `${value} cm`} defaultValue={170} />
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="phone">CÂN NẶNG:</label>
+                                <InputNumber formatter={(value) => `${value} Kg`} defaultValue={50} />
+                            </div>
                         </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="phone">CHIỀU CAO:</label>
-                            <InputNumber formatter={(value) => `${value} cm`} defaultValue={170} />
+                        <div className={cx('form-label')} style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label>TIỀN SỬ BỆNH LÝ:</label>
+                            <textarea className={cx('medical-history')}></textarea>
                         </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="phone">CÂN NẶNG:</label>
-                            <InputNumber formatter={(value) => `${value} Kg`} defaultValue={50} />
-                        </div>
-                    </div>
-                    <div className={cx('form-grid-3')}>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="email">EMAIL:</label>
-                            <Input className={cx('input')} required value="nguyenvana@gmail.com" />
-                        </div>
-                        <div></div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
-                            <Input className={cx('input')} required value="123456789" style={{ maxWidth: '150px' }} />
-                        </div>
-                        <></>
-                    </div>
-                    <div className={cx('form-label')}>
-                        <label>TIỀN SỬ BỆNH LÝ:</label>
-                        <span>Không</span>
                     </div>
                     <div className={cx('wrapper-btn')}>
                         <Button className={cx('btn')} type="primary">

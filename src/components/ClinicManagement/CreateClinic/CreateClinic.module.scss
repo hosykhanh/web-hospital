@@ -1,0 +1,118 @@
+.back {
+    border: none;
+    cursor: pointer;
+    top: 37px;
+    position: absolute;
+}
+
+.wrapper-content {
+    padding: 0px 40px;
+    max-width: 100%;
+
+    .wrapper-avatar {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+    }
+
+    .more-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wrapper-btn-save {
+        display: flex;
+        justify-content: center;
+
+        .btn {
+            font-size: 1rem;
+            background-color: #41cb8b;
+            color: #ffffff;
+        }
+
+        .btn:hover {
+            color: #e2e2e2;
+        }
+    }
+}
+
+.form {
+    padding: 20px 40px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    height: calc(100vh - 115px);
+    overflow-y: auto;
+    font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+
+    .formHeader {
+        margin-bottom: 24px;
+        text-align: center;
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1a73e8;
+            margin-top: 0px;
+        }
+
+        p {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+    }
+
+    .input {
+        padding: 3px;
+        border-radius: 3px;
+        border: 1px solid #e0e0e0;
+        margin-top: 5px;
+        background-color: #ffffff;
+        font-size: 1rem;
+        color: #000000;
+    }
+
+    label {
+        font-weight: 450;
+        font-size: 0.75rem;
+        color: #8a8a8a;
+        margin-right: 20px;
+    }
+
+    .form-label {
+        margin-bottom: 15px;
+    }
+
+    .form-user-email {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .info {
+        border: 1px solid #e0e0e0;
+        height: 100px;
+        border-radius: 10px;
+        padding: 10px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        margin-top: 5px;
+    }
+}
+
+.btn-time {
+    font-size: 0.8rem;
+    background-color: #ffffff;
+    font-weight: 400;
+    border: 1px solid #e0e0e0;
+}

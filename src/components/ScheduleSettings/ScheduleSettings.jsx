@@ -6,8 +6,8 @@ import vi from 'date-fns/locale/vi';
 import classNames from 'classnames/bind';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './ScheduleSettings.module.scss';
+import CreateSchedule from './CreateSchedule/CreateSchedule';
 
-// Bind styles với classNames
 const cx = classNames.bind(styles);
 
 // Đăng ký locale tiếng Việt
@@ -16,6 +16,7 @@ registerLocale('vi', vi);
 export default function ScheduleSettings() {
     const [date, setDate] = useState(new Date());
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Dữ liệu mẫu cho danh sách lịch nghỉ
     const scheduleData = [
@@ -84,11 +85,12 @@ export default function ScheduleSettings() {
                         <div className={cx('listSection')}>
                             <div className={cx('toolbarContainer')}>
                                 <div className={cx('leftActions')}>
-                                    <button className={cx('createButton')}>
+                                    <button className={cx('createButton')} onClick={() => setIsModalOpen(true)}>
                                         <Plus size={16} />
                                         <span>Tạo lịch nghỉ</span>
                                     </button>
                                 </div>
+                                <CreateSchedule isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
                                 <div className={cx('rightActions')}>
                                     <div className={cx('filterContainer')}>
                                         <button className={cx('filterButton')} onClick={toggleFilter}>

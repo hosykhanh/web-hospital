@@ -85,7 +85,7 @@ const CreateAppointment = ({ onBack }) => {
     };
 
     const handlePatientSelect = () => {
-        setIsPatientModalOpen(true)
+        setIsPatientModalOpen(true);
         console.log('Select patient clicked');
     };
 
@@ -206,7 +206,7 @@ const CreateAppointment = ({ onBack }) => {
                         Chọn bệnh nhân
                     </button>
                     <Modal
-                    title={<div className={cx('title-patient')}>Chọn bệnh nhân </div>}
+                        title={<div className={cx('title-patient')}>Chọn bệnh nhân </div>}
                         forceRender
                         open={isPatientModalOpen}
                         onCancel={() => setIsPatientModalOpen(false)}

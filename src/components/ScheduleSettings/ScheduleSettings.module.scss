@@ -1,6 +1,4 @@
 .scheduleContainer {
-    width: 100%;
-    max-width: 1150px;
     margin: 0 auto;
     padding: 20px;
     height: calc(100vh - 80px);
@@ -8,6 +6,7 @@
 }
 
 .scheduleCard {
+    width: 100%;
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);

@@ -120,6 +120,7 @@ const DetailPatient = ({ onBack }) => {
                             </button>
                         </div>
                         <div className={cx('form')}>
+                            <div className={cx('title-form')}>Thông tin cá nhân</div>
                             <div className={cx('form-grid-1')}>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
@@ -145,6 +146,35 @@ const DetailPatient = ({ onBack }) => {
                             </div>
                             <div className={cx('form-grid-2')}>
                                 <div className={cx('form-label')}>
+                                    <label htmlFor="email">EMAIL:</label>
+                                    <span>nguyenvana@gmail.com</span>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
+                                    <span>123456789</span>
+                                </div>
+                            </div>
+                            <div className={cx('form-grid-3')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="conscious">TỈNH/ THÀNH PHỐ:</label>
+                                    <span>Hà Nội</span>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="district">QUẬN/ HUYỆN:</label>
+                                    <span>Hà Đông</span>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
+                                    <span>Mỗ Lao</span>
+                                </div>
+                            </div>
+                            <div className={cx('form-label')} style={{ marginBottom: '30px' }}>
+                                <label htmlFor="address">ĐỊA CHỈ:</label>
+                                <span>Mỗ Lao</span>
+                            </div>
+                            <div className={cx('title-form')}>Hồ sơ sức khỏe</div>
+                            <div className={cx('form-grid-4')}>
+                                <div className={cx('form-label')}>
                                     <label htmlFor="blood">NHÓM MÁU:</label>
                                     <span>AB</span>
                                 </div>
@@ -157,16 +187,6 @@ const DetailPatient = ({ onBack }) => {
                                     <span>60 Kg</span>
                                 </div>
                             </div>
-                            <div className={cx('form-grid-3')}>
-                                <div className={cx('form-label')}>
-                                    <label htmlFor="email">EMAIL:</label>
-                                    <span>nguyenvana@gmail.com</span>
-                                </div>
-                                <div className={cx('form-label')}>
-                                    <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
-                                    <span>123456789</span>
-                                </div>
-                            </div>
                             <div className={cx('form-label')}>
                                 <label>TIỀN SỬ BỆNH LÝ:</label>
                                 <span>Không</span>
@@ -177,7 +197,8 @@ const DetailPatient = ({ onBack }) => {
                                     type="primary"
                                     onClick={() => setIsEditDetailVisible(true)}
                                 >
-                                    <EditOutlined />&nbsp;Chỉnh sửa
+                                    <EditOutlined />
+                                    &nbsp;Chỉnh sửa
                                 </Button>
                             </div>
                         </div>
