@@ -114,6 +114,25 @@
         }
     }
 
+    .upload-avatar {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+
+        .upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -50px;
+            margin-right: -160px;
+            z-index: 10;
+            background-color: #e4e6eb;
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+        }
+    }
+
     .content-right-name {
         display: flex;
         justify-content: center;

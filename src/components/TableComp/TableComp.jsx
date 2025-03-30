@@ -34,7 +34,7 @@ function TableComp({
     const dataTable = useMemo(
         () =>
             data?.length &&
-            data?.data?.map((product) => {
+            data?.map((product) => {
                 return { ...product, key: product._id };
             }),
         [data],

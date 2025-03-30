@@ -6,7 +6,7 @@ import * as role from './constants/index';
 import DefaultLayout from './layouts/DefaultLayout/DefaultLayout';
 import CustomFragment from './components/CustomFragment/CustomFragment';
 import { useEffect, useState } from 'react';
-// import * as userService from './services/userService';
+import * as userService from './services/userServices';
 import { updateUser } from './redux/slice/userSlice';
 import { isJsonString } from './utils';
 import { jwtDecode } from 'jwt-decode';
@@ -18,10 +18,10 @@ function App() {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user);
 
-    // const handleGetDetailUser = async (id, access_token) => {
-    //     const res = await userService.getUser(id, access_token);
-    //     dispatch(updateUser({ ...res, access_token }));
-    // };
+    const handleGetDetailUser = async (id, access_token) => {
+        const res = await userService.getUser(id, access_token);
+        dispatch(updateUser({ ...res.data, access_token }));
+    };
 
     const handleDecoded = () => {
         let storageData = localStorage.getItem('access_token');
@@ -37,9 +37,9 @@ function App() {
         setIsLoading(true);
         let { storageData, userData } = handleDecoded();
 
-        // if (userData?.id) {
-        //     handleGetDetailUser(userData?.id, storageData);
-        // }
+        if (userData?.id) {
+            handleGetDetailUser(userData?.id, storageData);
+        }
         setIsLoading(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -53,7 +53,7 @@ function App() {
                             const Page = route.page;
                             let Layout = DefaultLayout;
                             const isPrivate = route?.isPrivate;
-                            const isAuth = user?.isAdmin === role.ROLE_ADMIN;
+                            const isAuth = user?.role === role.ROLE_ADMIN || user?.role === role.ROLE_DOCTOR;
 
                             if (route.layout) {
                                 Layout = route.layout;
@@ -66,7 +66,7 @@ function App() {
                             return (
                                 <Route
                                     key={index}
-                                    path={user ? (isPrivate ? (isAuth ? route?.path : '/') : route?.path) : '/sign-in'}
+                                    path={isPrivate ? (isAuth ? route?.path : '/') : route?.path}
                                     element={<Layout>{user ? <Page /> : <SignInPage />}</Layout>}
                                 />
                             );

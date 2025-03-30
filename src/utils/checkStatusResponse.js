@@ -1,5 +1,5 @@
 const checkStatusResponse = (response) => {
-  return response?.status === 'OK' ? true : false;
+  return response?.statusCode === 200 ? true : false;
 };
 
 export const checkStatusResponseArray = (response) => {

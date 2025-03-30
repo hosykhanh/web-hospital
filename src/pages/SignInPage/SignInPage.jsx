@@ -10,41 +10,77 @@ import { Image, Input, message } from 'antd';
 import Button from '../../components/Button/Button';
 import Loading from '../../components/Loading/Loading';
 import images from '../../assets';
+import * as messages from '../../components/Message/Message';
 import { SignatureOutlined, UserOutlined } from '@ant-design/icons';
+import { loginUser } from '../../services/authService';
+import { useDispatch } from 'react-redux';
+import { updateUser } from '../../redux/slice/userSlice';
+import * as userService from '../../services/userServices';
+import { jwtDecode } from 'jwt-decode';
 
 const cx = classNames.bind(styles);
 
 const SignInPage = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    // const location = useLocation();
+    const dispatch = useDispatch();
+    const location = useLocation();
 
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     // function call API
-    // const mutation = useMutation({
-    //     mutationFn: (data) => loginUser(data),
-    // });
+    const mutation = useMutation({
+        mutationFn: (data) => loginUser(data),
+        onError: (error) => {
+            message.error(error?.response?.data?.message);
+        },
+    });
 
-    // const { isLoading, isSuccess, data } = mutation;
+    const { isLoading, isSuccess, data } = mutation;
 
-    // useEffect(() => {
-    //     if (isSuccess && checkStatusResponse(data)) {
-    //         if (location?.state) {
-    //             navigate(location?.state);
-    //         } else {
-    //             navigate('/verify-otp', { state: { loginRespone: data }});
-    //         }
-    //     } else if (data?.status === 'err') {
-    //         message.error(data?.message);
-    //     }
+    const handleGetDetailUser = async (id, access_token) => {
+        const res = await userService.getUser(id, access_token);
+        dispatch(updateUser({ ...res?.data, access_token }));
+        const role = res?.data?.role;
+        if (role === 1) {
+            message.warning(
+                'Tài khoản của bạn không phải là bác sĩ hoặc admin nên không thể đăng nhập vào hệ thống này!',
+            );
+            return;
+        } else if (role === 3) {
+            navigate('/admin');
+        } else if (role === 2) {
+            navigate('/doctor');
+        }
+        messages.success('Đăng nhập thành công');
+    };
 
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [isSuccess, data]);
+    useEffect(() => {
+        if (isSuccess && checkStatusResponse(data)) {
+            // messages.success('Đăng nhập thành công');
+            localStorage.setItem('access_token', JSON.stringify(data?.data?.access_token));
+
+            if (data?.data?.access_token) {
+                const decoded = jwtDecode(data?.data?.access_token);
+                if (decoded?.id) {
+                    handleGetDetailUser(decoded?.id, data?.data?.access_token);
+                }
+            }
+            if (location?.state) {
+                navigate(location?.state);
+            } else if (!data?.data?.role || data?.data?.role === 1) {
+                navigate('/');
+            }
+        } else if (data?.statusCode === 404) {
+            message.error(data?.message);
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccess, data]);
 
     // function handle UI
-    const handleOnChangeUsername = (e) => {
-        setUsername(e.target.value);
+    const handleOnChangeEmail = (e) => {
+        setEmail(e.target.value);
     };
 
     const handleOnChangePassword = (e) => {
@@ -53,10 +89,10 @@ const SignInPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // mutation.mutate({
-        //     email,
-        //     password,
-        // });
+        mutation.mutate({
+            email,
+            password,
+        });
     };
 
     return (
@@ -70,14 +106,14 @@ const SignInPage = () => {
                         <div className={cx('form-title')}>Login</div>
                         <div className={cx('form-label')}>
                             <label htmlFor="User">
-                                <UserOutlined /> Username
+                                <UserOutlined /> Email
                             </label>
                             <Input
-                                onChange={handleOnChangeUsername}
-                                value={username}
-                                id="username"
+                                onChange={handleOnChangeEmail}
+                                value={email}
+                                id="email"
                                 required
-                                placeholder="Enter your username"
+                                placeholder="Enter your email"
                             />
                         </div>
 
@@ -98,11 +134,13 @@ const SignInPage = () => {
                         <a className={cx('forgot-password')} href="/">
                             Forgot password?
                         </a>
-                        {/* <Loading> */}
-                        <Button className={cx('btn-form')} type="primary">
-                            Login
-                        </Button>
-                        {/* </Loading> */}
+                        <div style={{ marginTop: '40px' }}>
+                            <Loading isLoading={isLoading}>
+                                <Button className={cx('btn-form')} type="primary">
+                                    Login
+                                </Button>
+                            </Loading>
+                        </div>
                     </div>
                 </form>
             </div>

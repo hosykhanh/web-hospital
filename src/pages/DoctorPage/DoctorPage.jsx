@@ -10,15 +10,22 @@ import PatientManagement from '../../components/PatientManagement/PatientManagem
 import images from '../../assets';
 import AppointmentManagement from '../../components/AppointmentManagement/AppointmentManagement';
 import ScheduleSettings from '../../components/ScheduleSettings/ScheduleSettings';
-// import * as postsService from '../../services/postsService';
-// import * as chatService from '../../services/chatService';
-// import { useQuery } from 'react-query';
-// import TablePosts from '../../components/TablePosts/TablePosts';
-// import TableGroup from '../../components/TableGroup/TableGroup';
+
+import * as patientService from '../../services/patientService';
+import { useQuery } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { resetUser } from '../../redux/slice/userSlice';
+import Loading from '../../components/Loading/Loading';
 
 const cx = classNames.bind(styles);
 
 function DoctorPage() {
+    const users = useSelector((state) => state.user);
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [keySelected, setKeySelected] = useState('docterProflie');
     const items = [
         getItem('Hồ sơ bác sĩ', 'docterProflie', <UserOutlined />),
@@ -30,48 +37,40 @@ function DoctorPage() {
         setKeySelected(key);
     };
 
-    // // --- API GET ALL POSTS ---
-    // const getAllPosts = async () => {
-    //     const res = await postsService.getAllPosts();
-    //     return res;
-    // };
+    // --- API GET ALL PATIENTS ---
+    const getAllPatients = async () => {
+        const res = await patientService.getAllPatients(users?.id);
+        return res.data;
+    };
 
-    // const {
-    //     isLoading: isLoadingPosts,
-    //     data: dataPosts,
-    //     refetch: refetchPosts,
-    // } = useQuery(['posts'], getAllPosts, {
-    //     enabled: keySelected === 'posts',
-    // });
+    const {
+        isLoading: isLoadingPatients,
+        data: dataPatients,
+        refetch: refetchPatients,
+    } = useQuery(['patient'], getAllPatients, {
+        enabled: keySelected === 'patient',
+    });
 
-    // // --- API GET ALL GROUP CHAT ---
-    // const getAllGroupChat = async () => {
-    //     const res = await chatService.getAllGroupChat();
-    //     return res;
-    // };
-
-    // const {
-    //     isLoading: isLoadingChatRoom,
-    //     data: dataChatRoom,
-    //     refetch: refetchChatRoom,
-    // } = useQuery(['groupChat'], getAllGroupChat, {
-    //     enabled: keySelected === 'groupChat',
-    // });
+    const handleLogout = async () => {
+        setLoading(true);
+        dispatch(resetUser());
+        localStorage.removeItem('access_token');
+        navigate('/');
+        setLoading(false);
+    };
 
     const renderPage = (key) => {
         switch (key) {
             case 'docterProflie':
                 return <DoctorProfile />;
             case 'patient':
-                return <PatientManagement />;
+                return (
+                    <PatientManagement isLoading={isLoadingPatients} data={dataPatients} refetch={refetchPatients} />
+                );
             case 'appointment':
                 return <AppointmentManagement />;
             case 'ScheduleSettings':
                 return <ScheduleSettings />;
-            // case 'posts':
-            //     return <TablePosts isLoading={isLoadingPosts} data={dataPosts} refetch={refetchPosts} />;
-            // case 'groupChat':
-            //     return <TableGroup isLoading={isLoadingChatRoom} data={dataChatRoom} refetch={refetchChatRoom} />;
             default:
                 return <></>;
         }
@@ -91,7 +90,10 @@ function DoctorPage() {
                     className={cx('menu')}
                     items={items}
                 />
-                <div className={cx('logout')}>Đăng xuất</div>
+
+                <div className={cx('logout')} onClick={handleLogout}>
+                    <Loading isLoading={loading}>Đăng xuất</Loading>
+                </div>
             </div>
             <div className={cx('wrapper-content')}>{renderPage(keySelected)}</div>
         </div>

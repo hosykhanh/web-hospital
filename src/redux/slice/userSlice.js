@@ -1,16 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    name: '',
+    userName: '',
     email: '',
     phone: '',
     address: '',
-    gender: 'Male',
+    gender: 1,
     access_token: '',
     id: '',
     dateOfBirth: '',
-    isAdmin: false,
+    role: 1,
     avatar: '',
+    province: '',
+    district: '',
+    medicalServiceId: '',
+    clinicId: '',
+    specialty: '',
+    qualification: '',
+    description: '',
 };
 
 export const userSlice = createSlice({
@@ -19,18 +26,25 @@ export const userSlice = createSlice({
     reducers: {
         updateUser: (state, action) => {
             const {
-                name = '',
+                userName = '',
                 email = '',
                 phone = '',
                 address = '',
                 access_token = '',
                 _id = '',
-                gender = 'Male',
+                gender = 1,
                 dateOfBirth = '',
-                isAdmin = false,
+                role = 1,
                 avatar = '',
+                province = '',
+                district = '',
+                medicalServiceId = '',
+                clinicId = '',
+                specialty = '',
+                qualification = '',
+                description = '',
             } = action.payload;
-            state.name = name;
+            state.userName = userName;
             state.email = email;
             state.phone = phone;
             state.address = address;
@@ -38,21 +52,35 @@ export const userSlice = createSlice({
             state.gender = gender;
             state.access_token = access_token;
             state.dateOfBirth = dateOfBirth;
-            state.isAdmin = isAdmin;
+            state.role = role;
             state.avatar = avatar;
+            state.province = province;
+            state.district = district;
+            state.medicalServiceId = medicalServiceId;
+            state.clinicId = clinicId;
+            state.specialty = specialty;
+            state.qualification = qualification;
+            state.description = description;
         },
 
         resetUser: (state) => {
-            state.name = '';
+            state.userName = '';
             state.email = '';
             state.access_token = '';
             state.phone = '';
             state.address = '';
-            state.gender = 'Male';
+            state.gender = 1;
             state.id = '';
             state.dateOfBirth = '';
-            state.isAdmin = false;
+            state.role = 1;
             state.avatar = '';
+            state.province = '';
+            state.district = '';
+            state.medicalServiceId = '';
+            state.clinicId = '';
+            state.specialty = '';
+            state.qualification = '';
+            state.description = '';
         },
     },
 });
