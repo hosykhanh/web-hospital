@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     userName: '',
     email: '',
-    phone: '',
+    phoneNumber: '',
     address: '',
     gender: 1,
     access_token: '',
@@ -13,6 +13,7 @@ const initialState = {
     avatar: '',
     province: '',
     district: '',
+    commune: '',
     medicalServiceId: '',
     clinicId: '',
     specialty: '',
@@ -28,7 +29,7 @@ export const userSlice = createSlice({
             const {
                 userName = '',
                 email = '',
-                phone = '',
+                phoneNumber = '',
                 address = '',
                 access_token = '',
                 _id = '',
@@ -38,6 +39,7 @@ export const userSlice = createSlice({
                 avatar = '',
                 province = '',
                 district = '',
+                commune = '',
                 medicalServiceId = '',
                 clinicId = '',
                 specialty = '',
@@ -46,7 +48,7 @@ export const userSlice = createSlice({
             } = action.payload;
             state.userName = userName;
             state.email = email;
-            state.phone = phone;
+            state.phoneNumber = phoneNumber;
             state.address = address;
             state.id = _id;
             state.gender = gender;
@@ -56,6 +58,7 @@ export const userSlice = createSlice({
             state.avatar = avatar;
             state.province = province;
             state.district = district;
+            state.commune = commune;
             state.medicalServiceId = medicalServiceId;
             state.clinicId = clinicId;
             state.specialty = specialty;
@@ -67,7 +70,7 @@ export const userSlice = createSlice({
             state.userName = '';
             state.email = '';
             state.access_token = '';
-            state.phone = '';
+            state.phoneNumber = '';
             state.address = '';
             state.gender = 1;
             state.id = '';
@@ -76,6 +79,7 @@ export const userSlice = createSlice({
             state.avatar = '';
             state.province = '';
             state.district = '';
+            state.commune = '';
             state.medicalServiceId = '';
             state.clinicId = '';
             state.specialty = '';

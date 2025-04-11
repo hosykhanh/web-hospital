@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './DetailPatient.module.scss';
@@ -41,42 +41,32 @@ const DetailPatient = ({ onBack, rowSelectedDetail }) => {
         isLoading: isLoadingUser,
         data: dataUser,
         refetch: refetchUser,
-    } = useQuery(
-        ['user', rowSelectedDetail], 
-        () => userService.getUser(rowSelectedDetail), 
-        {
-            enabled: !!rowSelectedDetail, // Chỉ chạy khi rowSelectedDetail có giá trị
-            select: (data) => data?.data,
-        }
-    );
-    
+    } = useQuery(['user', rowSelectedDetail], () => userService.getUser(rowSelectedDetail), {
+        enabled: !!rowSelectedDetail, // Chỉ chạy khi rowSelectedDetail có giá trị
+        select: (data) => data?.data,
+    });
+
     const {
         isLoading: isLoadingHealthRecord,
         data: dataHealthRecord,
         refetch: refetchHealthRecord,
-    } = useQuery(
-        ['healthRecord', rowSelectedDetail], 
-        () => patientService.getHealthRecord(rowSelectedDetail), 
-        {
-            enabled: !!rowSelectedDetail,
-            select: (data) => data?.data || null,
-        }
-    );
-    
+    } = useQuery(['healthRecord', rowSelectedDetail], () => patientService.getHealthRecord(rowSelectedDetail), {
+        enabled: !!rowSelectedDetail,
+        select: (data) => data?.data || null,
+    });
 
     const {
         data: dataHistory,
         isLoading: isLoadingHistory,
-        refetch: refetchHistory
+        refetch: refetchHistory,
     } = useQuery(
-        ['medicalHistory', rowSelectedDetail],  // Key để caching dữ liệu
-        () => patientService.getAllMedicalConsultationHistory(rowSelectedDetail),
+        ['medicalHistory', rowSelectedDetail], // Key để caching dữ liệu
+        () => patientService.getAllMedicalConsultationHistory({ patientId: rowSelectedDetail, status: 3 }),
         {
             enabled: !!rowSelectedDetail,
             select: (data) => data?.data?.items || [],
-        }
+        },
     );
-    
 
     const columns = [
         {
@@ -130,7 +120,12 @@ const DetailPatient = ({ onBack, rowSelectedDetail }) => {
                                 <div className={cx('form-grid-1')}>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
-                                        <Input value={dataUser?._id} className={cx('input')} required disabled={true} />
+                                        <Input
+                                            value={dataUser?.code}
+                                            className={cx('input')}
+                                            required
+                                            disabled={true}
+                                        />
                                     </div>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="User">HỌ VÀ TÊN</label>
@@ -181,7 +176,7 @@ const DetailPatient = ({ onBack, rowSelectedDetail }) => {
                                     </div>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
-                                        <span>Mỗ Lao</span>
+                                        <span>{dataUser?.commune}</span>
                                     </div>
                                 </div>
                                 <div className={cx('form-label')} style={{ marginBottom: '30px' }}>

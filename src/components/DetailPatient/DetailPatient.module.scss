@@ -67,12 +67,12 @@
     }
 
     .input {
-        padding: 3px;
-        border-radius: 3px;
+        padding: 5px 12px;
+        border-radius: 6px;
         border: 1px solid #e0e0e0;
         margin-top: 5px;
         background-color: #ffffff;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #000000;
     }
 
@@ -85,25 +85,15 @@
 
     .form-label {
         margin-bottom: 15px;
+        span {
+            font-size: 0.9rem;
+        }
     }
 
     .form-grid-1 {
         display: grid;
         grid-template-columns: 2fr 2fr 1fr 1fr;
         gap: 100px;
-    }
-
-    .form-grid-2 {
-        // margin-bottom: 25px;
-        
-        .form-label {
-            display: flex;
-            align-items: center;
-            
-            .span {
-                font-size: 1.1rem;
-            }
-        }
     }
 
     .form-grid-3 {

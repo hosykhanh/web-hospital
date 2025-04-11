@@ -18,6 +18,14 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+    const [searchValue, setSearchValue] = useState('');
+
+    const handleSearch = (e) => {
+        setSearchValue(e.target.value);
+    };
+
+    const filteredData = data?.filter((item) => item.userName.toLowerCase().includes(searchValue.toLowerCase()));
+
     const renderAction = () => {
         return (
             <div className={cx('action')}>
@@ -35,7 +43,7 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
     const columns = [
         {
             title: 'Mã bệnh nhân',
-            dataIndex: '_id',
+            dataIndex: 'code',
             sorter: (a, b) => a.name.length - b.name.length,
         },
         {
@@ -69,19 +77,18 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
                     <div className={cx('search')}>
                         <Search
                             className={cx('search-input')}
-                            placeholder="Tìm kiếm..."
+                            placeholder="Tìm kiếm bệnh nhân..."
                             allowClear
                             enterButton="Tìm kiếm"
-                            // size="large"
                             style={{ height: '50px', fontSize: '18px' }}
-                            // onChange={onSearch}
-                            // value={searchValue}
+                            onChange={handleSearch}
+                            value={searchValue}
                         />
                     </div>
                     <div className={cx('table')}>
                         <TableComp
                             columns={columns}
-                            data={data}
+                            data={filteredData}
                             isLoading={isLoading}
                             onRow={(record, rowIndex) => {
                                 return {

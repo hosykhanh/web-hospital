@@ -10,10 +10,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CreateClinic from './CreateClinic/CreateClinic';
 import DetailClinic from './DetailClinic/DetailClinic';
+import { Tag } from 'antd';
 
 const cx = classNames.bind(styles);
 
-const ClinicManagement = () => {
+const ClinicManagement = ({ isLoading, data, refetch }) => {
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isCreateClinic, setIsCreateClinic] = useState(false);
@@ -40,69 +41,15 @@ const ClinicManagement = () => {
         setAnchorEl(null);
     };
 
-    const dataUser = {
-        length: 8,
-        data: [
-            {
-                _id: 1,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 2,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 3,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 4,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 5,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 6,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 7,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-            {
-                _id: 8,
-                clinic_name: 'Hà Nội',
-                address: 'Hà Đông, Hà Nội',
-                status: 'Đang hoạt động',
-            },
-        ],
-    };
-
     const columns = [
         {
             title: 'STT',
-            dataIndex: '_id',
-            sorter: (a, b) => a.name.length - b.name.length,
+            dataIndex: 'stt',
+            render: (text, record, index) => index + 1,
         },
         {
             title: 'Tên phòng khám',
-            dataIndex: 'clinic_name',
+            dataIndex: 'name',
         },
         {
             title: 'Địa chỉ',
@@ -111,6 +58,14 @@ const ClinicManagement = () => {
         {
             title: 'Trạng thái',
             dataIndex: 'status',
+            render: (status) => {
+                const statusMap = {
+                    1: { text: 'Hoạt động', color: 'green' },
+                    2: { text: 'Tạm dừng', color: 'red' },
+                };
+                const { text, color } = statusMap[status] || { text: 'Không xác định', color: 'gray' };
+                return <Tag color={color}>{text}</Tag>;
+            },
         },
         {
             title: 'Hoạt động',
@@ -167,8 +122,8 @@ const ClinicManagement = () => {
                     <div className={cx('table')}>
                         <TableComp
                             columns={columns}
-                            data={dataUser}
-                            // isLoading={isLoadingUser}
+                            data={data}
+                            isLoading={isLoading}
                             onRow={(record, rowIndex) => {
                                 return {
                                     onClick: (event) => {
@@ -177,7 +132,7 @@ const ClinicManagement = () => {
                                 };
                             }}
                             // mutation={mutationDelMany}
-                            // refetch={refetch}
+                            refetch={refetch}
                             defaultPageSize={7}
                         />
                     </div>

@@ -1,32 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import styles from './CreateAppointment.module.scss';
 import { districts, wards, getProvinces } from 'vietnam-provinces';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import classNames from 'classnames/bind';
 import CustomDatePicker from './custom-date-picke';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Input, Modal } from 'antd';
+import { Input, message, Modal } from 'antd';
 import TimeSlotPicker from './time-slot-picker';
 import TableComp from '../../TableComp/TableComp';
+import { useSelector } from 'react-redux';
+import { useQuery } from 'react-query';
+import * as medicalService from '../../../services/medicalService';
+import * as scheduleService from '../../../services/scheduleService';
+import * as clinicService from '../../../services/clinicService';
+import * as patientService from '../../../services/patientService';
+import * as userService from '../../../services/userServices';
+import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
 
 const CreateAppointment = ({ onBack }) => {
     const [formData, setFormData] = useState({
         patientId: '',
-        fullName: '',
-        email: '',
-        phone: '',
-        provinceCode: '',
-        districtCode: '',
-        wardCode: '',
-        address: '',
-        service: '',
-        specialtyPackage: '',
-        date: '',
-        session: '',
+        patientName: '',
+        patientEmail: '',
+        patientPhoneNumber: '',
+        patientProvince: '',
+        patientDistrict: '',
+        patientCommune: '',
+        patientAddress: '',
+        medicalServiceName: '',
+        examinationDate: '',
+        clinicId: '',
+        clinicScheduleId: '',
+        patientDateOfBirth: '',
+        patientGender: '',
+        medicalFee: 0,
+        paymentMethod: 0,
+        examinationReason: '',
     });
 
+    const user = useSelector((state) => state.user);
     const [rowSelected, setRowSelected] = useState('');
     const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
     const [provincesList, setProvincesList] = useState([]);
@@ -36,6 +50,57 @@ const CreateAppointment = ({ onBack }) => {
     const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
 
+    const [clinicId, setClinicId] = useState('');
+
+    useEffect(() => {
+        if (user?.role === 2) setClinicId(user?.clinicId);
+    }, [user]);
+
+    // --- API GET ALL CLINICS ---
+    const { data: dataClinics } = useQuery(['clinics'], () => clinicService.getAllClinics(), {
+        enabled: !!user?.id,
+        select: (data) => data?.data?.items,
+    });
+
+    // --- API GET ALL MEDICAL SERVICE BY CLINIC ID ---
+    const { data: dataMedicalService } = useQuery(
+        ['medicalService', clinicId],
+        () => medicalService.getAllMedicalService(clinicId),
+        {
+            enabled: !!clinicId,
+            select: (data) => data?.data?.items,
+        },
+    );
+
+    // --- API GET CLINIC SCHEDULE ---
+    const { data: dataClinicSchedule } = useQuery(
+        ['leaveSchedule'],
+        () => scheduleService.getClinicSchedule(clinicId),
+        {
+            enabled: !!clinicId,
+            select: (data) => data?.data || [],
+        },
+    );
+
+    // --- API GET ALL PATIENTS BY DOCTOR ID ---
+    const getAllPatients = async () => {
+        if (user?.role === 2) {
+            const res = await patientService.getAllPatientsByDoctorId(user?.id);
+            return res.data.items;
+        } else {
+            const res = await userService.getAllUser({ role: 3 });
+            return res.data.items;
+        }
+    };
+
+    const {
+        isLoading: isLoadingPatients,
+        data: dataPatients,
+        refetch: refetchPatients,
+    } = useQuery(['patients'], getAllPatients, {
+        enabled: !!user?.id,
+    });
+
     // Load provinces on component mount
     useEffect(() => {
         const allProvinces = getProvinces();
@@ -44,31 +109,22 @@ const CreateAppointment = ({ onBack }) => {
 
     // Load districts when province changes
     useEffect(() => {
-        if (formData.provinceCode) {
-            const filteredDistricts = districts.filter((district) => district.province_code === formData.provinceCode);
+        if (formData.patientProvince) {
+            const filteredDistricts = districts.filter(
+                (district) => district.province_name === formData.patientProvince,
+            );
             setDistrictsList(filteredDistricts);
-            // Reset district and ward when province changes
-            setFormData((prev) => ({
-                ...prev,
-                districtCode: '',
-                wardCode: '',
-            }));
             setWardsList([]);
         }
-    }, [formData.provinceCode]);
+    }, [formData.patientProvince]);
 
     // Load wards when district changes
     useEffect(() => {
-        if (formData.districtCode) {
-            const filteredWards = wards.filter((ward) => ward.district_code === formData.districtCode);
+        if (formData.patientDistrict) {
+            const filteredWards = wards.filter((ward) => ward.district_name === formData.patientDistrict);
             setWardsList(filteredWards);
-            // Reset ward when district changes
-            setFormData((prev) => ({
-                ...prev,
-                wardCode: '',
-            }));
         }
-    }, [formData.districtCode]);
+    }, [formData.patientDistrict]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -78,21 +134,36 @@ const CreateAppointment = ({ onBack }) => {
         }));
     };
 
+    const handleChangeClinic = (e) => {
+        setClinicId(e.target.value);
+    };
+
+    const handleChangeMedicalService = (e) => {
+        const { name, value } = e.target;
+        const selectedItem = dataMedicalService?.find((item) => item._id === value);
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: selectedItem?.name,
+            medicalFee: selectedItem?.currentPrice,
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Form submitted:', formData);
-        // Here you would typically send the data to your backend
-    };
-
-    const handlePatientSelect = () => {
-        setIsPatientModalOpen(true);
-        console.log('Select patient clicked');
+        const res = patientService.createMedicalConsultationHistory(formData);
+        if (res.statusCode === 200) {
+            message.success('Thêm lịch khám thành công!');
+            onBack();
+        } else {
+            message.error('Thêm lịch khám thất bại!', res.message);
+        }
     };
 
     const handleDateSelect = (date) => {
         setFormData((prev) => ({
             ...prev,
-            date: format(date, 'yyyy-MM-dd'),
+            examinationDate: format(date, 'yyyy-MM-dd'),
         }));
         setIsDatePickerOpen(false);
     };
@@ -101,15 +172,39 @@ const CreateAppointment = ({ onBack }) => {
         setSelectedTimeSlot(slot);
         setFormData((prev) => ({
             ...prev,
-            session: slot.id,
+            clinicId: clinicId,
+            clinicScheduleId: slot._id,
         }));
         setIsTimePickerOpen(false);
     };
 
+    useEffect(() => {
+        if (rowSelected) {
+            const selectedPatient = dataPatients?.find((patient) => patient._id === rowSelected);
+            if (selectedPatient) {
+                setFormData((prev) => ({
+                    ...prev,
+                    patientId: selectedPatient._id,
+                    patientName: selectedPatient.userName,
+                    patientEmail: selectedPatient.email,
+                    patientPhoneNumber: selectedPatient.phoneNumber,
+                    patientProvince: selectedPatient.province,
+                    patientDistrict: selectedPatient.district,
+                    patientCommune: selectedPatient.commune,
+                    patientAddress: selectedPatient.address,
+                    patientDateOfBirth: selectedPatient.dateOfBirth,
+                    patientGender: selectedPatient.gender,
+                }));
+            }
+        }
+    }, [rowSelected, dataPatients]);
+
     const renderAction = () => {
         return (
             <div className={cx('action')}>
-                <button className={cx('add')}>Thêm</button>
+                <button className={cx('add')} onClick={() => setIsPatientModalOpen(false)}>
+                    Thêm
+                </button>
             </div>
         );
     };
@@ -117,16 +212,17 @@ const CreateAppointment = ({ onBack }) => {
     const columns = [
         {
             title: 'Mã bệnh nhân',
-            dataIndex: 'patient_id',
+            dataIndex: '_id',
             sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Họ và tên',
-            dataIndex: 'patient_name',
+            dataIndex: 'userName',
         },
         {
             title: 'Ngày sinh',
-            dataIndex: 'patient_dob',
+            dataIndex: 'dateOfBirth',
+            render: (text, record) => convertISODateToLocalDate(record.dateOfBirth),
         },
         {
             title: 'Hoạt động',
@@ -134,60 +230,6 @@ const CreateAppointment = ({ onBack }) => {
             render: renderAction,
         },
     ];
-
-    const dataUser = {
-        length: 7, // Độ dài của danh sách
-        data: [
-            {
-                _id: 1,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 2,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 3,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 4,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 5,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 6,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 7,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 8,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-        ],
-    };
 
     return (
         <div className={cx('wrapper')}>
@@ -202,7 +244,11 @@ const CreateAppointment = ({ onBack }) => {
                     <p>Vui lòng điền đầy đủ thông tin để thêm lịch khám</p>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    <button type="button" className={cx('selectPatientBtn')} onClick={handlePatientSelect}>
+                    <button
+                        type="button"
+                        className={cx('selectPatientBtn')}
+                        onClick={() => setIsPatientModalOpen(true)}
+                    >
                         Chọn bệnh nhân
                     </button>
                     <Modal
@@ -215,8 +261,8 @@ const CreateAppointment = ({ onBack }) => {
                     >
                         <TableComp
                             columns={columns}
-                            data={dataUser}
-                            // isLoading={isLoadingUser}
+                            data={dataPatients}
+                            isLoading={isLoadingPatients}
                             onRow={(record, rowIndex) => {
                                 return {
                                     onClick: (event) => {
@@ -225,7 +271,7 @@ const CreateAppointment = ({ onBack }) => {
                                 };
                             }}
                             // mutation={mutationDelMany}
-                            // refetch={refetch}
+                            refetch={refetchPatients}
                             defaultPageSize={8}
                         />
                     </Modal>
@@ -237,8 +283,9 @@ const CreateAppointment = ({ onBack }) => {
                                 <Input
                                     type="text"
                                     name="patientId"
-                                    placeholder="Nhập mã bệnh nhân"
+                                    placeholder="Mã bệnh nhân"
                                     value={formData.patientId}
+                                    disabled={true}
                                     onChange={handleChange}
                                     className={cx('formInput')}
                                 />
@@ -247,9 +294,9 @@ const CreateAppointment = ({ onBack }) => {
                                 <label className={cx('requiredField')}>Họ tên</label>
                                 <Input
                                     type="text"
-                                    name="fullName"
+                                    name="patientName"
                                     placeholder="Nhập họ tên"
-                                    value={formData.fullName}
+                                    value={formData.patientName}
                                     onChange={handleChange}
                                     className={cx('formInput')}
                                 />
@@ -258,12 +305,12 @@ const CreateAppointment = ({ onBack }) => {
 
                         <div className={cx('formRow')}>
                             <div className={cx('formGroup')}>
-                                <label>Email</label>
+                                <label className={cx('requiredField')}>Email</label>
                                 <Input
                                     type="email"
-                                    name="email"
+                                    name="patientEmail"
                                     placeholder="Nhập email"
-                                    value={formData.email}
+                                    value={formData.patientEmail}
                                     onChange={handleChange}
                                     className={cx('formInput')}
                                 />
@@ -272,9 +319,9 @@ const CreateAppointment = ({ onBack }) => {
                                 <label className={cx('requiredField')}>Số điện thoại</label>
                                 <Input
                                     type="tel"
-                                    name="phone"
+                                    name="patientPhoneNumber"
                                     placeholder="Nhập số điện thoại"
-                                    value={formData.phone}
+                                    value={formData.patientPhoneNumber}
                                     onChange={handleChange}
                                     className={cx('formInput')}
                                 />
@@ -288,14 +335,18 @@ const CreateAppointment = ({ onBack }) => {
                             <div className={cx('formGroup')}>
                                 <label className={cx('requiredField')}>Tỉnh/Thành phố</label>
                                 <select
-                                    name="provinceCode"
-                                    value={formData.provinceCode}
+                                    name="patientProvince"
+                                    value={formData.patientProvince}
                                     onChange={handleChange}
                                     className={cx('formInput', 'formSelect')}
                                 >
-                                    <option value="">Chọn tỉnh/thành phố</option>
+                                    {formData.patientProvince ? (
+                                        <option value={formData.patientProvince}>{formData.patientProvince}</option>
+                                    ) : (
+                                        <option value="">Chọn tỉnh/thành phố</option>
+                                    )}
                                     {provincesList.map((province) => (
-                                        <option key={province.code} value={province.code}>
+                                        <option key={province.code} value={province.name}>
                                             {province.name}
                                         </option>
                                     ))}
@@ -304,15 +355,19 @@ const CreateAppointment = ({ onBack }) => {
                             <div className={cx('formGroup')}>
                                 <label className={cx('requiredField')}>Quận/Huyện</label>
                                 <select
-                                    name="districtCode"
-                                    value={formData.districtCode}
+                                    name="patientDistrict"
+                                    value={formData.patientDistrict}
                                     onChange={handleChange}
                                     className={cx('formInput', 'formSelect')}
-                                    disabled={!formData.provinceCode}
+                                    disabled={!formData.patientProvince}
                                 >
-                                    <option value="">Chọn quận/huyện</option>
+                                    {formData.patientDistrict ? (
+                                        <option value={formData.patientDistrict}>{formData.patientDistrict}</option>
+                                    ) : (
+                                        <option value="">Chọn quận/huyện</option>
+                                    )}
                                     {districtsList.map((district) => (
-                                        <option key={district.code} value={district.code}>
+                                        <option key={district.code} value={district.name}>
                                             {district.name}
                                         </option>
                                     ))}
@@ -325,9 +380,9 @@ const CreateAppointment = ({ onBack }) => {
                                 <label>Địa chỉ chi tiết</label>
                                 <Input
                                     type="text"
-                                    name="address"
+                                    name="patientAddress"
                                     placeholder="Số nhà, tên đường"
-                                    value={formData.address}
+                                    value={formData.patientAddress}
                                     onChange={handleChange}
                                     className={cx('formInput')}
                                 />
@@ -335,15 +390,19 @@ const CreateAppointment = ({ onBack }) => {
                             <div className={cx('formGroup')}>
                                 <label className={cx('requiredField')}>Phường/Xã</label>
                                 <select
-                                    name="wardCode"
-                                    value={formData.wardCode}
+                                    name="patientCommune"
+                                    value={formData.patientCommune}
                                     onChange={handleChange}
                                     className={cx('formInput', 'formSelect')}
-                                    disabled={!formData.districtCode}
+                                    disabled={!formData.patientDistrict}
                                 >
-                                    <option value="">Chọn phường/xã</option>
+                                    {formData.patientCommune ? (
+                                        <option value={formData.patientCommune}>{formData.patientCommune}</option>
+                                    ) : (
+                                        <option value="">Chọn phường/xã</option>
+                                    )}
                                     {wardsList.map((ward) => (
-                                        <option key={ward.code} value={ward.code}>
+                                        <option key={ward.code} value={ward.name}>
                                             {ward.name}
                                         </option>
                                     ))}
@@ -354,40 +413,58 @@ const CreateAppointment = ({ onBack }) => {
 
                     <div className={cx('formSection')}>
                         <h3>Thông tin khám bệnh</h3>
+                        {user?.role === 2 || user?.role === 1 ? (
+                            <></>
+                        ) : (
+                            <div className={cx('formRow')}>
+                                <div className={cx('formGroup')}>
+                                    <label className={cx('requiredField')}>Phòng khám</label>
+                                    <select
+                                        name="clinic"
+                                        onChange={handleChangeClinic}
+                                        className={cx('formInput', 'formSelect')}
+                                    >
+                                        <option value={''}>Chọn phòng khám</option>
+                                        {dataClinics?.map((service) => (
+                                            <option key={service._id} value={service._id}>
+                                                {service.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        )}
                         <div className={cx('formRow')}>
                             <div className={cx('formGroup')}>
                                 <label className={cx('requiredField')}>Dịch vụ khám</label>
                                 <select
-                                    name="service"
-                                    value={formData.service}
-                                    onChange={handleChange}
+                                    name="medicalServiceName"
+                                    value={formData.medicalServiceName}
+                                    onChange={handleChangeMedicalService}
                                     className={cx('formInput', 'formSelect')}
                                 >
-                                    <option value="">Chọn dịch vụ khám</option>
-                                    <option value="service1">Khám tổng quát</option>
-                                    <option value="service2">Khám chuyên khoa</option>
-                                    <option value="service3">Khám theo yêu cầu</option>
-                                    <option value="service4">Tư vấn sức khỏe</option>
+                                    <option value={''}>Chọn dịch vụ khám</option>
+                                    {dataMedicalService?.map((service) => (
+                                        <option key={service._id} value={service._id}>
+                                            {service.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
 
                         <div className={cx('formRow')}>
                             <div className={cx('formGroup')}>
-                                <label className={cx('requiredField')}>Gói khám/ Chuyên khoa</label>
+                                <label className={cx('requiredField')}>Thanh toán bằng</label>
                                 <select
-                                    name="specialtyPackage"
-                                    value={formData.specialtyPackage}
+                                    type="number"
+                                    name="paymentMethod"
+                                    value={formData.paymentMethod}
                                     onChange={handleChange}
                                     className={cx('formInput', 'formSelect')}
                                 >
-                                    <option value="">Chọn gói khám/ chuyên khoa</option>
-                                    <option value="package1">Gói khám sức khỏe cơ bản</option>
-                                    <option value="package2">Gói khám sức khỏe nâng cao</option>
-                                    <option value="specialty1">Chuyên khoa Tim mạch</option>
-                                    <option value="specialty2">Chuyên khoa Nội tiết</option>
-                                    <option value="specialty3">Chuyên khoa Da liễu</option>
-                                    <option value="specialty4">Chuyên khoa Nhi</option>
+                                    <option value={0}>Chọn phương thức thanh toán</option>
+                                    <option value={1}>Tiền mặt</option>
                                 </select>
                             </div>
                         </div>
@@ -397,9 +474,13 @@ const CreateAppointment = ({ onBack }) => {
                                 <label className={cx('requiredField')}>Ngày khám</label>
                                 <Input
                                     type="text"
-                                    name="date"
+                                    name="examinationDate"
                                     placeholder="Chọn ngày khám"
-                                    value={formData.date ? format(new Date(formData.date), 'dd/MM/yyyy') : ''}
+                                    value={
+                                        formData.examinationDate
+                                            ? format(new Date(formData.examinationDate), 'dd/MM/yyyy')
+                                            : ''
+                                    }
                                     onClick={() => setIsDatePickerOpen(true)}
                                     readOnly
                                     className={cx('formInput', 'dateInput')}
@@ -408,7 +489,7 @@ const CreateAppointment = ({ onBack }) => {
                                     isOpen={isDatePickerOpen}
                                     onClose={() => setIsDatePickerOpen(false)}
                                     onSelect={handleDateSelect}
-                                    selectedDate={formData.date ? new Date(formData.date) : null}
+                                    selectedDate={formData.examinationDate ? new Date(formData.examinationDate) : null}
                                 />
                             </div>
                         </div>
@@ -421,7 +502,9 @@ const CreateAppointment = ({ onBack }) => {
                                     readOnly
                                     placeholder="Chọn ca khám"
                                     value={
-                                        selectedTimeSlot ? `${selectedTimeSlot.start} - ${selectedTimeSlot.end}` : ''
+                                        selectedTimeSlot
+                                            ? `${selectedTimeSlot.startTime} - ${selectedTimeSlot.endTime}`
+                                            : ''
                                     }
                                     onClick={() => setIsTimePickerOpen(true)}
                                     className={cx('formInput')}
@@ -431,6 +514,21 @@ const CreateAppointment = ({ onBack }) => {
                                     onClose={() => setIsTimePickerOpen(false)}
                                     onSelect={handleTimeSlotSelect}
                                     selectedSlot={selectedTimeSlot}
+                                    dataClinicSchedule={dataClinicSchedule}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label className={cx('requiredField')}>Lý do khám</label>
+                                <Input.TextArea
+                                    name="examinationReason"
+                                    placeholder="Nhập lý do khám"
+                                    value={formData.examinationReason}
+                                    onChange={handleChange}
+                                    className={cx('formInput')}
+                                    rows={4}
                                 />
                             </div>
                         </div>

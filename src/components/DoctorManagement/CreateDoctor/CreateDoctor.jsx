@@ -1,18 +1,97 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './CreateDoctor.module.scss';
-import { DatePicker, Input, Radio } from 'antd';
+import { DatePicker, Input, message, Radio } from 'antd';
 import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
 import dayjs from 'dayjs';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import images from '../../../assets';
+import { useMutation } from 'react-query';
+import * as doctorService from '../../../services/doctorService';
+import checkStatusResponse from '../../../utils/checkStatusResponse';
+import { districts, getProvinces, wards } from 'vietnam-provinces';
 
 const cx = classNames.bind(styles);
 
 const CreateDoctor = ({ onBack }) => {
-    const [dateOfBirth, setDateOfBirth] = useState(new Date('2000-02-01'));
+    const [email, setEmail] = useState('');
+    const [userName, setUserName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [province, setProvince] = useState('');
+    const [district, setDistrict] = useState('');
+    const [commune, setCommune] = useState('');
+    const [address, setAddress] = useState('');
+    const [avatar, setAvatar] = useState(null);
+    const [gender, setGender] = useState('1');
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [qualification, setQualification] = useState('');
+    const [specialty, setSpecialty] = useState('');
+    const [description, setDescription] = useState('');
+
+    const [provincesList, setProvincesList] = useState([]);
+    const [districtsList, setDistrictsList] = useState([]);
+    const [wardsList, setWardsList] = useState([]);
+
+    const mutation = useMutation({
+        mutationFn: (data) => {
+            console.log('data', data);
+            // return doctorService.createDoctor(data);
+        },
+    });
+
+    const { data, isLoading, isSuccess, isError } = mutation;
+
+    useEffect(() => {
+        if (isSuccess && checkStatusResponse(data)) {
+            message.success('Tạo mới bác sĩ thành công');
+            onBack();
+        } else if (isError) {
+            message.error('Tạo mới bác sĩ thất bại');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccess, isError, data]);
+
+    // Load provinces on component mount
+    useEffect(() => {
+        const allProvinces = getProvinces();
+        setProvincesList(allProvinces);
+    }, []);
+
+    // Load districts when province changes
+    useEffect(() => {
+        if (province) {
+            const filteredDistricts = districts.filter((district) => district.province_name === province);
+            setDistrictsList(filteredDistricts);
+            setWardsList([]);
+        }
+    }, [province]);
+
+    // Load wards when district changes
+    useEffect(() => {
+        if (district) {
+            const filteredWards = wards.filter((ward) => ward.district_name === district);
+            setWardsList(filteredWards);
+        }
+    }, [district]);
+
+    const handleSubmit = () => {
+        mutation.mutate({
+            userName,
+            email,
+            phoneNumber,
+            address,
+            province,
+            district,
+            commune,
+            gender,
+            dateOfBirth,
+            qualification,
+            specialty,
+            description,
+        });
+    };
 
     return (
         <div>
@@ -30,52 +109,131 @@ const CreateDoctor = ({ onBack }) => {
                     <div className={cx('wrapper-avatar')}>
                         <img className={cx('avatar')} src={images.avatar} alt="avatar" />
                     </div>
-                    <div className={cx('form-user-email')}>
+                    <div className={cx('form-grid-1')}>
                         <div className={cx('form-label')}>
                             <label htmlFor="User">HỌ VÀ TÊN</label>
-                            <Input value="Nguyễn Văn A" className={cx('input')} required />
+                            <Input
+                                value={userName}
+                                className={cx('input')}
+                                required
+                                onChange={(e) => setUserName(e.target.value)}
+                            />
                         </div>
                         <div className={cx('form-label')}>
                             <label htmlFor="email">EMAIL</label>
-                            <Input className={cx('input')} required value="nguyenvana@gmail.com" />
+                            <Input
+                                className={cx('input')}
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
-                        <Input className={cx('input')} required value="123456789" />
+                        <Input
+                            className={cx('input')}
+                            required
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
                     </div>
-                    <div className={cx('form-label')}>
-                        <label htmlFor="address">ĐỊA CHỈ</label>
-                        <Input className={cx('input')} required value="Hà Nội" />
+                    <div className={cx('form-grid-1')}>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="Province">TỈNH/ THÀNH PHỐ</label>
+                            <select
+                                name="patientProvince"
+                                value={province}
+                                onChange={(e) => setProvince(e.target.value)}
+                                className={cx('formInput', 'formSelect')}
+                            >
+                                <option value="">Chọn tỉnh/thành phố</option>
+
+                                {provincesList.map((province) => (
+                                    <option key={province.code} value={province.name}>
+                                        {province.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="District">QUẬN/ HUYỆN</label>
+                            <select
+                                name="patientDistrict"
+                                value={district}
+                                onChange={(e) => setDistrict(e.target.value)}
+                                className={cx('formInput', 'formSelect')}
+                                disabled={!province}
+                            >
+                                <option value="">Chọn quận/huyện</option>
+                                {districtsList.map((district) => (
+                                    <option key={district.code} value={district.name}>
+                                        {district.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className={cx('form-grid-1')}>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="address">ĐỊA CHỈ</label>
+                            <Input
+                                className={cx('input')}
+                                required
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                            />
+                        </div>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="Commune">PHƯỜNG/ XÃ</label>
+                            <select
+                                name="patientCommune"
+                                value={commune}
+                                onChange={(e) => setCommune(e.target.value)}
+                                className={cx('formInput', 'formSelect')}
+                                disabled={!district}
+                            >
+                                <option value="">Chọn phường/xã</option>
+                                {wardsList.map((ward) => (
+                                    <option key={ward.code} value={ward.name}>
+                                        {ward.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="level">TRÌNH ĐỘ</label>
-                        <Radio.Group name="gender">
-                            <Radio value="Male">THẠC SĨ</Radio>
-                            <Radio value="Female">TIẾN SĨ</Radio>
-                            <Radio value="Other">CHUYÊN KHOA A</Radio>
+                        <Radio.Group
+                            name="gender"
+                            value={qualification}
+                            onChange={(e) => setQualification(e.target.value)}
+                        >
+                            <Radio value="Thạc sĩ">THẠC SĨ</Radio>
+                            <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
+                            <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
                         </Radio.Group>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="gender">GIỚI TÍNH</label>
-                        <Radio.Group name="gender">
-                            <Radio value="Male">Nam</Radio>
-                            <Radio value="Female">Nữ</Radio>
-                            <Radio value="Other">Khác</Radio>
+                        <Radio.Group name="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                            <Radio value={1}>Nam</Radio>
+                            <Radio value={2}>Nữ</Radio>
+                            <Radio value={3}>Khác</Radio>
                         </Radio.Group>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="dateOfBirth">NGÀY SINH</label>
-                        <DatePicker
-                            format={'YYYY-MM-DD'}
-                            value={dayjs(convertISODateToLocalDate(dateOfBirth || '2000-01-01'), 'YYYY-MM-DD')}
-                            onChange={(date) => setDateOfBirth(date)}
-                            dateFormat="yyyy-MM-dd"
-                        />
+                        <DatePicker format="DD/MM/YYYY" value={dateOfBirth} onChange={(date) => setDateOfBirth(date)} />
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="specialty">CHUYÊN KHOA</label>
-                        <Input className={cx('input')} required value="Tiêu hóa" />
+                        <Input
+                            className={cx('input')}
+                            required
+                            value={specialty}
+                            onChange={(e) => setSpecialty(e.target.value)}
+                        />
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="workplace">NƠI CÔNG TÁC</label>
@@ -83,10 +241,14 @@ const CreateDoctor = ({ onBack }) => {
                     </div>
                     <div className={cx('more-info')}>
                         <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                        <textarea className={cx('info')}></textarea>
+                        <textarea
+                            className={cx('info')}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        ></textarea>
                     </div>
                     <div className={cx('wrapper-btn-save')}>
-                        <Button className={cx('btn')} type="primary">
+                        <Button className={cx('btn')} type="primary" onClick={handleSubmit}>
                             Lưu
                         </Button>
                     </div>

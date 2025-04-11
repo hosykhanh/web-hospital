@@ -1,25 +1,45 @@
-import React from 'react';
-import { Button, DatePicker, Form, Modal, TimePicker } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, DatePicker, Form, message, Modal, Select } from 'antd';
 import { CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
 import styles from './CreateSchedule.module.scss';
+import { useSelector } from 'react-redux';
+import * as scheduleService from '../../../services/scheduleService';
 
 const cx = classNames.bind(styles);
 
-const CreateSchedule = ({ isModalOpen, setIsModalOpen }) => {
+const CreateSchedule = ({ isModalOpen, setIsModalOpen, refetch }) => {
+    const user = useSelector((state) => state.user);
+    const [dataClinicSchedule, setClinicSchedule] = useState([]);
     const [form] = Form.useForm();
 
-    const handleOk = () => {
-        form.validateFields()
-            .then((values) => {
-                console.log('Form values:', values);
-                setIsModalOpen(false);
-                form.resetFields();
-            })
-            .catch((info) => {
-                console.log('Validate Failed:', info);
-            });
-    };
+    useEffect(() => {
+        const getClinicSchedule = async () => {
+            try {
+                const res = await scheduleService.getClinicSchedule(user?.clinicId);
+                setClinicSchedule(res?.data);
+            } catch (error) {
+                console.error('Error fetching clinic schedule:', error);
+            }
+        };
+        getClinicSchedule();
+    }, [user?.clinicId]);
+
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            const newValues = { ...values, doctorId: user?.id };
+
+            await scheduleService.createLeaveSchedule(newValues);
+            message.success('Thêm lịch nghỉ thành công!');
+    
+            setIsModalOpen(false);
+            refetch();
+            form.resetFields();
+        } catch (error) {
+            console.log('Validate Failed:', error);
+        }
+    };    
 
     const handleCancel = () => {
         setIsModalOpen(false);
@@ -50,12 +70,18 @@ const CreateSchedule = ({ isModalOpen, setIsModalOpen }) => {
                         />
                     </Form.Item>
 
-                    <Form.Item name="time" label="Giờ nghỉ" rules={[{ required: true, message: 'Vui lòng chọn giờ!' }]}>
-                        <TimePicker
+                    <Form.Item
+                        name="clinicScheduleId"
+                        label="Giờ nghỉ"
+                        rules={[{ required: true, message: 'Vui lòng chọn giờ!' }]}
+                    >
+                        <Select
                             placeholder="Chọn giờ"
-                            className={cx('form-input')}
-                            format="HH:mm"
                             suffixIcon={<ClockCircleOutlined />}
+                            options={dataClinicSchedule?.map((item) => ({
+                                label: `${item.startTime} - ${item.endTime}`,
+                                value: item._id,
+                            }))}
                         />
                     </Form.Item>
 

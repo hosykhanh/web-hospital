@@ -12,6 +12,7 @@ import AppointmentManagement from '../../components/AppointmentManagement/Appoin
 import ScheduleSettings from '../../components/ScheduleSettings/ScheduleSettings';
 
 import * as patientService from '../../services/patientService';
+import * as scheduleService from '../../services/scheduleService';
 import { useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -37,18 +38,42 @@ function DoctorPage() {
         setKeySelected(key);
     };
 
-    // --- API GET ALL PATIENTS ---
-    const getAllPatients = async () => {
-        const res = await patientService.getAllPatients(users?.id);
-        return res.data;
+    // --- API GET ALL PATIENTS BY DOCTOR ID ---
+    const getAllPatientsByDoctorId = async () => {
+        const res = await patientService.getAllPatientsByDoctorId(users?.id);
+        return res.data.items;
     };
 
     const {
         isLoading: isLoadingPatients,
         data: dataPatients,
         refetch: refetchPatients,
-    } = useQuery(['patient'], getAllPatients, {
+    } = useQuery(['patient'], getAllPatientsByDoctorId, {
         enabled: keySelected === 'patient',
+    });
+
+    // --- API GET ALL MEDICAL CONSULTATION HISTORY ---
+    const {
+        data: dataPatientManagement,
+        isLoading: isLoadingPatientManagement,
+        refetch: refetchPatientManagement,
+    } = useQuery(
+        ['appointment'],
+        () => patientService.getAllMedicalConsultationHistory({ responsibilityDoctorId: users?.id }),
+        {
+            enabled: keySelected === 'appointment',
+            select: (data) => data?.data?.items || [],
+        },
+    );
+
+    // --- API GET LEAVE SCHEDULE ---
+    const {
+        data: dataLeaveSchedule,
+        isLoading: isLoadingLeaveSchedule,
+        refetch: refetchLeaveSchedule,
+    } = useQuery(['leaveSchedule'], () => scheduleService.getLeaveSchedule(users?.id), {
+        enabled: keySelected === 'ScheduleSettings',
+        select: (data) => data?.data || [],
     });
 
     const handleLogout = async () => {
@@ -68,9 +93,21 @@ function DoctorPage() {
                     <PatientManagement isLoading={isLoadingPatients} data={dataPatients} refetch={refetchPatients} />
                 );
             case 'appointment':
-                return <AppointmentManagement />;
+                return (
+                    <AppointmentManagement
+                        isLoading={isLoadingPatientManagement}
+                        data={dataPatientManagement}
+                        refetch={refetchPatientManagement}
+                    />
+                );
             case 'ScheduleSettings':
-                return <ScheduleSettings />;
+                return (
+                    <ScheduleSettings
+                        isLoading={isLoadingLeaveSchedule}
+                        data={dataLeaveSchedule}
+                        refetch={refetchLeaveSchedule}
+                    />
+                );
             default:
                 return <></>;
         }
@@ -83,6 +120,7 @@ function DoctorPage() {
                 <div className={cx('logo')}>
                     <img src={images.logo} alt="" width="100px" />
                 </div>
+                <div className={cx('welcome')}>Xin chào Bác sĩ</div>
                 <Menu
                     selectedKeys={[keySelected]}
                     theme="dark"
@@ -90,7 +128,6 @@ function DoctorPage() {
                     className={cx('menu')}
                     items={items}
                 />
-
                 <div className={cx('logout')} onClick={handleLogout}>
                     <Loading isLoading={loading}>Đăng xuất</Loading>
                 </div>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosJWT from './axiosService';
 
 const signUpUser = async (data) => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL}/sign-up`, data);
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign-up`, data);
     return res.data;
 };
 
@@ -39,7 +39,6 @@ const updateAvatar = async (id, avatar) => {
     return res.data;
 };
 
-
 const deleteUser = async ({ id }) => {
     const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/user/${id}/delete`);
     return res.data;
@@ -55,13 +54,4 @@ const updateUser = async (id, data) => {
     return res.data;
 };
 
-export {
-    getAllUser,
-    getUser,
-    signUpUser,
-    updateUser,
-    updateAvatar,
-    deleteUser,
-    deleteManyUser,
-    axiosJWT,
-};
+export { getAllUser, getUser, signUpUser, updateUser, updateAvatar, deleteUser, deleteManyUser, axiosJWT };

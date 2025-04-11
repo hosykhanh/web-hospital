@@ -59,12 +59,12 @@
     }
 
     .input {
-        padding: 3px;
+        padding: 4px 12px;
         border-radius: 3px;
         border: 1px solid #e0e0e0;
         margin-top: 5px;
         background-color: #ffffff;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #000000;
     }
 
@@ -79,7 +79,7 @@
         margin-bottom: 15px;
     }
 
-    .form-user-email {
+    .form-grid-1 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
@@ -92,7 +92,7 @@
         padding: 10px;
         overflow-y: auto;
         margin-bottom: 15px;
-        font-size: 1.1rem;
+        font-size: 0.9rem;
     }
 }
 

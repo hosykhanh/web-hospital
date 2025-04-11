@@ -13,10 +13,41 @@ import DetailDoctor from './DetailDoctor/DetailDoctor';
 
 const cx = classNames.bind(styles);
 
-const DoctorManagement = () => {
+const DoctorManagement = ({ isLoading, data, refetch }) => {
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isCreateDoctor, setIsCreateDoctor] = useState(false);
+
+    const [searchValue, setSearchValue] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [filterOption, setFilterOption] = useState('');
+
+    const handleSearch = (e) => {
+        setSearchValue(e.target.value);
+    };
+
+    const handleOpenFilter = (e) => {
+        setAnchorEl(e.currentTarget);
+    };
+
+    const handleCloseFilter = (option) => {
+        setFilterOption(option);
+        setAnchorEl(null);
+    };
+
+    const filteredData = data?.filter((item) => {
+        const searchVal = searchValue.toLowerCase().trim();
+
+        if (filterOption === 'Họ tên') {
+            return item.userName?.toLowerCase().includes(searchVal);
+        } else if (filterOption === 'Chuyên khoa') {
+            return item.specialty?.toLowerCase().includes(searchVal);
+        } else {
+            return (
+                item.userName?.toLowerCase().includes(searchVal) || item.specialty?.toLowerCase().includes(searchVal)
+            );
+        }
+    });
 
     const renderAction = () => {
         return (
@@ -28,88 +59,15 @@ const DoctorManagement = () => {
         );
     };
 
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [filter, setFilter] = useState('');
-
-    const handleOpenFilter = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseFilter = (option) => {
-        if (option) setFilter(option);
-        setAnchorEl(null);
-    };
-
-    const dataUser = {
-        length: 8,
-        data: [
-            {
-                _id: 1,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 2,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 3,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 4,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 5,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 6,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 7,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },{
-                _id: 8,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-        ],
-    };
-
     const columns = [
         {
             title: 'Mã bác sĩ',
-            dataIndex: '_id',
+            dataIndex: 'code',
             sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Họ và tên',
-            dataIndex: 'doctor_name',
+            dataIndex: 'userName',
         },
         {
             title: 'Email',
@@ -128,7 +86,7 @@ const DoctorManagement = () => {
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <DetailDoctor onBack={() => setIsDetailVisible(false)} />
+                <DetailDoctor onBack={() => setIsDetailVisible(false)} rowSelected={rowSelected} />
             ) : isCreateDoctor ? (
                 <CreateDoctor onBack={() => setIsCreateDoctor(false)} />
             ) : (
@@ -140,6 +98,8 @@ const DoctorManagement = () => {
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Tìm kiếm..."
+                                onChange={handleSearch}
+                                value={searchValue}
                                 InputProps={{
                                     style: { height: '40px', fontSize: '16px', backgroundColor: 'white' },
                                     startAdornment: (
@@ -174,8 +134,8 @@ const DoctorManagement = () => {
                     <div className={cx('table')}>
                         <TableComp
                             columns={columns}
-                            data={dataUser}
-                            // isLoading={isLoadingUser}
+                            data={filteredData}
+                            isLoading={isLoading}
                             onRow={(record, rowIndex) => {
                                 return {
                                     onClick: (event) => {
@@ -184,7 +144,7 @@ const DoctorManagement = () => {
                                 };
                             }}
                             // mutation={mutationDelMany}
-                            // refetch={refetch}
+                            refetch={refetch}
                             defaultPageSize={7}
                         />
                     </div>

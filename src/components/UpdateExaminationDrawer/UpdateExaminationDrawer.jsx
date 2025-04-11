@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Drawer, Form, Input, DatePicker, Select, Button } from 'antd';
-import { SaveOutlined, CalendarOutlined, UserOutlined, MedicineBoxOutlined } from '@ant-design/icons';
+import { Drawer, Form, Input } from 'antd';
 import classNames from 'classnames/bind';
 import styles from './UpdateExaminationDrawer.module.scss';
 import * as patientService from '../../services/patientService';
-import dayjs from 'dayjs';
-import { Option } from 'antd/es/mentions';
+import * as userService from '../../services/userServices';
 import TextArea from 'antd/es/input/TextArea';
+import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
 
 const UpdateExaminationDrawer = ({ visible, setIsOpenDrawer, rowSelected, refetch }) => {
     const [form] = Form.useForm();
     const [dataHistory, setDataHistory] = useState();
+    const [doctor, setDoctor] = useState([]);
 
     useEffect(() => {
         const getMedicalConsultationHistory = async () => {
@@ -25,33 +25,28 @@ const UpdateExaminationDrawer = ({ visible, setIsOpenDrawer, rowSelected, refetc
     }, [rowSelected]);
 
     useEffect(() => {
+        if (dataHistory?.responsibilityDoctorId) {
+            const getDoctor = async () => {
+                const res = await userService.getUser(dataHistory?.responsibilityDoctorId);
+                setDoctor(res.data);
+            };
+            getDoctor();
+        }
+    }, [dataHistory]);
+
+    useEffect(() => {
         if (dataHistory) {
             form.setFieldsValue({
-                examinationDate: dataHistory.examinationDate ? dayjs(dataHistory.examinationDate) : null,
-                reExaminateDate: dataHistory.reExaminateDate ? dayjs(dataHistory.reExaminateDate) : null,
+                examinationDate: convertISODateToLocalDate(dataHistory.examinationDate),
+                reExaminateDate: convertISODateToLocalDate(dataHistory.reExaminateDate),
                 medicalServiceName: dataHistory.medicalServiceName,
-                responsibilityDoctorId: dataHistory?.responsibilityDoctorId,
+                responsibilityDoctor: doctor?.userName,
                 patientStatus: dataHistory.patientStatus,
                 diagnosis: dataHistory.diagnosis,
                 noteFromDoctor: dataHistory.noteFromDoctor,
             });
         }
-    }, [dataHistory, form]);
-
-    const updateMedicalConsultationHistory = async (id, data) => {
-        const res = await patientService.updateMedicalConsultationHistory(id, data);
-        return res.data;
-    };
-
-    const handleSubmit = () => {
-        console.log('Form values:', form.getFieldsValue());
-        form.validateFields().then((values) => {
-            console.log('Form values:', values);
-            updateMedicalConsultationHistory(rowSelected, values);
-            setIsOpenDrawer(false);
-            refetch();
-        });
-    };
+    }, [dataHistory, form, doctor]);
 
     return (
         <Drawer
@@ -60,91 +55,38 @@ const UpdateExaminationDrawer = ({ visible, setIsOpenDrawer, rowSelected, refetc
             onClose={() => setIsOpenDrawer(false)}
             open={visible}
             width={520}
-            footer={
-                <div className={cx('drawer-footer')}>
-                    <Button type="primary" icon={<SaveOutlined />} onClick={handleSubmit} className={cx('save-button')}>
-                        Lưu
-                    </Button>
-                </div>
-            }
         >
             <Form form={form} layout="vertical" className={cx('examination-form')}>
                 <div className={cx('form-title')}>
                     <h3>Lịch sử khám bệnh</h3>
                 </div>
 
-                <Form.Item
-                    name="examinationDate"
-                    label="Ngày khám"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày khám!' }]}
-                    className={cx('form-item')}
-                >
-                    <DatePicker
-                        format="DD/MM/YYYY"
-                        placeholder="Chọn ngày khám"
-                        className={cx('date-picker')}
-                        suffixIcon={<CalendarOutlined />}
-                    />
+                <Form.Item name="responsibilityDoctor" label="Bác sĩ phụ trách" className={cx('form-item')}>
+                    <Input />
                 </Form.Item>
 
-                <Form.Item
-                    name="medicalServiceName"
-                    label="Dịch vụ khám"
-                    rules={[{ required: true, message: 'Vui lòng chọn dịch vụ khám!' }]}
-                    className={cx('form-item')}
-                >
-                    <Select placeholder="Chọn dịch vụ khám" suffixIcon={<MedicineBoxOutlined />}>
-                        <Option value="general">Khám tổng quát</Option>
-                        <Option value="specialist">Khám chuyên khoa</Option>
-                        <Option value="emergency">Khám cấp cứu</Option>
-                    </Select>
+                <Form.Item name="medicalServiceName" label="Dịch vụ khám" className={cx('form-item')}>
+                    <Input disabled style={{ color: 'black', backgroundColor: 'white' }} />
                 </Form.Item>
 
-                <Form.Item
-                    name="reponsibilityDoctorId"
-                    label="Bác sĩ phụ trách"
-                    // rules={[{ required: true, message: 'Vui lòng chọn bác sĩ phụ trách!' }]}
-                    className={cx('form-item')}
-                >
-                    <Select placeholder="Chọn bác sĩ phụ trách" suffixIcon={<UserOutlined />}>
-                        <Option value="dr1">Bác sĩ Nguyễn Văn A</Option>
-                        <Option value="dr2">Bác sĩ Trần Thị B</Option>
-                        <Option value="dr3">Bác sĩ Lê Văn C</Option>
-                    </Select>
+                <Form.Item name="examinationDate" label="Ngày khám" className={cx('form-item')}>
+                    <Input disabled style={{ color: 'black', backgroundColor: 'white' }} />
                 </Form.Item>
 
-                <Form.Item
-                    name="patientStatus"
-                    label="Tình trạng"
-                    rules={[{ required: true, message: 'Vui lòng chọn tình trạng!' }]}
-                    className={cx('form-item')}
-                >
-                    <Select placeholder="Chọn tình trạng">
-                        <Option value="normal">Bình thường</Option>
-                        <Option value="monitoring">Cần theo dõi</Option>
-                        <Option value="serious">Nghiêm trọng</Option>
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name="diagnosis"
-                    label="Chẩn đoán"
-                    rules={[{ required: true, message: 'Vui lòng nhập chẩn đoán!' }]}
-                    className={cx('form-item')}
-                >
-                    <Input placeholder="Nhập chẩn đoán" />
-                </Form.Item>
                 <Form.Item name="reExaminateDate" label="Ngày tái khám" className={cx('form-item')}>
-                    <DatePicker
-                        format="DD/MM/YYYY"
-                        placeholder="Chọn ngày tái khám"
-                        className={cx('date-picker')}
-                        suffixIcon={<CalendarOutlined />}
-                    />
+                    <Input disabled style={{ color: 'black', backgroundColor: 'white' }} />
+                </Form.Item>
+
+                <Form.Item name="patientStatus" label="Tình trạng" className={cx('form-item')}>
+                    <Input />
+                </Form.Item>
+
+                <Form.Item name="diagnosis" label="Chẩn đoán" className={cx('form-item')}>
+                    <Input placeholder="Nhập chẩn đoán" />
                 </Form.Item>
 
                 <Form.Item name="noteFromDoctor" label="Ghi chú từ bác sĩ" className={cx('form-item')}>
-                    <TextArea rows={4} placeholder="Nhập ghi chú từ bác sĩ" className={cx('text-area')} />
+                    <TextArea rows={4} className={cx('text-area')} />
                 </Form.Item>
             </Form>
         </Drawer>

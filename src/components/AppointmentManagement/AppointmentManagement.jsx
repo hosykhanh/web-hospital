@@ -11,14 +11,73 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AppointmentInformation from './AppointmentInformation/AppointmentInformation';
 import CreateAppointment from './CreateAppointment/CreateAppointment';
+import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
+import { Tag } from 'antd';
+import * as patientService from '../../services/patientService';
+import { useMutation } from 'react-query';
 
 const cx = classNames.bind(styles);
 
-const AppointmentManagement = () => {
+const AppointmentManagement = ({ isLoading, data, refetch }) => {
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isCreateAppointment, setIsCreateAppointment] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+    const [searchValue, setSearchValue] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [filterOption, setFilterOption] = useState('');
+
+    const handleSearch = (e) => {
+        setSearchValue(e.target.value);
+    };
+
+    const handleOpenFilter = (e) => {
+        setAnchorEl(e.currentTarget);
+    };
+
+    const handleCloseFilter = (option) => {
+        setFilterOption(option);
+        setAnchorEl(null);
+    };
+
+    // Lọc dữ liệu theo searchValue và filterOption
+    const filteredData = data?.filter((item) => {
+        const searchVal = searchValue.toLowerCase().trim();
+        const statusMap = {
+            1: { text: 'Chưa khám', color: 'orange' },
+            2: { text: 'Đã hủy', color: 'red' },
+            3: { text: 'Hoàn thành', color: 'green' },
+        };
+        if (filterOption === 'Họ tên') {
+            return item.patientName?.toLowerCase().includes(searchVal);
+        } else if (filterOption === 'Ngày khám') {
+            return (
+                item.examinationDate &&
+                convertISODateToLocalDate(item.examinationDate).toLowerCase().includes(searchVal)
+            );
+        } else if (filterOption === 'Giờ khám') {
+            if (item.clinicSchedule) {
+                const startTime = item.clinicSchedule.startTime ? item.clinicSchedule.startTime.toLowerCase() : '';
+                const endTime = item.clinicSchedule.endTime ? item.clinicSchedule.endTime.toLowerCase() : '';
+                return startTime.includes(searchVal) || endTime.includes(searchVal);
+            }
+            return false;
+        } else if (filterOption === 'Trạng thái') {
+            const statusText = statusMap[item.status]?.text.toLowerCase() || '';
+            return statusText.includes(searchVal);
+        } else {
+            return (
+                item.patientName?.toLowerCase().includes(searchVal) ||
+                (item.examinationDate &&
+                    convertISODateToLocalDate(item.examinationDate).toLowerCase().includes(searchVal)) ||
+                (item.clinicSchedule &&
+                    (item.clinicSchedule.startTime?.toLowerCase().includes(searchVal) ||
+                        item.clinicSchedule.endTime?.toLowerCase().includes(searchVal))) ||
+                statusMap[item.status]?.text.toLowerCase().includes(searchVal)
+            );
+        }
+    });
 
     const renderAction = () => {
         return (
@@ -34,93 +93,39 @@ const AppointmentManagement = () => {
         );
     };
 
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [filter, setFilter] = useState('');
-
-    const handleOpenFilter = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseFilter = (option) => {
-        if (option) setFilter(option);
-        setAnchorEl(null);
-    };
-
-    const dataUser = {
-        length: 7, // Độ dài của danh sách
-        data: [
-            {
-                _id: 1,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 2,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 3,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 4,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 5,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 6,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 7,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-            {
-                _id: 8,
-                patient_id: '123456',
-                patient_name: 'John Doe',
-                patient_dob: '01/01/1970',
-            },
-        ],
-    };
-
     const columns = [
         {
             title: 'ID',
-            dataIndex: '_id',
+            dataIndex: 'code',
             sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Họ và tên',
-            dataIndex: 'patient_name',
+            dataIndex: 'patientName',
         },
         {
             title: 'Ngày khám',
-            dataIndex: 'patient_dob',
+            dataIndex: 'examinationDate',
+            render: (text, record) => convertISODateToLocalDate(record.examinationDate),
         },
         {
             title: 'Giờ khám',
-            dataIndex: 'patient_dob',
+            dataIndex: 'clinicSchedule',
+            render: (clinicSchedule) =>
+                clinicSchedule ? `${clinicSchedule.startTime} - ${clinicSchedule.endTime}` : 'Chưa có lịch',
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'patient_dob',
+            dataIndex: 'status',
+            render: (status) => {
+                const statusMap = {
+                    1: { text: 'Chưa khám', color: 'orange' },
+                    2: { text: 'Đã hủy', color: 'red' },
+                    3: { text: 'Hoàn thành', color: 'green' },
+                };
+                const { text, color } = statusMap[status] || { text: 'Không xác định', color: 'gray' };
+                return <Tag color={color}>{text}</Tag>;
+            },
         },
         {
             title: 'Hoạt động',
@@ -128,10 +133,15 @@ const AppointmentManagement = () => {
             render: renderAction,
         },
     ];
+
+    const mutationMedicalConsultationHistory = useMutation({
+        mutationFn: (data) => patientService.deleteMedicalConsultationHistory(data),
+    });
+
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <AppointmentInformation onBack={() => setIsDetailVisible(false)} />
+                <AppointmentInformation onBack={() => setIsDetailVisible(false)} rowSelectedInfo={rowSelected} />
             ) : isCreateAppointment ? (
                 <CreateAppointment onBack={() => setIsCreateAppointment(false)} />
             ) : (
@@ -143,6 +153,8 @@ const AppointmentManagement = () => {
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Tìm kiếm..."
+                                onChange={handleSearch}
+                                value={searchValue}
                                 InputProps={{
                                     style: { height: '40px', fontSize: '16px', backgroundColor: 'white' },
                                     startAdornment: (
@@ -179,8 +191,8 @@ const AppointmentManagement = () => {
                     <div className={cx('table')}>
                         <TableComp
                             columns={columns}
-                            data={dataUser}
-                            // isLoading={isLoadingUser}
+                            data={filteredData}
+                            isLoading={isLoading}
                             onRow={(record, rowIndex) => {
                                 return {
                                     onClick: (event) => {
@@ -189,7 +201,7 @@ const AppointmentManagement = () => {
                                 };
                             }}
                             // mutation={mutationDelMany}
-                            // refetch={refetch}
+                            refetch={refetch}
                             defaultPageSize={7}
                         />
                     </div>
@@ -198,8 +210,8 @@ const AppointmentManagement = () => {
                         setIsOpen={setIsDeleteModalOpen}
                         rowSelected={rowSelected}
                         title="Bạn có chắc chắn xóa lịch khám này?"
-                        // refetch={refetch}
-                        // mutation={mutation}
+                        refetch={refetch}
+                        mutation={mutationMedicalConsultationHistory}
                     />
                 </>
             )}

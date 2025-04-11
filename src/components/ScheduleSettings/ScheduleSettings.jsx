@@ -7,38 +7,40 @@ import classNames from 'classnames/bind';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './ScheduleSettings.module.scss';
 import CreateSchedule from './CreateSchedule/CreateSchedule';
+import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
 
 // Đăng ký locale tiếng Việt
 registerLocale('vi', vi);
 
-export default function ScheduleSettings() {
+export default function ScheduleSettings({ isLoading, data, refetch }) {
     const [date, setDate] = useState(new Date());
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Dữ liệu mẫu cho danh sách lịch nghỉ
-    const scheduleData = [
-        { id: 1, date: '15/03/2025', time: '08:00 - 17:00', reason: 'Nghỉ phép năm', status: 'Thành công' },
-        { id: 2, date: '20/03/2025', time: '08:00 - 12:00', reason: 'Khám sức khỏe', status: 'Thành công' },
-        { id: 3, date: '25/03/2025', time: '13:00 - 17:00', reason: 'Việc gia đình', status: 'Đã hủy' },
-        { id: 1, date: '15/03/2025', time: '08:00 - 17:00', reason: 'Nghỉ phép năm', status: 'Thành công' },
-        { id: 2, date: '20/03/2025', time: '08:00 - 12:00', reason: 'Khám sức khỏe', status: 'Thành công' },
-        { id: 3, date: '25/03/2025', time: '13:00 - 17:00', reason: 'Việc gia đình', status: 'Đã hủy' },
-        { id: 1, date: '15/03/2025', time: '08:00 - 17:00', reason: 'Nghỉ phép năm', status: 'Thành công' },
-        { id: 2, date: '20/03/2025', time: '08:00 - 12:00', reason: 'Khám sức khỏe', status: 'Thành công' },
-        { id: 3, date: '25/03/2025', time: '13:00 - 17:00', reason: 'Việc gia đình', status: 'Đã hủy' },
-        { id: 1, date: '15/03/2025', time: '08:00 - 17:00', reason: 'Nghỉ phép năm', status: 'Thành công' },
-        { id: 2, date: '20/03/2025', time: '08:00 - 12:00', reason: 'Khám sức khỏe', status: 'Thành công' },
-        { id: 3, date: '25/03/2025', time: '13:00 - 17:00', reason: 'Việc gia đình', status: 'Đã hủy' },
-        { id: 1, date: '15/03/2025', time: '08:00 - 17:00', reason: 'Nghỉ phép năm', status: 'Thành công' },
-        { id: 2, date: '20/03/2025', time: '08:00 - 12:00', reason: 'Khám sức khỏe', status: 'Thành công' },
-        { id: 3, date: '25/03/2025', time: '13:00 - 17:00', reason: 'Việc gia đình', status: 'Đã hủy' },
-    ];
-
     const toggleFilter = () => {
         setIsFilterOpen(!isFilterOpen);
+    };
+
+    const formatDate = (isoString) => {
+        return new Date(isoString).toISOString().split('T')[0]; // Lấy phần YYYY-MM-DD
+    };
+
+    const approvedDates = new Set(data?.filter((item) => item.status === 1).map((item) => formatDate(item.date)));
+    const canceledDates = new Set(data?.filter((item) => item.status === 2).map((item) => formatDate(item.date)));
+
+    // Hàm để gán class cho ngày trong lịch
+    const dayClassName = (day) => {
+        const formattedDate = day.toISOString().split('T')[0]; // Format YYYY-MM-DD
+
+        if (approvedDates.has(formattedDate)) {
+            return 'react-datepicker__day--approved';
+        }
+        if (canceledDates.has(formattedDate)) {
+            return 'react-datepicker__day--canceled';
+        }
+        return ''; // Ngày bình thường
     };
 
     return (
@@ -63,16 +65,17 @@ export default function ScheduleSettings() {
                                     showYearDropdown
                                     dropdownMode="select"
                                     className={cx('fullCalendar')}
+                                    dayClassName={dayClassName}
                                 />
                             </div>
                             <div className={cx('legendContainer')}>
                                 <div className={cx('legendItem')}>
-                                    <div className={cx('legendColor', 'successColor')}></div>
-                                    <span>Nghỉ đã duyệt</span>
+                                    <div className={cx('legendColor', 'currentColor')}></div>
+                                    <span>Ngày hiện tại</span>
                                 </div>
                                 <div className={cx('legendItem')}>
-                                    <div className={cx('legendColor', 'pendingColor')}></div>
-                                    <span>Đang chờ duyệt</span>
+                                    <div className={cx('legendColor', 'successColor')}></div>
+                                    <span>Nghỉ đã duyệt</span>
                                 </div>
                                 <div className={cx('legendItem')}>
                                     <div className={cx('legendColor', 'canceledColor')}></div>
@@ -90,7 +93,11 @@ export default function ScheduleSettings() {
                                         <span>Tạo lịch nghỉ</span>
                                     </button>
                                 </div>
-                                <CreateSchedule isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
+                                <CreateSchedule
+                                    isModalOpen={isModalOpen}
+                                    setIsModalOpen={setIsModalOpen}
+                                    refetch={refetch}
+                                />
                                 <div className={cx('rightActions')}>
                                     <div className={cx('filterContainer')}>
                                         <button className={cx('filterButton')} onClick={toggleFilter}>
@@ -122,6 +129,13 @@ export default function ScheduleSettings() {
 
                             <div className={cx('tableContainer')}>
                                 <table className={cx('scheduleTable')}>
+                                    <colgroup>
+                                        <col style={{ width: '10%' }} />
+                                        <col style={{ width: '20%' }} />
+                                        <col style={{ width: '20%' }} />
+                                        <col style={{ width: '30%' }} />
+                                        <col style={{ width: '20%' }} />
+                                    </colgroup>
                                     <thead>
                                         <tr>
                                             <th>STT</th>
@@ -134,21 +148,31 @@ export default function ScheduleSettings() {
                                 </table>
                                 <div className={cx('tableBodyWrapper')}>
                                     <table className={cx('scheduleTable')}>
+                                        <colgroup>
+                                            <col style={{ width: '10%' }} />
+                                            <col style={{ width: '20%' }} />
+                                            <col style={{ width: '20%' }} />
+                                            <col style={{ width: '30%' }} />
+                                            <col style={{ width: '20%' }} />
+                                        </colgroup>
                                         <tbody className={cx('tableBody')}>
-                                            {scheduleData.map((item) => (
-                                                <tr key={item.id}>
-                                                    <td>{item.id}</td>
-                                                    <td>{item.date}</td>
-                                                    <td>{item.time}</td>
-                                                    <td>{item.reason}</td>
+                                            {data?.map((item, index) => (
+                                                <tr key={item?._id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{convertISODateToLocalDate(item?.date)}</td>
+                                                    <td>
+                                                        {item?.clinicSchedule?.startTime} -{' '}
+                                                        {item?.clinicSchedule?.endTime}
+                                                    </td>
+                                                    <td>{item?.reason}</td>
                                                     <td>
                                                         <span
                                                             className={cx('statusBadge', {
-                                                                successBadge: item.status === 'Thành công',
-                                                                canceledBadge: item.status === 'Đã hủy',
+                                                                successBadge: item?.status === 1,
+                                                                canceledBadge: item?.status === 2,
                                                             })}
                                                         >
-                                                            {item.status}
+                                                            {item?.status === 1 ? 'Thành công' : 'Đã hủy'}
                                                         </span>
                                                     </td>
                                                 </tr>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './EditDetailPatient.module.scss';
@@ -13,7 +13,7 @@ import { useMutation } from 'react-query';
 import * as userService from '../../../services/userServices';
 import * as patientService from '../../../services/patientService';
 import ModalConfirm from '../../ModalConfirm/ModalConfirm';
-import checkStatusResponse from '../../../utils/checkStatusResponse';
+import { set } from 'date-fns';
 
 const cx = classNames.bind(styles);
 
@@ -24,12 +24,13 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
 
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
-    const [phone, setPhone] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [address, setAddress] = useState('');
     const [gender, setGender] = useState('1');
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [province, setProvince] = useState('');
     const [district, setDistrict] = useState('');
+    const [commune, setCommune] = useState('');
 
     const [bloodType, setBloodType] = useState('');
     const [height, setHeight] = useState(0);
@@ -42,12 +43,13 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
         if (dataUser) {
             setEmail(dataUser.email);
             setUserName(dataUser.userName);
-            setPhone(dataUser.phone);
+            setPhoneNumber(dataUser.phoneNumber);
             setAddress(dataUser.address);
             setGender(dataUser.gender);
             setDateOfBirth(dataUser.dateOfBirth);
             setProvince(dataUser.province);
             setDistrict(dataUser.district);
+            setCommune(dataUser.commune);
         }
     }, [dataUser]);
 
@@ -65,31 +67,32 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
             const { id, ...rests } = data;
             return userService.updateUser(id, rests);
         },
-    });
-
-    const mutationUpdateHealthRecord = useMutation({
-        mutationFn: (data) => {
-            const { id, ...rests } = data;
-            return patientService.updateHealthRecord(id, rests);
+        onSuccess: () => {
+            refetchUser();
+            message.success('Cập nhật thành công');
+            onBack();
+        },
+        onError: () => {
+            message.error('Cập nhật thất bại');
         },
     });
 
-    const { dataResUser, isLoadingUser, isSuccessUser, isErrorUser } = mutationUser;
-
-    const { dataResHealthRecord, isLoadingHealthRecord, isSuccessHealthRecord, isErrorHealthRecord } =
-        mutationUpdateHealthRecord;
-
-    useEffect(() => {
-        if (isSuccessHealthRecord || isSuccessUser) {
-            onBack();
-            refetchUser();
+    const mutationUpdateHealthRecord = useMutation({
+        mutationFn: async (data) => {
+            const { id, ...rests } = data;
+            const response = await patientService.updateHealthRecord(id, rests);
+            console.log('response', response.data);
+            return response?.data;
+        },
+        onSuccess: () => {
             refetchHealthRecord();
             message.success('Cập nhật thành công');
-        } else if (isErrorHealthRecord || isErrorUser) {
+            onBack();
+        },
+        onError: () => {
             message.error('Cập nhật thất bại');
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isSuccessHealthRecord, isErrorHealthRecord, isSuccessUser, isErrorUser, isLoadingHealthRecord, isLoadingUser]);
+        },
+    });
 
     const renderAction = () => {
         return (
@@ -133,12 +136,13 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
             id: dataUser._id,
             email,
             userName,
-            phone,
+            phoneNumber,
             address,
             gender,
             dateOfBirth,
             province,
             district,
+            commune,
         });
     };
 
@@ -176,10 +180,9 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                                     NGÀY SINH
                                 </label>
                                 <DatePicker
-                                    format={'YYYY-MM-DD'}
-                                    value={dayjs(convertISODateToLocalDate(dateOfBirth || '2000-01-01'), 'YYYY-MM-DD')}
+                                    format="DD/MM/YYYY"
+                                    value={dayjs(dateOfBirth, 'YYYY-MM-DD')}
                                     onChange={(date) => setDateOfBirth(date)}
-                                    dateFormat="yyyy-MM-dd"
                                 />
                             </div>
                             <></>
@@ -207,8 +210,8 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                                 <Input
                                     className={cx('input')}
                                     required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -244,7 +247,12 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
-                                <Input className={cx('input')} required value="Mỗ Lao" />
+                                <Input
+                                    className={cx('input')}
+                                    required
+                                    value={commune}
+                                    onChange={(e) => setCommune(e.target.value)}
+                                />
                             </div>
                         </div>
                     </div>

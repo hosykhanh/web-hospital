@@ -27,7 +27,10 @@ const DoctorProfile = () => {
 
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
-    const [phone, setPhone] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [province, setProvince] = useState('');
+    const [district, setDistrict] = useState('');
+    const [commune, setCommune] = useState('');
     const [address, setAddress] = useState('');
     const [avatar, setAvatar] = useState(null);
     const [gender, setGender] = useState('1');
@@ -60,7 +63,6 @@ const DoctorProfile = () => {
         },
     });
 
-
     useEffect(() => {
         if (isSuccess && checkStatusResponse(data)) {
             dispatch(updateUser({ id: users.id, ...data?.data }));
@@ -75,8 +77,11 @@ const DoctorProfile = () => {
         if (users) {
             setEmail(users.email);
             setUserName(users.userName);
-            setPhone(users.phone);
+            setPhoneNumber(users.phoneNumber);
             setAddress(users.address);
+            setProvince(users.province);
+            setDistrict(users.district);
+            setCommune(users.commune);
             setAvatar(users.avatar);
             setGender(users.gender);
             setDateOfBirth(users.dateOfBirth);
@@ -100,19 +105,31 @@ const DoctorProfile = () => {
     };
 
     const handleOnChangePhone = (e) => {
-        setPhone(e.target.value);
+        setPhoneNumber(e.target.value);
     };
 
     const handleOnChangeAddress = (e) => {
         setAddress(e.target.value);
     };
 
+    const handleOnChangeProvince = (e) => {
+        setProvince(e.target.value);
+    };
+
+    const handleOnChangeDistrict = (e) => {
+        setDistrict(e.target.value);
+    };
+
+    const handleOnChangeCommune = (e) => {
+        setCommune(e.target.value);
+    };
+
     const handleOnChangeGender = (e) => {
         setGender(e.target.value);
     };
 
-    const handleOnChangeDateOfBirth = (e) => {
-        setDateOfBirth(e.target.value);
+    const handleOnChangeDateOfBirth = (date, dateString) => {
+        setDateOfBirth(dateString);
     };
 
     const handleOnChangeQualification = (e) => {
@@ -125,10 +142,6 @@ const DoctorProfile = () => {
 
     const handleOnChangeDescription = (e) => {
         setDescription(e.target.value);
-    };
-
-    const showModalEdit = () => {
-        setIsModalOpenEdit(true);
     };
 
     const showModalAvatar = () => {
@@ -144,14 +157,21 @@ const DoctorProfile = () => {
         setIsModalOpenAvatar(false);
     };
 
+    const showModalEdit = () => {
+        setIsModalOpenEdit(true);
+    };
+
     const handleOkEdit = () => {
         setIsModalOpenEdit(false);
         mutation.mutate({
             id: users?.id,
             userName,
             email,
-            phone,
+            phoneNumber,
             address,
+            province,
+            district,
+            commune,
             gender,
             dateOfBirth,
             qualification,
@@ -162,8 +182,8 @@ const DoctorProfile = () => {
 
     const handleCancelEdit = () => {
         setIsModalOpenEdit(false);
-        setAvatar(users.avatar);
     };
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('title')}>Hồ sơ bác sỹ</div>
@@ -172,7 +192,7 @@ const DoctorProfile = () => {
                     <div className={cx('wrapper-form')}>
                         <div className={cx('form')}>
                             <div className={cx('title-form-top')}>Thông tin tài khoản</div>
-                            <div className={cx('form-user-email')}>
+                            <div className={cx('form-grid-1')}>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="User">HỌ VÀ TÊN</label>
                                     <Input value={users?.userName} className={cx('input')} disabled={true} />
@@ -184,23 +204,32 @@ const DoctorProfile = () => {
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
-                                <Input className={cx('input')} disabled={true} value={users?.phone} />
+                                <Input className={cx('input')} disabled={true} value={users?.phoneNumber} />
+                            </div>
+                            <div className={cx('form-grid-1')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="Province">TỈNH/ THÀNH PHỐ</label>
+                                    <Input value={users?.province} className={cx('input')} disabled={true} />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="District">QUẬN/ HUYỆN</label>
+                                    <Input className={cx('input')} disabled={true} value={users?.district} />
+                                </div>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label htmlFor="Commune">PHƯỜNG/ XÃ</label>
+                                <Input className={cx('input')} disabled={true} value={users?.commune} />
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="address">ĐỊA CHỈ</label>
                                 <Input className={cx('input')} disabled={true} value={users?.address} />
-                            </div>
-                            <div className={cx('wrapper-btn')}>
-                                <Button className={cx('btn')} type="primary" onClick={showModalEdit}>
-                                    Chỉnh sửa
-                                </Button>
                             </div>
                         </div>
                         <div className={cx('form')}>
                             <div className={cx('title-form-top')}>Thông tin chi tiết</div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="level">TRÌNH ĐỘ</label>
-                                <Radio.Group name="gender" value={users?.qualification} disabled={true}>
+                                <Radio.Group name="qualification" value={users?.qualification} disabled={true}>
                                     <Radio value="Thạc sĩ">THẠC SĨ</Radio>
                                     <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
                                     <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
@@ -219,7 +248,7 @@ const DoctorProfile = () => {
                                 <Input
                                     className={cx('input')}
                                     disabled={true}
-                                    value={convertISODateToLocalDate(users?.dateOfBirth || '2000-01-01')}
+                                    value={convertISODateToLocalDate(users?.dateOfBirth || '01/01/2000')}
                                 />
                             </div>
                             <div className={cx('form-label')}>
@@ -281,7 +310,7 @@ const DoctorProfile = () => {
                     <div className={cx('footer-edit')}>
                         <div className={cx('content-send')}>
                             <div className={cx('form')}>
-                                <div className={cx('form-user-email')}>
+                                <div className={cx('form-grid-1')}>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="User">HỌ VÀ TÊN</label>
                                         <Input value={userName} className={cx('input')} onChange={handleOnChangeName} />
@@ -293,7 +322,29 @@ const DoctorProfile = () => {
                                 </div>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
-                                    <Input className={cx('input')} value={phone} onChange={handleOnChangePhone} />
+                                    <Input className={cx('input')} value={phoneNumber} onChange={handleOnChangePhone} />
+                                </div>
+                                <div className={cx('form-grid-1')}>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="Province">TỈNH/ THÀNH PHỐ</label>
+                                        <Input
+                                            value={province}
+                                            className={cx('input')}
+                                            onChange={handleOnChangeProvince}
+                                        />
+                                    </div>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="District">QUẬN/ HUYỆN</label>
+                                        <Input
+                                            className={cx('input')}
+                                            value={district}
+                                            onChange={handleOnChangeDistrict}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="Commune">PHƯỜNG/ XÃ</label>
+                                    <Input className={cx('input')} value={commune} onChange={handleOnChangeCommune} />
                                 </div>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="address">ĐỊA CHỈ</label>
@@ -322,13 +373,13 @@ const DoctorProfile = () => {
                                 <div className={cx('form-label')}>
                                     <label htmlFor="dateOfBirth">NGÀY SINH</label>
                                     <DatePicker
-                                        format={'YYYY-MM-DD'}
-                                        value={dayjs(
-                                            convertISODateToLocalDate(dateOfBirth || '2000-01-01'),
-                                            'YYYY-MM-DD',
-                                        )}
+                                        format="DD/MM/YYYY"
+                                        value={
+                                            dateOfBirth
+                                                ? dayjs(convertISODateToLocalDate(dateOfBirth, 'YYYY-MM-DD'))
+                                                : null
+                                        }
                                         onChange={handleOnChangeDateOfBirth}
-                                        dateFormat="yyyy-MM-dd"
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
