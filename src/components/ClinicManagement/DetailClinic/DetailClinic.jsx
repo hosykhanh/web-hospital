@@ -8,11 +8,53 @@ import Button from '../../Button/Button';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import TableComp from '../../TableComp/TableComp';
 import DetailDoctor from '../../DoctorManagement/DetailDoctor/DetailDoctor';
+import * as doctorService from '../../../services/doctorService';
+import * as clinicService from '../../../services/clinicService';
+import * as scheduleService from '../../../services/scheduleService';
+import { useQuery } from 'react-query';
 
 const cx = classNames.bind(styles);
 
-const DetailClinic = ({ onBack }) => {
+const DetailClinic = ({ onBack, rowSelectedClinic }) => {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+
+    // --- API GET CLINICS BY ID ---
+    const getClinicById = async () => {
+        const res = await clinicService.getClinicById(rowSelectedClinic);
+        console.log('res', res);
+        return res.data;
+    };
+
+    const {
+        isLoading: isLoadingClinic,
+        data: dataClinic,
+        refetch: refetchClinic,
+    } = useQuery(['clinic', rowSelectedClinic], getClinicById, {
+        enabled: !!rowSelectedClinic,
+    });
+
+    // --- API GET ALL DOCTORS ---
+    const getAllDoctors = async () => {
+        const res = await doctorService.getAllDoctors();
+        return res.data.items;
+    };
+
+    const {
+        isLoading: isLoadingDoctors,
+        data: dataDoctors,
+        refetch: refetchDoctors,
+    } = useQuery(['doctors', rowSelectedClinic], getAllDoctors, {
+        enabled: !!rowSelectedClinic,
+    });
+
+    const {
+        data: dataClinicSchedule,
+        isLoading: isLoadingClinicSchedule,
+        refetch: refetchClinicSchedule,
+    } = useQuery(['clinicSchedule', rowSelectedClinic], () => scheduleService.getClinicSchedule(rowSelectedClinic), {
+        enabled: !!rowSelectedClinic,
+        select: (data) => data?.data,
+    });
 
     const showModalEdit = () => {
         setIsModalOpenEdit(true);
@@ -44,77 +86,15 @@ const DetailClinic = ({ onBack }) => {
         );
     };
 
-    const dataUser = {
-        length: 8,
-        data: [
-            {
-                _id: 1,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 2,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 3,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 4,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 5,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 6,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 7,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-            {
-                _id: 8,
-                patient_id: '123456',
-                doctor_name: 'John Doe',
-                email: 'nguyenvana@gmai.com',
-                specialty: 'Cấp cứu',
-            },
-        ],
-    };
-
     const columns = [
         {
             title: 'Mã bác sĩ',
-            dataIndex: '_id',
+            dataIndex: 'code',
             sorter: (a, b) => a.name.length - b.name.length,
         },
         {
             title: 'Họ và tên',
-            dataIndex: 'doctor_name',
+            dataIndex: 'userName',
         },
         {
             title: 'Email',
@@ -133,7 +113,7 @@ const DetailClinic = ({ onBack }) => {
     return (
         <div>
             {isDetailVisible ? (
-                <DetailDoctor onBack={() => setIsDetailVisible(false)} />
+                <DetailDoctor onBack={() => setIsDetailVisible(false)} rowSelected={rowSelected} />
             ) : (
                 <div className={cx('wrapper')}>
                     <div>
@@ -151,14 +131,19 @@ const DetailClinic = ({ onBack }) => {
                                         <div className={cx('form-user-email')}>
                                             <div className={cx('form-label')}>
                                                 <label htmlFor="User">TÊN PHÒNG KHÁM</label>
-                                                <Input value="Hà Nội" className={cx('input')} required disabled />
+                                                <Input
+                                                    value={dataClinic?.name}
+                                                    className={cx('input')}
+                                                    required
+                                                    disabled
+                                                />
                                             </div>
                                             <div className={cx('form-label')}>
                                                 <label htmlFor="Status">TRẠNG THÁI</label>
                                                 <Input
                                                     className={cx('input')}
                                                     required
-                                                    value="Đang hoạt động"
+                                                    value={dataClinic?.status === 1 ? 'Đang hoạt động' : 'Tạm dừng'}
                                                     disabled
                                                 />
                                             </div>
@@ -169,32 +154,39 @@ const DetailClinic = ({ onBack }) => {
                                                 <Input
                                                     className={cx('input')}
                                                     required
-                                                    value="clinic@gmail.com"
+                                                    value={dataClinic?.email}
                                                     disabled
                                                 />
                                             </div>
                                             <div className={cx('form-label')}>
                                                 <label htmlFor="phone">HOLINE</label>
-                                                <Input className={cx('input')} required value="092352352" disabled />
+                                                <Input
+                                                    className={cx('input')}
+                                                    required
+                                                    value={dataClinic?.hotline}
+                                                    disabled
+                                                />
                                             </div>
                                         </div>
                                         <div className={cx('form-label')}>
                                             <label htmlFor="address">ĐỊA CHỈ</label>
-                                            <Input className={cx('input')} required value="Hà Nội" disabled />
+                                            <Input
+                                                className={cx('input')}
+                                                required
+                                                value={dataClinic?.address}
+                                                disabled
+                                            />
                                         </div>
                                         <div className={cx('form-label')}>
                                             <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
                                             <div className="mt-4">
-                                                {timeSlots.map((time) => (
+                                                {dataClinicSchedule?.map((time) => (
                                                     <Tag
-                                                        key={time}
+                                                        key={time?._id}
                                                         color="blue"
-                                                        // closable
-                                                        // onClose={() => removeTime(time)}
                                                         style={{ marginRight: 5, fontSize: 14 }}
-                                                        // closeIcon={<CloseOutlined style={{ fontSize: '15px'}}/>}
                                                     >
-                                                        {time}
+                                                        {time?.startTime} - {time?.endTime}
                                                     </Tag>
                                                 ))}
                                             </div>
@@ -230,8 +222,8 @@ const DetailClinic = ({ onBack }) => {
                             <div className={cx('table')}>
                                 <TableComp
                                     columns={columns}
-                                    data={dataUser}
-                                    // isLoading={isLoadingUser}
+                                    data={dataDoctors}
+                                    isLoading={isLoadingDoctors}
                                     onRow={(record, rowIndex) => {
                                         return {
                                             onClick: (event) => {
@@ -240,7 +232,7 @@ const DetailClinic = ({ onBack }) => {
                                         };
                                     }}
                                     // mutation={mutationDelMany}
-                                    // refetch={refetch}
+                                    refetch={refetchDoctors}
                                     defaultPageSize={7}
                                 />
                             </div>

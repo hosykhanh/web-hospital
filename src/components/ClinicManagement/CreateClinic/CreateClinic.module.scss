@@ -72,12 +72,12 @@
     }
 
     .input {
-        padding: 3px;
-        border-radius: 3px;
+        padding: 7px 12px;
+        border-radius: 8px;
         border: 1px solid #e0e0e0;
         margin-top: 5px;
         background-color: #ffffff;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #000000;
     }
 
@@ -105,14 +105,15 @@
         padding: 10px;
         overflow-y: auto;
         margin-bottom: 15px;
-        font-size: 1.1rem;
+        font-size: 0.9rem;
         margin-top: 5px;
     }
 }
 
 .btn-time {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     background-color: #ffffff;
     font-weight: 400;
     border: 1px solid #e0e0e0;
+    color: #8e8e8e;
 }

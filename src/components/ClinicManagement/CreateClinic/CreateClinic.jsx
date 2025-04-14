@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './CreateClinic.module.scss';
-import { Checkbox, DatePicker, Input, Modal,     Tag } from 'antd';
+import { Checkbox, DatePicker, Input, Modal, Tag } from 'antd';
 import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
 import dayjs from 'dayjs';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined, CloseOutlined } from '@ant-design/icons';
 import images from '../../../assets';
+import TextArea from 'antd/es/input/TextArea';
 
 const cx = classNames.bind(styles);
 
@@ -55,7 +56,7 @@ const CreateClinic = ({ onBack }) => {
                     <div className={cx('form-user-email')}>
                         <div className={cx('form-label')}>
                             <label htmlFor="User">TÊN PHÒNG KHÁM</label>
-                            <Input value="" className={cx('input')} required />
+                            <Input className={cx('input')} required placeholder="Nhập tên phòng khám" />
                         </div>
                         <div className={cx('form-label')}>
                             <label htmlFor="Status">TRẠNG THÁI</label>
@@ -65,20 +66,20 @@ const CreateClinic = ({ onBack }) => {
                     <div className={cx('form-user-email')}>
                         <div className={cx('form-label')}>
                             <label htmlFor="email">EMAIL</label>
-                            <Input className={cx('input')} required value="" />
+                            <Input className={cx('input')} required value="" placeholder="Nhập email" />
                         </div>
                         <div className={cx('form-label')}>
                             <label htmlFor="phone">HOLINE</label>
-                            <Input className={cx('input')} required value="" />
+                            <Input className={cx('input')} required value="" placeholder="Nhập số điện thoại" />
                         </div>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="address">ĐỊA CHỈ</label>
-                        <Input className={cx('input')} required value="" />
+                        <Input className={cx('input')} required value="" placeholder="Nhập địa chỉ" />
                     </div>
                     <div className={cx('more-info')}>
                         <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                        <textarea className={cx('info')}></textarea>
+                        <TextArea className={cx('info')} placeholder="Nhập giới thiệu thêm về phòng khám"></TextArea>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
@@ -117,7 +118,7 @@ const CreateClinic = ({ onBack }) => {
                                     closable
                                     onClose={() => removeTime(time)}
                                     style={{ marginRight: 5, fontSize: 14 }}
-                                    closeIcon={<CloseOutlined style={{ fontSize: '15px'}}/>}
+                                    closeIcon={<CloseOutlined style={{ fontSize: '15px' }} />}
                                 >
                                     {time}
                                 </Tag>

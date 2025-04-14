@@ -1,7 +1,7 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './CreateAppointment.module.scss';
 import { districts, wards, getProvinces } from 'vietnam-provinces';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import classNames from 'classnames/bind';
 import CustomDatePicker from './custom-date-picke';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -14,12 +14,11 @@ import * as medicalService from '../../../services/medicalService';
 import * as scheduleService from '../../../services/scheduleService';
 import * as clinicService from '../../../services/clinicService';
 import * as patientService from '../../../services/patientService';
-import * as userService from '../../../services/userServices';
 import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
 
-const CreateAppointment = ({ onBack }) => {
+const CreateAppointment = ({ onBack, refetch }) => {
     const [formData, setFormData] = useState({
         patientId: '',
         patientName: '',
@@ -82,13 +81,13 @@ const CreateAppointment = ({ onBack }) => {
         },
     );
 
-    // --- API GET ALL PATIENTS BY DOCTOR ID ---
+    // --- API GET ALL PATIENTS ---
     const getAllPatients = async () => {
-        if (user?.role === 2) {
+        if (user.role === 2) {
             const res = await patientService.getAllPatientsByDoctorId(user?.id);
             return res.data.items;
         } else {
-            const res = await userService.getAllUser({ role: 3 });
+            const res = await patientService.getAllPatients();
             return res.data.items;
         }
     };
@@ -148,13 +147,13 @@ const CreateAppointment = ({ onBack }) => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        const res = patientService.createMedicalConsultationHistory(formData);
+        const res = await patientService.createMedicalConsultationHistory(formData);
         if (res.statusCode === 200) {
             message.success('Thêm lịch khám thành công!');
             onBack();
+            refetch();
         } else {
             message.error('Thêm lịch khám thất bại!', res.message);
         }
@@ -439,14 +438,13 @@ const CreateAppointment = ({ onBack }) => {
                                 <label className={cx('requiredField')}>Dịch vụ khám</label>
                                 <select
                                     name="medicalServiceName"
-                                    value={formData.medicalServiceName}
                                     onChange={handleChangeMedicalService}
                                     className={cx('formInput', 'formSelect')}
                                 >
                                     <option value={''}>Chọn dịch vụ khám</option>
                                     {dataMedicalService?.map((service) => (
                                         <option key={service._id} value={service._id}>
-                                            {service.name}
+                                            {`${service.name} - Giá gốc: ${service.originalPrice} VND → Giá hiện tại: ${service.currentPrice} VND`}
                                         </option>
                                     ))}
                                 </select>

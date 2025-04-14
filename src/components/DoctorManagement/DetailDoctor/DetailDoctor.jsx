@@ -13,6 +13,7 @@ import * as userService from '../../../services/userServices';
 import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../../utils/checkStatusResponse';
 import InputUpload from '../../InputUpload/InputUpload';
+import TextArea from 'antd/es/input/TextArea';
 
 const cx = classNames.bind(styles);
 
@@ -433,11 +434,11 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
                             </div>
                             <div className={cx('more-info')}>
                                 <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                                <textarea
+                                <TextArea
                                     className={cx('info')}
                                     value={description}
                                     onChange={handleOnChangeDescription}
-                                ></textarea>
+                                ></TextArea>
                             </div>
                         </div>
                         <div className={cx('wrapper-btn-save')}>

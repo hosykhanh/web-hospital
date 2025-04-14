@@ -62,29 +62,37 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
         }
     }, [dataHealthRecord]);
 
-    const mutationUser = useMutation({
-        mutationFn: (data) => {
-            const { id, ...rests } = data;
-            return userService.updateUser(id, rests);
+    const mutationUpdateAll = useMutation({
+        mutationFn: async () => {
+            try {
+                const updateUserPromise = userService.updateUser(dataUser._id, {
+                    email,
+                    userName,
+                    phoneNumber,
+                    address,
+                    gender,
+                    dateOfBirth,
+                    province,
+                    district,
+                    commune,
+                });
+
+                const updateHealthRecordPromise = patientService.updateHealthRecord(dataUser._id, {
+                    bloodType,
+                    height,
+                    weight,
+                    healthHistory,
+                });
+
+                const [userRes, healthRecordRes] = await Promise.all([updateUserPromise, updateHealthRecordPromise]);
+
+                return { userRes, healthRecordRes };
+            } catch (error) {
+                throw error;
+            }
         },
         onSuccess: () => {
             refetchUser();
-            message.success('Cập nhật thành công');
-            onBack();
-        },
-        onError: () => {
-            message.error('Cập nhật thất bại');
-        },
-    });
-
-    const mutationUpdateHealthRecord = useMutation({
-        mutationFn: async (data) => {
-            const { id, ...rests } = data;
-            const response = await patientService.updateHealthRecord(id, rests);
-            console.log('response', response.data);
-            return response?.data;
-        },
-        onSuccess: () => {
             refetchHealthRecord();
             message.success('Cập nhật thành công');
             onBack();
@@ -131,19 +139,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
     ];
 
     const handleSubmit = async () => {
-        mutationUpdateHealthRecord.mutate({ id: dataUser._id, bloodType, height, weight, healthHistory });
-        mutationUser.mutate({
-            id: dataUser._id,
-            email,
-            userName,
-            phoneNumber,
-            address,
-            gender,
-            dateOfBirth,
-            province,
-            district,
-            commune,
-        });
+        mutationUpdateAll.mutate();
     };
 
     const mutationMedicalConsultationHistory = useMutation({
@@ -165,7 +161,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                         <div className={cx('form-grid-1')}>
                             <div className={cx('form-label')}>
                                 <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
-                                <Input value={dataUser?._id} className={cx('input')} required disabled={true} />
+                                <Input value={dataUser?.code} className={cx('input')} required disabled={true} />
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="User">HỌ VÀ TÊN</label>

@@ -51,11 +51,11 @@
         color: #ffffff;
     }
 
-    .btn-edit:hover{
+    .btn-edit:hover {
         color: #e2e2e2;
     }
 
-    .btn-delete:hover{
+    .btn-delete:hover {
         color: #e2e2e2;
     }
 }
@@ -75,12 +75,12 @@
     }
 
     .input {
-        padding: 3px;
+        padding: 4px 12px;
         border-radius: 3px;
         border: 1px solid #e0e0e0;
         margin-top: 5px;
         background-color: #ffffff;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #000000;
     }
 
@@ -100,7 +100,6 @@
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
-
 }
 
 .content-right {
@@ -142,7 +141,6 @@
         margin-bottom: 15px;
         font-size: 1rem;
     }
-
 }
 
 .content-send {
@@ -170,7 +168,7 @@
     }
 }
 
-.list-doctor{
+.list-doctor {
     padding: 30px;
 
     .title-list {
@@ -183,7 +181,7 @@
     .action {
         display: flex;
         gap: 10px;
-    
+
         .view {
             color: blue;
             cursor: pointer;
@@ -195,11 +193,10 @@
             padding: 6px;
         }
     }
-    
+
     .table {
         padding: 10px;
         background-color: #ffffff;
         border-radius: 8px;
     }
-    
 }

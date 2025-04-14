@@ -52,6 +52,14 @@ const deleteMedicalConsultationHistory = async (id) => {
     return res.data;
 };
 
+const completeMedicalConsultationHistory = async (id, data) => {
+    const res = await axiosJWT.put(
+        `${process.env.REACT_APP_API_URL}/medical-consultation-history/${id}/complete`,
+        data,
+    );
+    return res.data;
+};
+
 const cancelMedicalConsultationHistory = async (id) => {
     const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/medical-consultation-history/${id}/cancel`);
     return res.data;
@@ -67,5 +75,6 @@ export {
     createMedicalConsultationHistory,
     updateMedicalConsultationHistory,
     deleteMedicalConsultationHistory,
+    completeMedicalConsultationHistory,
     cancelMedicalConsultationHistory,
 };

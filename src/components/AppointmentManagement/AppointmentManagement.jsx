@@ -141,9 +141,13 @@ const AppointmentManagement = ({ isLoading, data, refetch }) => {
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <AppointmentInformation onBack={() => setIsDetailVisible(false)} rowSelectedInfo={rowSelected} />
+                <AppointmentInformation
+                    onBack={() => setIsDetailVisible(false)}
+                    rowSelectedInfo={rowSelected}
+                    refetch={refetch}
+                />
             ) : isCreateAppointment ? (
-                <CreateAppointment onBack={() => setIsCreateAppointment(false)} />
+                <CreateAppointment onBack={() => setIsCreateAppointment(false)} refetch={refetch} />
             ) : (
                 <>
                     <div className={cx('title')}>Quản lý lịch khám</div>

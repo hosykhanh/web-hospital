@@ -3,21 +3,21 @@ import classNames from 'classnames/bind';
 
 import styles from './CreateDoctor.module.scss';
 import { DatePicker, Input, message, Radio } from 'antd';
-import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
-import dayjs from 'dayjs';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import images from '../../../assets';
 import { useMutation } from 'react-query';
-import * as doctorService from '../../../services/doctorService';
 import checkStatusResponse from '../../../utils/checkStatusResponse';
 import { districts, getProvinces, wards } from 'vietnam-provinces';
+import Loading from '../../Loading/Loading';
+import TextArea from 'antd/lib/input/TextArea';
 
 const cx = classNames.bind(styles);
 
 const CreateDoctor = ({ onBack }) => {
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [province, setProvince] = useState('');
     const [district, setDistrict] = useState('');
@@ -80,6 +80,7 @@ const CreateDoctor = ({ onBack }) => {
         mutation.mutate({
             userName,
             email,
+            password,
             phoneNumber,
             address,
             province,
@@ -117,6 +118,7 @@ const CreateDoctor = ({ onBack }) => {
                                 className={cx('input')}
                                 required
                                 onChange={(e) => setUserName(e.target.value)}
+                                placeholder="Nhập họ và tên"
                             />
                         </div>
                         <div className={cx('form-label')}>
@@ -126,17 +128,31 @@ const CreateDoctor = ({ onBack }) => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Nhập email"
                             />
                         </div>
                     </div>
-                    <div className={cx('form-label')}>
-                        <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
-                        <Input
-                            className={cx('input')}
-                            required
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                        />
+                    <div className={cx('form-grid-1')}>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="password">MẬT KHẨU</label>
+                            <Input.Password
+                                className={cx('input')}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="Nhập mật khẩu"
+                            />
+                        </div>
+                        <div className={cx('form-label')}>
+                            <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
+                            <Input
+                                className={cx('input')}
+                                required
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="Nhập số điện thoại"
+                            />
+                        </div>
                     </div>
                     <div className={cx('form-grid-1')}>
                         <div className={cx('form-label')}>
@@ -182,6 +198,7 @@ const CreateDoctor = ({ onBack }) => {
                                 required
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
+                                placeholder="Nhập địa chỉ"
                             />
                         </div>
                         <div className={cx('form-label')}>
@@ -233,6 +250,7 @@ const CreateDoctor = ({ onBack }) => {
                             required
                             value={specialty}
                             onChange={(e) => setSpecialty(e.target.value)}
+                            placeholder="Nhập chuyên khoa"
                         />
                     </div>
                     <div className={cx('form-label')}>
@@ -241,16 +259,19 @@ const CreateDoctor = ({ onBack }) => {
                     </div>
                     <div className={cx('more-info')}>
                         <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                        <textarea
+                        <TextArea
                             className={cx('info')}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                        ></textarea>
+                            placeholder="Nhập giới thiệu thêm về bác sĩ"
+                        ></TextArea>
                     </div>
                     <div className={cx('wrapper-btn-save')}>
-                        <Button className={cx('btn')} type="primary" onClick={handleSubmit}>
-                            Lưu
-                        </Button>
+                        <Loading isLoading={isLoading}>
+                            <Button className={cx('btn')} type="primary" onClick={handleSubmit}>
+                                Lưu
+                            </Button>
+                        </Loading>
                     </div>
                 </div>
             </div>

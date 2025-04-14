@@ -2,26 +2,26 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './AppointmentInformation.module.scss';
-import { ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DatePicker, Input, Modal, Radio } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { DatePicker, Input, message, Modal, Radio } from 'antd';
 
 import Button from '../../Button/Button';
-import UpdateExaminationDrawer from '../../UpdateExaminationDrawer/UpdateExaminationDrawer';
-import ModalConfirm from '../../ModalConfirm/ModalConfirm';
-import TableComp from '../../TableComp/TableComp';
 import * as patientService from '../../../services/patientService';
 import * as userService from '../../../services/userServices';
-import { useMutation, useQuery } from 'react-query';
-import { data } from 'react-router-dom';
+import { useQuery } from 'react-query';
 import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
-import dayjs from 'dayjs';
 
 const cx = classNames.bind(styles);
 
-const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
+const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
     const [doctor, setDoctor] = useState([]);
+
+    const [patientStatus, setPatientStatus] = useState('');
+    const [diagnosis, setDiagnosis] = useState('');
+    const [reExaminationDate, setReExaminationDate] = useState('');
+    const [noteFromDoctor, setNoteFromDoctor] = useState('');
 
     const {
         data: dataInfo,
@@ -55,12 +55,48 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
         }
     }, [dataInfo]);
 
+    const onSubmitComplete = async () => {
+        const data = {
+            responsibilityDoctorId: dataInfo?.responsibilityDoctorId,
+            patientStatus: patientStatus,
+            diagnosis: diagnosis,
+            reExaminationDate: reExaminationDate,
+            noteFromDoctor: noteFromDoctor,
+        };
+        const res = await patientService.completeMedicalConsultationHistory(rowSelectedInfo, data);
+        if (res.statusCode === 200) {
+            message.success('Hoàn thành lịch khám thành công');
+            setIsCompleteModalOpen(false);
+            refetchInfo();
+            refetchHealthRecord();
+        } else {
+            message.error('Hoàn thành lịch khám thất bại', res.message);
+        }
+    };
+
+    const onSubimtCancel = async () => {
+        const res = await patientService.cancelMedicalConsultationHistory(rowSelectedInfo);
+        if (res.statusCode === 200) {
+            message.success('Hủy lịch khám thành công');
+            setIsCancelModalOpen(false);
+            refetchInfo();
+            refetchHealthRecord();
+        } else {
+            message.error('Hủy lịch khám thất bại', res.message);
+        }
+    };
+
+    const onClickBack = () => {
+        onBack();
+        refetch();
+    };
+
     return (
         <div>
             <div className={cx('title')}>Thông tin lịch khám</div>
             <div className={cx('wrapper')}>
                 <div>
-                    <button onClick={onBack} className={cx('back')}>
+                    <button onClick={onClickBack} className={cx('back')}>
                         <ArrowLeftOutlined style={{ fontSize: '25px' }} />
                     </button>
                 </div>
@@ -122,24 +158,57 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                         <label>LÝ DO KHÁM:</label>
                         <span>{dataInfo?.examinationReason}</span>
                     </div>
-                    <div className={cx('wrapper-btn')}>
-                        <div>
-                            <Button
-                                className={cx('btn-save')}
-                                type="primary"
-                                onClick={() => setIsCompleteModalOpen(true)}
-                            >
-                                Hoàn thành
-                            </Button>
-                            <Button
-                                className={cx('btn-cancel')}
-                                type="primary"
-                                onClick={() => setIsCancelModalOpen(true)}
-                            >
-                                Hủy
-                            </Button>
+                    {dataInfo?.status === 2 || dataInfo?.status === 3 ? (
+                        <>
+                            <div className={cx('form-label')}>
+                                <label>TRÁCH NHIỆM BÁC SĨ:</label>
+                                <span>{doctor?.userName}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>DỊCH VỤ KHÁM</label>
+                                <span>{dataInfo?.medicalServiceName}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>NGÀY KHÁM:</label>
+                                <span>{convertISODateToLocalDate(dataInfo?.examinationDate)}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>TÌNH TRẠNG:</label>
+                                <span>{dataInfo?.patientStatus}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>CHẨN ĐOÁN:</label>
+                                <span>{dataInfo?.diagnosis}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>GHI CHÚ:</label>
+                                <span>{dataInfo?.noteFromDoctor}</span>
+                            </div>
+                            <div className={cx('form-label')}>
+                                <label>NGÀY TÁI KHÁM:</label>
+                                <span>{convertISODateToLocalDate(dataInfo?.reExaminationDate)}</span>
+                            </div>
+                        </>
+                    ) : (
+                        <div className={cx('wrapper-btn')}>
+                            <div>
+                                <Button
+                                    className={cx('btn-save')}
+                                    type="primary"
+                                    onClick={() => setIsCompleteModalOpen(true)}
+                                >
+                                    Hoàn thành
+                                </Button>
+                                <Button
+                                    className={cx('btn-cancel')}
+                                    type="primary"
+                                    onClick={() => setIsCancelModalOpen(true)}
+                                >
+                                    Hủy
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <Modal
                         title={<div className={cx('title-model-complete')}>Cập nhật thông tin khám</div>}
                         width="45%"
@@ -181,9 +250,10 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                                     <Input.TextArea
                                         name="patientStatus"
                                         placeholder="Nhập tình trạng"
-                                        value={dataInfo?.patientStatus}
+                                        value={patientStatus}
                                         className={cx('formInput')}
                                         rows={3}
+                                        onChange={(e) => setPatientStatus(e.target.value)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
@@ -191,19 +261,18 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                                     <Input.TextArea
                                         name="diagnosis"
                                         placeholder="Nhập chẩn đoán"
-                                        value={dataInfo?.diagnosis}
+                                        value={diagnosis}
                                         className={cx('formInput')}
                                         rows={3}
+                                        onChange={(e) => setDiagnosis(e.target.value)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
                                     <label>NGÀY TÁI KHÁM</label>
                                     <DatePicker
                                         format="DD/MM/YYYY"
-                                        value={dayjs(
-                                            convertISODateToLocalDate(dataInfo?.reExaminationDate, 'YYYY-MM-DD'),
-                                        )}
-                                        // onChange={(date) => setDateOfBirth(date)}
+                                        value={reExaminationDate}
+                                        onChange={(date) => setReExaminationDate(date)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
@@ -211,9 +280,10 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                                     <Input.TextArea
                                         name="noteFromDoctor"
                                         placeholder="Nhập ghi chú"
-                                        value={dataInfo?.noteFromDoctor}
+                                        value={noteFromDoctor}
                                         className={cx('formInput')}
                                         rows={4}
+                                        onChange={(e) => setNoteFromDoctor(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -221,7 +291,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                                 <Button outline onClick={() => setIsCompleteModalOpen(false)}>
                                     Quay lại
                                 </Button>
-                                <Button primary onClick={() => setIsCompleteModalOpen(false)}>
+                                <Button primary onClick={onSubmitComplete}>
                                     Xác nhận
                                 </Button>
                             </div>
@@ -234,12 +304,12 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo }) => {
                         footer={null}
                     >
                         <div className={cx('wrapper-model')}>
-                            <h2 className={cx('title-model')}>Bạn chắc chắn muốn hủy lịch hẹn?</h2>
+                            <h2 className={cx('title-model')}>Bạn chắc chắn muốn hủy lịch khám?</h2>
                             <div>
                                 <Button outline large onClick={() => setIsCancelModalOpen(false)}>
                                     Thoát
                                 </Button>
-                                <Button danger large onClick={() => setIsCancelModalOpen(false)}>
+                                <Button danger large onClick={onSubimtCancel}>
                                     Xác nhận hủy
                                 </Button>
                             </div>

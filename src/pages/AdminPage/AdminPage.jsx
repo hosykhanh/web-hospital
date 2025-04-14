@@ -63,7 +63,7 @@ function AdminPage() {
         enabled: keySelected === 'doctor',
     });
 
-    // --- API GET ALL PATIENTS BY DOCTOR ID ---
+    // --- API GET ALL PATIENTS ---
     const getAllPatients = async () => {
         const res = await patientService.getAllPatients();
         return res.data.items;

@@ -3,7 +3,7 @@
     justify-content: center;
     width: 100%;
     min-height: calc(100vh);
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0), rgb(94, 180, 251));
+    background-image: linear-gradient(to bottom, rgba(255, 0, 0, 0), rgb(94, 180, 251));
 
     .wapper-content {
         margin-right: 30px;
@@ -56,6 +56,7 @@
                 float: right;
                 color: blue;
                 text-decoration: none;
+                margin-bottom: 15px;
             }
 
             .btn-form {

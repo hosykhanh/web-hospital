@@ -60,7 +60,7 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
             dataIndex: 'status',
             render: (status) => {
                 const statusMap = {
-                    1: { text: 'Hoạt động', color: 'green' },
+                    1: { text: 'Đang hoạt động', color: 'green' },
                     2: { text: 'Tạm dừng', color: 'red' },
                 };
                 const { text, color } = statusMap[status] || { text: 'Không xác định', color: 'gray' };
@@ -76,7 +76,7 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <DetailClinic onBack={() => setIsDetailVisible(false)} />
+                <DetailClinic onBack={() => setIsDetailVisible(false)} rowSelectedClinic={rowSelected} />
             ) : isCreateClinic ? (
                 <CreateClinic onBack={() => setIsCreateClinic(false)} />
             ) : (
