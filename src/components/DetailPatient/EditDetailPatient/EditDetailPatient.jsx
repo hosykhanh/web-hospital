@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './EditDetailPatient.module.scss';
@@ -13,7 +13,6 @@ import { useMutation } from 'react-query';
 import * as userService from '../../../services/userServices';
 import * as patientService from '../../../services/patientService';
 import ModalConfirm from '../../ModalConfirm/ModalConfirm';
-import { set } from 'date-fns';
 
 const cx = classNames.bind(styles);
 

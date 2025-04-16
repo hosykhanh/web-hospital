@@ -81,7 +81,7 @@ const CustomDatePicker = ({ isOpen, onClose, onSelect, selectedDate }) => {
             <div className={cx('modalContent')}>
                 <div className={cx('modalHeader')}>
                     <h2>Chọn ngày khám</h2>
-                    <button onClick={onClose} className={cx('closeButton')}>
+                    <button type="button" onClick={onClose} className={cx('closeButton')}>
                         <X size={20} />
                     </button>
                 </div>
@@ -94,6 +94,7 @@ const CustomDatePicker = ({ isOpen, onClose, onSelect, selectedDate }) => {
                 <div className={cx('calendarContainer')}>
                     <div className={cx('calendarHeader')}>
                         <button
+                            type="button"
                             onClick={prevMonth}
                             className={cx('navButton')}
                             disabled={isSameMonth(currentMonth, minDate)}
@@ -102,6 +103,7 @@ const CustomDatePicker = ({ isOpen, onClose, onSelect, selectedDate }) => {
                         </button>
                         <div className={cx('currentMonth')}>Tháng {format(currentMonth, 'M - yyyy')}</div>
                         <button
+                            type="button"
                             onClick={nextMonth}
                             className={cx('navButton')}
                             disabled={isSameMonth(currentMonth, addMonths(maxDate, 1))}

@@ -11,7 +11,7 @@ const TimeSlotPicker = ({ isOpen, onClose, onSelect, selectedSlot, dataClinicSch
         <div className={cx('modalOverlay')} onClick={onClose}>
             <div className={cx('modalContent')} onClick={(e) => e.stopPropagation()}>
                 <div className={cx('modalHeader')}>
-                    <button className={cx('closeButton')} onClick={onClose}>
+                    <button type="button" className={cx('closeButton')} onClick={onClose}>
                         <X size={20} />
                     </button>
                     <h2>Chọn giờ khám</h2>

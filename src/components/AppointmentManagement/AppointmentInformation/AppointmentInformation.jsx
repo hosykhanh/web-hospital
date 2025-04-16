@@ -25,7 +25,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
 
     const {
         data: dataInfo,
-        isLoading: isLoadingInfo,
+        // isLoading: isLoadingInfo,
         refetch: refetchInfo,
     } = useQuery(
         ['medicalHistoryInfo', rowSelectedInfo], // Key để caching dữ liệu
@@ -38,7 +38,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
 
     const {
         data: dataHealthRecord,
-        isLoading: isLoadingHealthRecord,
+        // isLoading: isLoadingHealthRecord,
         refetch: refetchHealthRecord,
     } = useQuery(['healthRecord', dataInfo?.patientId], () => patientService.getHealthRecord(dataInfo?.patientId), {
         enabled: !!dataInfo?.patientId,
@@ -161,7 +161,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                     {dataInfo?.status === 2 || dataInfo?.status === 3 ? (
                         <>
                             <div className={cx('form-label')}>
-                                <label>TRÁCH NHIỆM BÁC SĨ:</label>
+                                <label>BÁC SĨ CHỊU TRÁCH NHIỆM:</label>
                                 <span>{doctor?.userName}</span>
                             </div>
                             <div className={cx('form-label')}>

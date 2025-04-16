@@ -10,7 +10,7 @@ const getAllDoctors = async () => {
 };
 
 const createDoctor = async (data) => {
-    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/create-doctor`, data);
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/user/create-doctor`, data);
     return res.data;
 };
 

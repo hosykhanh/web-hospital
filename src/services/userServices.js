@@ -16,11 +16,9 @@ const getUser = async (id) => {
     return res.data;
 };
 
-const getAllUser = async ({ name }) => {
+const getAllUser = async (params) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user`, {
-        params: {
-            name: name,
-        },
+        params,
     });
     return res.data;
 };
@@ -28,7 +26,6 @@ const getAllUser = async ({ name }) => {
 const updateAvatar = async (id, avatar) => {
     const formData = new FormData();
     formData.append('file', avatar.avatar);
-    console.log(formData);
 
     const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/user/${id}/update-avatar`, formData, {
         headers: {

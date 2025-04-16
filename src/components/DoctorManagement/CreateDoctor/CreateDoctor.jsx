@@ -5,12 +5,13 @@ import styles from './CreateDoctor.module.scss';
 import { DatePicker, Input, message, Radio } from 'antd';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import images from '../../../assets';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../../utils/checkStatusResponse';
 import { districts, getProvinces, wards } from 'vietnam-provinces';
 import Loading from '../../Loading/Loading';
 import TextArea from 'antd/lib/input/TextArea';
+import * as clinicService from '../../../services/clinicService';
+import * as doctorService from '../../../services/doctorService';
 
 const cx = classNames.bind(styles);
 
@@ -23,7 +24,7 @@ const CreateDoctor = ({ onBack }) => {
     const [district, setDistrict] = useState('');
     const [commune, setCommune] = useState('');
     const [address, setAddress] = useState('');
-    const [avatar, setAvatar] = useState(null);
+    // const [avatar, setAvatar] = useState(null);
     const [gender, setGender] = useState('1');
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [qualification, setQualification] = useState('');
@@ -33,11 +34,17 @@ const CreateDoctor = ({ onBack }) => {
     const [provincesList, setProvincesList] = useState([]);
     const [districtsList, setDistrictsList] = useState([]);
     const [wardsList, setWardsList] = useState([]);
+    const [clinicId, setClinicId] = useState('');
+
+    // --- API GET ALL CLINICS ---
+    const { data: dataClinics } = useQuery(['clinics'], () => clinicService.getAllClinics(), {
+        enabled: true,
+        select: (data) => data?.data?.items,
+    });
 
     const mutation = useMutation({
         mutationFn: (data) => {
-            console.log('data', data);
-            // return doctorService.createDoctor(data);
+            return doctorService.createDoctor(data);
         },
     });
 
@@ -91,6 +98,7 @@ const CreateDoctor = ({ onBack }) => {
             qualification,
             specialty,
             description,
+            clinicId,
         });
     };
 
@@ -107,9 +115,9 @@ const CreateDoctor = ({ onBack }) => {
                         <h2>Thêm mới bác sĩ</h2>
                         <p>Vui lòng điền đầy đủ thông tin để thêm bác sĩ</p>
                     </div>
-                    <div className={cx('wrapper-avatar')}>
+                    {/* <div className={cx('wrapper-avatar')}>
                         <img className={cx('avatar')} src={images.avatar} alt="avatar" />
-                    </div>
+                    </div> */}
                     <div className={cx('form-grid-1')}>
                         <div className={cx('form-label')}>
                             <label htmlFor="User">HỌ VÀ TÊN</label>
@@ -243,6 +251,23 @@ const CreateDoctor = ({ onBack }) => {
                         <label htmlFor="dateOfBirth">NGÀY SINH</label>
                         <DatePicker format="DD/MM/YYYY" value={dateOfBirth} onChange={(date) => setDateOfBirth(date)} />
                     </div>
+
+                    <div className={cx('form-label')}>
+                        <label>PHÒNG KHÁM</label>
+                        <select
+                            name="clinic"
+                            onChange={(e) => setClinicId(e.target.value)}
+                            className={cx('formInput', 'formSelect')}
+                        >
+                            <option value={''}>Chọn phòng khám</option>
+                            {dataClinics?.map((service) => (
+                                <option key={service._id} value={service._id}>
+                                    {service.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div className={cx('form-label')}>
                         <label htmlFor="specialty">CHUYÊN KHOA</label>
                         <Input
@@ -269,7 +294,7 @@ const CreateDoctor = ({ onBack }) => {
                     <div className={cx('wrapper-btn-save')}>
                         <Loading isLoading={isLoading}>
                             <Button className={cx('btn')} type="primary" onClick={handleSubmit}>
-                                Lưu
+                                Xác nhận thêm mới
                             </Button>
                         </Loading>
                     </div>

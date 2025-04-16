@@ -6,7 +6,6 @@ const getLeaveSchedule = async (doctorId) => {
 };
 
 const createLeaveSchedule = async (data) => {
-    console.log('data', data);
     const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/leave-schedule`, data);
     return res.data;
 };
