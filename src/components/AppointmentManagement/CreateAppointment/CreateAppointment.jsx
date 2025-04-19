@@ -38,6 +38,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
         medicalFee: 0,
         paymentMethod: 0,
         examinationReason: '',
+        responsibilityDoctorId: '',
     });
     const [patientCode, setPatientCode] = useState('');
 
@@ -60,7 +61,14 @@ const CreateAppointment = ({ onBack, refetch }) => {
     const [clinicId, setClinicId] = useState('');
 
     useEffect(() => {
-        if (user?.role === 2) setClinicId(user?.clinicId);
+        if (user?.role === 2) {
+            setClinicId(user?.clinicId);
+            setFormData((prev) => ({
+                ...prev,
+                clinicId: user?.clinicId,
+                responsibilityDoctorId: user?.id,
+            }));
+        }
     }, [user]);
 
     // --- API GET ALL CLINICS ---
@@ -92,7 +100,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
     // --- API GET ALL PATIENTS ---
     const getAllPatients = async () => {
         if (user.role === 2) {
-            const res = await patientService.getAllPatientsByDoctorId(user?.id);
+            const res = await patientService.getAllPatientsByDoctorId(user?.id, true);
             return res.data.items;
         } else {
             const res = await patientService.getAllPatients();
@@ -169,18 +177,6 @@ const CreateAppointment = ({ onBack, refetch }) => {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const res = await patientService.createMedicalConsultationHistory(formData);
-        if (res.statusCode === 200) {
-            message.success('Thêm lịch khám thành công!');
-            onBack();
-            refetch();
-        } else {
-            message.error('Thêm lịch khám thất bại!', res.message);
-        }
-    };
-
     const handleDateSelect = (date) => {
         setFormData((prev) => ({
             ...prev,
@@ -193,10 +189,21 @@ const CreateAppointment = ({ onBack, refetch }) => {
         setSelectedTimeSlot(slot);
         setFormData((prev) => ({
             ...prev,
-            clinicId: clinicId,
             clinicScheduleId: slot._id,
         }));
         setIsTimePickerOpen(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const res = await patientService.createMedicalConsultationHistory(formData);
+        if (res.statusCode === 200) {
+            message.success('Thêm lịch khám thành công!');
+            onBack();
+            refetch();
+        } else {
+            message.error('Thêm lịch khám thất bại!', res.message);
+        }
     };
 
     useEffect(() => {
@@ -255,7 +262,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
         {
             title: 'Mã bệnh nhân',
             dataIndex: 'code',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Họ và tên',
@@ -277,7 +284,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
         {
             title: 'Mã bác sĩ',
             dataIndex: 'code',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Họ và tên',
@@ -508,7 +515,11 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                     <option value={''}>Chọn dịch vụ khám</option>
                                     {dataMedicalService?.map((service) => (
                                         <option key={service._id} value={service._id}>
-                                            {`${service.name} - Giá gốc: ${service.originalPrice} VND → Giá hiện tại: ${service.currentPrice} VND`}
+                                            {`${service.name} ${
+                                                service.originalPrice
+                                                    ? '- Giá gốc:' + service.originalPrice + ' VND'
+                                                    : ''
+                                            } → Giá hiện tại: ${service.currentPrice} VND`}
                                         </option>
                                     ))}
                                 </select>
@@ -556,8 +567,10 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                                 <label>Mã bác sĩ</label>
                                                 <Input
                                                     type="text"
+                                                    name="responsibilityDoctorId"
                                                     placeholder="Mã bác sĩ"
                                                     value={doctorCode}
+                                                    onChange={handleChange}
                                                     disabled={true}
                                                     className={cx('formInput')}
                                                 />

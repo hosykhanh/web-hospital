@@ -53,7 +53,8 @@
             }
 
             .forgot-password {
-                float: right;
+                display: flex;
+                justify-content: right;
                 color: blue;
                 text-decoration: none;
                 margin-bottom: 15px;

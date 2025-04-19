@@ -97,7 +97,7 @@ const AppointmentManagement = ({ isLoading, data, refetch }) => {
         {
             title: 'ID',
             dataIndex: 'code',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Họ và tên',

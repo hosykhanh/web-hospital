@@ -134,7 +134,7 @@ const SignInPage = () => {
                         <a className={cx('forgot-password')} href="/">
                             Forgot password?
                         </a>
-                        <div style={{ marginTop: '40px' }}>
+                        <div>
                             <Loading isLoading={isLoading}>
                                 <Button className={cx('btn-form')} type="primary">
                                     Login

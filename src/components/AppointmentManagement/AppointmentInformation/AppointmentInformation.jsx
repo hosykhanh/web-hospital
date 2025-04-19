@@ -161,12 +161,8 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                     {dataInfo?.status === 2 || dataInfo?.status === 3 ? (
                         <>
                             <div className={cx('form-label')}>
-                                <label>BÁC SĨ CHỊU TRÁCH NHIỆM:</label>
+                                <label>BÁC SĨ PHỤ TRÁCH:</label>
                                 <span>{doctor?.userName}</span>
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label>DỊCH VỤ KHÁM</label>
-                                <span>{dataInfo?.medicalServiceName}</span>
                             </div>
                             <div className={cx('form-label')}>
                                 <label>NGÀY KHÁM:</label>

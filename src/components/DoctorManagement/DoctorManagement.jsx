@@ -63,7 +63,7 @@ const DoctorManagement = ({ isLoading, data, refetch }) => {
         {
             title: 'Mã bác sĩ',
             dataIndex: 'code',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Họ và tên',
@@ -88,7 +88,7 @@ const DoctorManagement = ({ isLoading, data, refetch }) => {
             {isDetailVisible ? (
                 <DetailDoctor onBack={() => setIsDetailVisible(false)} rowSelected={rowSelected} />
             ) : isCreateDoctor ? (
-                <CreateDoctor onBack={() => setIsCreateDoctor(false)} />
+                <CreateDoctor onBack={() => setIsCreateDoctor(false)} refetch={refetch} />
             ) : (
                 <>
                     <div className={cx('title')}>Quản lý bác sĩ</div>

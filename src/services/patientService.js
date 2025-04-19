@@ -9,8 +9,12 @@ const getAllPatients = async () => {
     return res.data;
 };
 
-const getAllPatientsByDoctorId = async (id) => {
-    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/${id}/patients`);
+const getAllPatientsByDoctorId = async (id, isGetAllPatient) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/${id}/patients`, {
+        params: {
+            isGetAllPatient,
+        },
+    });
     return res.data;
 };
 

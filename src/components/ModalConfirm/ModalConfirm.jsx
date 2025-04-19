@@ -10,12 +10,13 @@ import checkStatusResponse from '../../utils/checkStatusResponse';
 const cx = classNames.bind(styles);
 
 function ModalConfirm({ title, isOpen = false, setIsOpen, rowSelected, refetch, mutation }) {
-    const { isLoading, isSuccess, data, isError } = mutation || {};
+    const { isLoading, isSuccess, data, isError } = mutation;
 
     useEffect(() => {
         if (isSuccess && checkStatusResponse(data)) {
             setIsOpen(false);
             message.success('Xóa thành công');
+            mutation.reset();
             if (refetch) {
                 refetch();
             }
@@ -27,7 +28,6 @@ function ModalConfirm({ title, isOpen = false, setIsOpen, rowSelected, refetch, 
 
     const handleDelete = () => {
         if (rowSelected) {
-            console.log(rowSelected);
             mutation.mutate(rowSelected);
         }
     };

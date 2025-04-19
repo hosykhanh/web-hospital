@@ -44,7 +44,7 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
         {
             title: 'Mã bệnh nhân',
             dataIndex: 'code',
-            sorter: (a, b) => a.name.length - b.name.length,
+            sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
             title: 'Họ và tên',

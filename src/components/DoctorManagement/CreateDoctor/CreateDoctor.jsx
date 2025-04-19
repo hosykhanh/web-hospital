@@ -15,7 +15,7 @@ import * as doctorService from '../../../services/doctorService';
 
 const cx = classNames.bind(styles);
 
-const CreateDoctor = ({ onBack }) => {
+const CreateDoctor = ({ onBack, refetch }) => {
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -54,6 +54,7 @@ const CreateDoctor = ({ onBack }) => {
         if (isSuccess && checkStatusResponse(data)) {
             message.success('Tạo mới bác sĩ thành công');
             onBack();
+            refetch();
         } else if (isError) {
             message.error('Tạo mới bác sĩ thất bại');
         }
