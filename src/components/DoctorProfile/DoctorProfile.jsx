@@ -99,7 +99,6 @@ const DoctorProfile = () => {
     });
 
     const handleOnChangeAvatar = (file) => {
-        console.log(file);
         setAvatar(file);
     };
 

@@ -7,7 +7,8 @@
 
 .wrapper-content {
     padding: 0px 40px;
-    max-width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
 
     .wrapper-avatar {
         display: flex;
@@ -84,7 +85,7 @@
     label {
         font-weight: 450;
         font-size: 0.75rem;
-        color: #8a8a8a;
+        color: #000000;
         margin-right: 20px;
     }
 

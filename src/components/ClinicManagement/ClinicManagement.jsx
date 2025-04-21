@@ -76,9 +76,13 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <DetailClinic onBack={() => setIsDetailVisible(false)} rowSelectedClinic={rowSelected} />
+                <DetailClinic
+                    onBack={() => setIsDetailVisible(false)}
+                    rowSelectedClinic={rowSelected}
+                    refetch={refetch}
+                />
             ) : isCreateClinic ? (
-                <CreateClinic onBack={() => setIsCreateClinic(false)} />
+                <CreateClinic onBack={() => setIsCreateClinic(false)} refetch={refetch} />
             ) : (
                 <>
                     <div className={cx('title')}>Quản lý phòng khám</div>

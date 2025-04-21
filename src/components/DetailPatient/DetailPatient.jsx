@@ -14,10 +14,13 @@ import * as patientService from '../../services/patientService';
 import Loading from '../Loading/Loading';
 import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 import { useMutation, useQuery } from 'react-query';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 const DetailPatient = ({ onBack, rowSelectedDetail }) => {
+    const user = useSelector((state) => state.user);
+
     const [rowSelected, setRowSelected] = useState('');
     const [isEditDetailVisible, setIsEditDetailVisible] = useState(false);
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
@@ -29,10 +32,14 @@ const DetailPatient = ({ onBack, rowSelectedDetail }) => {
                 <button className={cx('view')} onClick={() => setIsOpenDrawer(true)}>
                     Chi tiết
                 </button>
-                <DeleteOutlined
-                    style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }}
-                    onClick={() => setIsDeleteModalOpen(true)}
-                />
+                {user.role === 3 ? (
+                    <DeleteOutlined
+                        style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }}
+                        onClick={() => setIsDeleteModalOpen(true)}
+                    />
+                ) : (
+                    <></>
+                )}
             </div>
         );
     };

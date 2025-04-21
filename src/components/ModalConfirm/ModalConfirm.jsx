@@ -22,6 +22,7 @@ function ModalConfirm({ title, isOpen = false, setIsOpen, rowSelected, refetch, 
             }
         } else if (isError) {
             message.error('Xóa thất bại');
+            mutation.reset();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSuccess, data]);

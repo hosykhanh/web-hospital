@@ -51,6 +51,16 @@
         color: #ffffff;
     }
 
+    .btn-save {
+        font-size: 16px;
+        background-color: #41cb8b;
+        color: #ffffff;
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        padding: 10px;
+    }
+
     .btn-edit:hover {
         color: #e2e2e2;
     }
@@ -61,7 +71,7 @@
 }
 
 .form {
-    padding: 10px 20px;
+    padding: 15px 20px;
     border-radius: 5px;
     border: 1px solid #e0e0e0;
     background-color: #ffffff;
@@ -79,7 +89,7 @@
         border-radius: 3px;
         border: 1px solid #e0e0e0;
         margin-top: 5px;
-        background-color: #ffffff;
+        // background-color: #ffffff;
         font-size: 0.9rem;
         color: #000000;
     }
@@ -93,12 +103,86 @@
 
     .form-label {
         margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
     }
 
     .form-user-email {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+    }
+}
+
+.btn-service {
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #d2e3fc;
+    }
+}
+
+.modal-medical-title {
+    font-size: 1.2rem;
+    padding-bottom: 10px;
+    color: #2385fd;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-medical-content {
+    height: calc(100vh - 130px);
+    overflow-y: auto;
+
+    .modal-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.modal-edit-title {
+    font-size: 1.2rem;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .modal-edit-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #5f6368;
+    }
+
+    .input {
+        padding: 7px 14px;
+        font-size: 14px;
     }
 }
 
@@ -110,13 +194,44 @@
     .wrapper-avatar {
         display: flex;
         justify-content: center;
-        // margin-top: 20px;
 
         .avatar {
             width: 100%;
-            // height: 250px;
-            // border-radius: 50%;
             object-fit: cover;
+        }
+
+        .wrapper-btn-logo {
+            display: flex;
+            justify-content: right;
+        }
+
+        .btn-edit-logo {
+            font-size: 12px;
+            background-color: #8a8a8a;
+            color: #ffffff;
+            font-weight: 450;
+        }
+
+        .upload-avatar {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 5px;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .upload {
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+
+                .upload-text {
+                    color: #8a8a8a;
+                    font-size: 12px;
+                }
+            }
         }
     }
     .more-info {

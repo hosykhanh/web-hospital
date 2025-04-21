@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './DetailClinic.module.scss';
 import images from '../../../assets';
-import { Input, Tag } from 'antd';
+import { Input, message, Modal, Tag } from 'antd';
 import Button from '../../Button/Button';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CameraOutlined, EyeOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import TableComp from '../../TableComp/TableComp';
 import DetailDoctor from '../../DoctorManagement/DetailDoctor/DetailDoctor';
 import * as doctorService from '../../../services/doctorService';
 import * as clinicService from '../../../services/clinicService';
 import * as scheduleService from '../../../services/scheduleService';
-import { useQuery } from 'react-query';
+import * as medicalService from '../../../services/medicalService';
+import { useMutation, useQuery } from 'react-query';
+import Loading from '../../Loading/Loading';
+import InputUpload from '../../InputUpload/InputUpload';
 
 const cx = classNames.bind(styles);
 
-const DetailClinic = ({ onBack, rowSelectedClinic }) => {
+const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+    const [isModalOpenMedicalService, setIsModalOpenMedicalService] = useState(false);
+    const [isModalDelete, setIsModalDelete] = useState(false);
+    const [isModalOpenLogo, setIsModalOpenLogo] = useState(false);
+
+    const [rowSelected, setRowSelected] = useState('');
+    const [isDetailVisible, setIsDetailVisible] = useState(false);
+
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [hotline, setHotline] = useState('');
+    const [address, setAddress] = useState('');
+    const [description, setDescription] = useState('');
+    const [logo, setLogo] = useState(null);
 
     // --- API GET CLINICS BY ID ---
     const getClinicById = async () => {
@@ -33,20 +49,31 @@ const DetailClinic = ({ onBack, rowSelectedClinic }) => {
         enabled: !!rowSelectedClinic,
     });
 
-    // --- API GET ALL DOCTORS ---
-    const getAllDoctors = async () => {
-        const res = await doctorService.getAllDoctors();
-        return res.data.items;
+    // --- API GET ALL DOCTORS BY CLINIC ---
+    const getAllDoctorsByClinic = async () => {
+        const res = await doctorService.getDoctorsByClicnicId(rowSelectedClinic);
+        return res.data;
     };
 
     const {
         isLoading: isLoadingDoctors,
         data: dataDoctors,
         refetch: refetchDoctors,
-    } = useQuery(['doctors', rowSelectedClinic], getAllDoctors, {
+    } = useQuery(['doctors', rowSelectedClinic], getAllDoctorsByClinic, {
         enabled: !!rowSelectedClinic,
     });
 
+    // --- API GET ALL MEDICAL SERVICE BY CLINIC ID ---
+    const {
+        isLoading: isLoadingMedicalService,
+        data: dataMedicalService,
+        refetch: refetchMedicalService,
+    } = useQuery(['medicalService', rowSelectedClinic], () => medicalService.getAllMedicalService(rowSelectedClinic), {
+        enabled: !!rowSelectedClinic,
+        select: (data) => data?.data?.items,
+    });
+
+    // --- API GET ALL SCHEDULE BY CLINIC ID ---
     const {
         data: dataClinicSchedule,
         isLoading: isLoadingClinicSchedule,
@@ -56,25 +83,113 @@ const DetailClinic = ({ onBack, rowSelectedClinic }) => {
         select: (data) => data?.data,
     });
 
+    useEffect(() => {
+        if (dataClinic) {
+            setName(dataClinic.name);
+            setEmail(dataClinic.email);
+            setHotline(dataClinic.hotline);
+            setAddress(dataClinic.address);
+            setDescription(dataClinic.description);
+            setLogo(dataClinic.logo);
+        }
+    }, [dataClinic]);
+
+    const mutationEdit = useMutation({
+        mutationFn: (data) => clinicService.updateClinic(rowSelectedClinic, data),
+        onSuccess: () => {
+            message.success('Cập nhật phòng khám thành công!');
+            refetchClinic();
+        },
+        onError: () => {
+            message.error('Cập nhật phòng khám thất bại!');
+        },
+    });
+
+    const mutationLogo = useMutation({
+        mutationFn: (data) => {
+            const { id, ...logo } = data;
+            return clinicService.updateLogo(id, logo);
+        },
+        onSuccess: (data) => {
+            message.success('Logo cập nhật thành công!');
+            refetchClinic();
+        },
+        onError: (error) => {
+            message.error('Có lỗi xảy ra khi cập nhật logo.');
+        },
+    });
+
+    const handleOnChangeLogo = (file) => {
+        setLogo(file);
+    };
+
+    const showModalLogo = () => {
+        setIsModalOpenLogo(true);
+    };
+
+    const handleOkLogo = () => {
+        setIsModalOpenLogo(false);
+        mutationLogo.mutate({ id: dataClinic?._id, logo });
+    };
+
+    const handleCancelLogo = () => {
+        setIsModalOpenLogo(false);
+    };
+
     const showModalEdit = () => {
         setIsModalOpenEdit(true);
     };
 
-    const handleCancelComment = () => {
+    const cancelModalEdit = () => {
         setIsModalOpenEdit(false);
     };
 
-    const timeSlots = [
-        '08:00 - 09:00',
-        '09:00 - 10:00',
-        '10:00 - 11:00',
-        '13:00 - 14:00',
-        '14:00 - 15:00',
-        '15:00 - 16:00',
-    ];
+    const handleChange = (e) => {
+        const { value, name } = e.target;
+        if (name === 'name') setName(value);
+        if (name === 'email') setEmail(value);
+        if (name === 'hotline') setHotline(value);
+        if (name === 'address') setAddress(value);
+        if (name === 'description') setDescription(value);
+    };
 
-    const [rowSelected, setRowSelected] = useState('');
-    const [isDetailVisible, setIsDetailVisible] = useState(false);
+    const handleOkEdit = () => {
+        mutationEdit.mutate({ name, email, hotline, address, description });
+        setIsModalOpenEdit(false);
+    };
+
+    const showModalMedicalService = () => {
+        setIsModalOpenMedicalService(true);
+    };
+
+    const cancelModalMedicalService = () => {
+        setIsModalOpenMedicalService(false);
+    };
+
+    const showModalDelete = () => {
+        setIsModalDelete(true);
+    };
+
+    const cancelModalDelete = () => {
+        setIsModalDelete(false);
+    };
+
+    const handleOkModalDelete = () => {
+        mutationDeleteClinic.mutate(rowSelectedClinic);
+        setIsModalDelete(false);
+    };
+
+    const mutationDeleteClinic = useMutation({
+        mutationFn: (data) => clinicService.deleteClinic(data),
+        onSuccess: () => {
+            message.success('Xoá phòng khám thành công!');
+            onBack();
+            refetch();
+        },
+        onError: () => {
+            message.error('Xoá phòng khám thất bại!');
+        },
+    });
 
     const renderAction = () => {
         return (
@@ -123,100 +238,185 @@ const DetailClinic = ({ onBack, rowSelectedClinic }) => {
                     </div>
                     <div className={cx('title')}>Thông tin phòng khám</div>
                     <div className={cx('wrapper-content')}>
-                        <div className={cx('content')}>
-                            <div className={cx('content-left')}>
-                                <div className={cx('wrapper-form')}>
-                                    <div className={cx('form')}>
-                                        <div className={cx('title-form-top')}>Thông tin chi tiết</div>
-                                        <div className={cx('form-user-email')}>
+                        <Loading isLoading={isLoadingClinic}>
+                            <div className={cx('content')}>
+                                <div className={cx('content-left')}>
+                                    <div className={cx('wrapper-form')}>
+                                        <div className={cx('form')}>
+                                            <div className={cx('title-form-top')}>Thông tin chi tiết</div>
+                                            <div className={cx('form-user-email')}>
+                                                <div className={cx('form-label')}>
+                                                    <label htmlFor="User">TÊN PHÒNG KHÁM</label>
+                                                    <Input
+                                                        value={dataClinic?.name}
+                                                        className={cx('input')}
+                                                        required
+                                                        disabled
+                                                    />
+                                                </div>
+                                                <div className={cx('form-label')}>
+                                                    <label htmlFor="Status">TRẠNG THÁI</label>
+                                                    <Input
+                                                        className={cx('input')}
+                                                        required
+                                                        value={dataClinic?.status === 1 ? 'Đang hoạt động' : 'Tạm dừng'}
+                                                        disabled
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className={cx('form-user-email')}>
+                                                <div className={cx('form-label')}>
+                                                    <label htmlFor="email">EMAIL</label>
+                                                    <Input
+                                                        className={cx('input')}
+                                                        required
+                                                        value={dataClinic?.email}
+                                                        disabled
+                                                    />
+                                                </div>
+                                                <div className={cx('form-label')}>
+                                                    <label htmlFor="phone">HOLINE</label>
+                                                    <Input
+                                                        className={cx('input')}
+                                                        required
+                                                        value={dataClinic?.hotline}
+                                                        disabled
+                                                    />
+                                                </div>
+                                            </div>
                                             <div className={cx('form-label')}>
-                                                <label htmlFor="User">TÊN PHÒNG KHÁM</label>
+                                                <label htmlFor="address">ĐỊA CHỈ</label>
                                                 <Input
-                                                    value={dataClinic?.name}
                                                     className={cx('input')}
                                                     required
+                                                    value={dataClinic?.address}
                                                     disabled
                                                 />
                                             </div>
                                             <div className={cx('form-label')}>
-                                                <label htmlFor="Status">TRẠNG THÁI</label>
-                                                <Input
-                                                    className={cx('input')}
-                                                    required
-                                                    value={dataClinic?.status === 1 ? 'Đang hoạt động' : 'Tạm dừng'}
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className={cx('form-user-email')}>
-                                            <div className={cx('form-label')}>
-                                                <label htmlFor="email">EMAIL</label>
-                                                <Input
-                                                    className={cx('input')}
-                                                    required
-                                                    value={dataClinic?.email}
-                                                    disabled
-                                                />
+                                                <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
+                                                <div className="mt-4">
+                                                    {dataClinicSchedule?.map((time) => (
+                                                        <Tag
+                                                            key={time?._id}
+                                                            color="blue"
+                                                            style={{ marginRight: 5, marginTop: 5, fontSize: 14 }}
+                                                        >
+                                                            {time?.startTime} - {time?.endTime}
+                                                        </Tag>
+                                                    ))}
+                                                </div>
                                             </div>
                                             <div className={cx('form-label')}>
-                                                <label htmlFor="phone">HOLINE</label>
-                                                <Input
-                                                    className={cx('input')}
-                                                    required
-                                                    value={dataClinic?.hotline}
-                                                    disabled
-                                                />
+                                                <label htmlFor="service">DỊCH VỤ KHÁM</label>
+                                                <Button className={cx('btn-service')} onClick={showModalMedicalService}>
+                                                    <UnorderedListOutlined />
+                                                    &nbsp; Danh sách dịch vụ khám
+                                                </Button>
                                             </div>
-                                        </div>
-                                        <div className={cx('form-label')}>
-                                            <label htmlFor="address">ĐỊA CHỈ</label>
-                                            <Input
-                                                className={cx('input')}
-                                                required
-                                                value={dataClinic?.address}
-                                                disabled
-                                            />
-                                        </div>
-                                        <div className={cx('form-label')}>
-                                            <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
-                                            <div className="mt-4">
-                                                {dataClinicSchedule?.map((time) => (
-                                                    <Tag
-                                                        key={time?._id}
-                                                        color="blue"
-                                                        style={{ marginRight: 5, fontSize: 14 }}
-                                                    >
-                                                        {time?.startTime} - {time?.endTime}
-                                                    </Tag>
-                                                ))}
+                                            <Modal
+                                                title={
+                                                    <div className={cx('modal-medical-title')}>
+                                                        Danh sách dịch vụ khám
+                                                    </div>
+                                                }
+                                                open={isModalOpenMedicalService}
+                                                onCancel={cancelModalMedicalService}
+                                                footer={null}
+                                                width="45%"
+                                                style={{ top: 5 }}
+                                            >
+                                                <div className={cx('modal-medical-content')}>
+                                                    <Loading isLoading={isLoadingMedicalService}>
+                                                        <div className={cx('modal-list')}>
+                                                            {dataMedicalService?.map((service) => (
+                                                                <div key={service?._id} className={cx('modal-item')}>
+                                                                    <div className={cx('modal-item-left')}>
+                                                                        <div className={cx('modal-item-name')}>
+                                                                            {service?.name}
+                                                                        </div>
+                                                                        <div className={cx('modal-item-price')}>
+                                                                            Giá gốc: {service?.originalPrice} VNĐ
+                                                                        </div>
+                                                                        <div className={cx('modal-item-price')}>
+                                                                            Giá hiện tại: {service?.currentPrice} VNĐ
+                                                                        </div>
+                                                                    </div>
+                                                                    <EyeOutlined
+                                                                        className="modal-item-icon"
+                                                                        style={{
+                                                                            // color: '#1890ff',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: 20,
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </Loading>
+                                                </div>
+                                            </Modal>
+                                            <div className={cx('wrapper-btn')}>
+                                                <Button
+                                                    className={cx('btn-edit')}
+                                                    type="primary"
+                                                    onClick={showModalEdit}
+                                                >
+                                                    Chỉnh sửa
+                                                </Button>
+                                                <Button
+                                                    className={cx('btn-delete')}
+                                                    type="primary"
+                                                    onClick={showModalDelete}
+                                                >
+                                                    Xóa
+                                                </Button>
                                             </div>
-                                        </div>
-                                        <div className={cx('wrapper-btn')}>
-                                            <Button className={cx('btn-edit')} type="primary" onClick={showModalEdit}>
-                                                Chỉnh sửa
-                                            </Button>
-                                            <Button className={cx('btn-delete')} type="primary" onClick={showModalEdit}>
-                                                Xóa
-                                            </Button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className={cx('content-right')}>
-                                <div className={cx('wrapper-avatar')}>
-                                    <img className={cx('avatar')} src={images.clinic} alt="avatar" />
-                                </div>
-                                <div className={cx('more-info')}>
-                                    <label htmlFor="introduce">GIỚI THIỆU</label>
-                                    <div className={cx('info')}>
-                                        Phòng khám [Tên Phòng Khám] tự hào mang đến dịch vụ y tế chất lượng cao với đội
-                                        ngũ bác sĩ giàu kinh nghiệm, trang thiết bị hiện đại và không gian khám chữa
-                                        bệnh tiện nghi. Chúng tôi cam kết cung cấp dịch vụ tận tâm, nhanh chóng, giúp
-                                        khách hàng an tâm trong hành trình chăm sóc sức khỏe.
+                                <div className={cx('content-right')}>
+                                    <div className={cx('wrapper-avatar')}>
+                                        {dataClinic?.logo ? (
+                                            <div style={{ width: '100%' }}>
+                                                <img className={cx('avatar')} src={dataClinic?.logo} alt="avatar" />
+                                                <div className={cx('wrapper-btn-logo')}>
+                                                    <Button className={cx('btn-edit-logo')} onClick={showModalLogo}>
+                                                        <CameraOutlined />
+                                                        &nbsp; Chỉnh sửa ảnh
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className={cx('upload-avatar')}>
+                                                <div className={cx('upload')} onClick={showModalLogo}>
+                                                    <CameraOutlined
+                                                        style={{
+                                                            fontSize: '30px',
+                                                            display: 'flex',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    />
+                                                    <div className={cx('upload-text')}>Tải ảnh lên</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <Modal
+                                        title="Chỉnh sửa logo"
+                                        open={isModalOpenLogo}
+                                        onOk={handleOkLogo}
+                                        onCancel={handleCancelLogo}
+                                    >
+                                        <InputUpload type="file" avatar={logo} onChange={handleOnChangeLogo} />
+                                    </Modal>
+                                    <div className={cx('more-info')}>
+                                        <label htmlFor="introduce">GIỚI THIỆU</label>
+                                        <div className={cx('info')}>{dataClinic?.description}</div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </Loading>
                         <div className={cx('list-doctor')}>
                             <div className={cx('title-list')}>Danh sách bác sĩ</div>
                             <div className={cx('table')}>
@@ -237,6 +437,82 @@ const DetailClinic = ({ onBack, rowSelectedClinic }) => {
                                 />
                             </div>
                         </div>
+                        <Modal
+                            title={<div className={cx('modal-edit-title')}>Chỉnh sửa phòng khám</div>}
+                            open={isModalOpenEdit}
+                            onCancel={cancelModalEdit}
+                            footer={null}
+                            width="50%"
+                            style={{ top: 5 }}
+                        >
+                            <div className={cx('modal-edit')}>
+                                <div className={cx('modal-edit-item')}>
+                                    <label htmlFor="name">Tên phòng khám</label>
+                                    <Input
+                                        className={cx('input')}
+                                        id="name"
+                                        name="name"
+                                        value={name}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <div className={cx('modal-edit-grid')}>
+                                    <div className={cx('modal-edit-item')}>
+                                        <label htmlFor="email">Email</label>
+                                        <Input
+                                            className={cx('input')}
+                                            id="email"
+                                            name="email"
+                                            value={email}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    <div className={cx('modal-edit-item')}>
+                                        <label htmlFor="hotline">Holine</label>
+                                        <Input
+                                            className={cx('input')}
+                                            id="hotline"
+                                            name="hotline"
+                                            value={hotline}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={cx('modal-edit-item')}>
+                                    <label htmlFor="address">Địa chỉ</label>
+                                    <Input
+                                        className={cx('input')}
+                                        id="address"
+                                        name="address"
+                                        value={address}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <div className={cx('modal-edit-item')}>
+                                    <label htmlFor="description">Giới thiệu</label>
+                                    <Input.TextArea
+                                        className={cx('input')}
+                                        id="description"
+                                        name="description"
+                                        value={description}
+                                        onChange={handleChange}
+                                        rows={4}
+                                    />
+                                </div>
+                            </div>
+                            <div className={cx('wrapper-btn')}>
+                                <Button className={cx('btn-save')} type="primary" onClick={handleOkEdit}>
+                                    Lưu
+                                </Button>
+                            </div>
+                        </Modal>
+                        <Modal
+                            title="Bạn có chắc muốn xóa phòng khám này?"
+                            open={isModalDelete}
+                            onOk={handleOkModalDelete}
+                            onCancel={cancelModalDelete}
+                            okButtonProps={{ style: { backgroundColor: '#ff4d4f' } }}
+                        />
                     </div>
                 </div>
             )}

@@ -2,28 +2,37 @@ import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './CreateClinic.module.scss';
-import { Checkbox, DatePicker, Input, Modal, Tag } from 'antd';
-import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
-import dayjs from 'dayjs';
+import { Checkbox, Input, message, Modal, Tag } from 'antd';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined, CloseOutlined } from '@ant-design/icons';
-import images from '../../../assets';
 import TextArea from 'antd/es/input/TextArea';
+import { useMutation } from 'react-query';
+import * as clinicService from '../../../services/clinicService';
 
 const cx = classNames.bind(styles);
 
 const CreateClinic = ({ onBack }) => {
-    const timeSlots = [
-        '08:00 - 09:00',
-        '09:00 - 10:00',
-        '10:00 - 11:00',
-        '13:00 - 14:00',
-        '14:00 - 15:00',
-        '15:00 - 16:00',
-    ];
-
     const [selectedTimes, setSelectedTimes] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
+
+    // const [isCreateTimeWork, setIsCreateTimeWork] = useState(false);
+    // const [isCreateMedicalService, setIsCreateMedicalService] = useState(false);
+
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [hotline, setHotline] = useState('');
+    const [address, setAddress] = useState('');
+    const [description, setDescription] = useState('');
+
+    const mutation = useMutation({
+        mutationFn: (data) => clinicService.createClinic(data),
+        onSuccess: (data) => {
+            message.success('Tạo phòng khám thành công!');
+        },
+        onError: (error) => {
+            message.error('Tạo phòng khám thất bại!');
+        },
+    });
 
     const toggleTime = (time) => {
         setSelectedTimes((prev) => (prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]));
@@ -36,6 +45,25 @@ const CreateClinic = ({ onBack }) => {
     const removeTime = (time) => {
         setSelectedTimes((prev) => prev.filter((t) => t !== time));
     };
+
+    const handleCreateClinic = () => {
+        mutation.mutate({
+            name,
+            email,
+            hotline,
+            address,
+            description,
+        });
+    };
+
+    const timeSlots = [
+        '08:00 - 09:00',
+        '09:00 - 10:00',
+        '10:00 - 11:00',
+        '13:00 - 14:00',
+        '14:00 - 15:00',
+        '15:00 - 16:00',
+    ];
 
     return (
         <div>
@@ -50,39 +78,59 @@ const CreateClinic = ({ onBack }) => {
                         <h2>Thêm mới phòng khám</h2>
                         <p>Vui lòng điền đầy đủ thông tin để thêm phòng khám</p>
                     </div>
-                    <div className={cx('wrapper-avatar')}>
-                        <img className={cx('avatar')} src={images.clinic} alt="avatar" />
-                    </div>
-                    <div className={cx('form-user-email')}>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="User">TÊN PHÒNG KHÁM</label>
-                            <Input className={cx('input')} required placeholder="Nhập tên phòng khám" />
-                        </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="Status">TRẠNG THÁI</label>
-                            <Input className={cx('input')} required value="" />
-                        </div>
+                    <div className={cx('form-label')}>
+                        <label htmlFor="User">TÊN PHÒNG KHÁM</label>
+                        <Input
+                            className={cx('input')}
+                            required
+                            placeholder="Nhập tên phòng khám"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
                     </div>
                     <div className={cx('form-user-email')}>
                         <div className={cx('form-label')}>
                             <label htmlFor="email">EMAIL</label>
-                            <Input className={cx('input')} required value="" placeholder="Nhập email" />
+                            <Input
+                                className={cx('input')}
+                                required
+                                placeholder="Nhập email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </div>
                         <div className={cx('form-label')}>
                             <label htmlFor="phone">HOLINE</label>
-                            <Input className={cx('input')} required value="" placeholder="Nhập số điện thoại" />
+                            <Input
+                                className={cx('input')}
+                                required
+                                placeholder="Nhập số điện thoại"
+                                value={hotline}
+                                onChange={(e) => setHotline(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="address">ĐỊA CHỈ</label>
-                        <Input className={cx('input')} required value="" placeholder="Nhập địa chỉ" />
+                        <Input
+                            className={cx('input')}
+                            required
+                            placeholder="Nhập địa chỉ"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                        />
                     </div>
                     <div className={cx('more-info')}>
                         <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                        <TextArea className={cx('info')} placeholder="Nhập giới thiệu thêm về phòng khám"></TextArea>
+                        <TextArea
+                            className={cx('info')}
+                            placeholder="Nhập giới thiệu thêm về phòng khám"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        ></TextArea>
                     </div>
-                    <div className={cx('form-label')}>
-                        <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
+                    {/* <div className={cx('form-label')}>
+                        <label htmlFor="timeWork">THỜI GIAN LÀM VIỆC</label>
                         <Button className={cx('btn-time')} type="primary" onClick={() => setModalVisible(true)}>
                             Chọn khung giờ
                         </Button>
@@ -107,8 +155,6 @@ const CreateClinic = ({ onBack }) => {
                             ))}
                         </div>
                     </Modal>
-
-                    {/* Hiển thị các khung giờ đã chọn */}
                     {selectedTimes.length > 0 && (
                         <div className="mt-4">
                             {selectedTimes.map((time) => (
@@ -117,16 +163,16 @@ const CreateClinic = ({ onBack }) => {
                                     color="blue"
                                     closable
                                     onClose={() => removeTime(time)}
-                                    style={{ marginRight: 5, fontSize: 14 }}
+                                    style={{ marginRight: 5, fontSize: 14, padding: '10px 5px' }}
                                     closeIcon={<CloseOutlined style={{ fontSize: '15px' }} />}
                                 >
                                     {time}
                                 </Tag>
                             ))}
                         </div>
-                    )}
+                    )} */}
                     <div className={cx('wrapper-btn-save')}>
-                        <Button className={cx('btn')} type="primary">
+                        <Button className={cx('btn')} type="primary" onClick={handleCreateClinic}>
                             Lưu
                         </Button>
                     </div>

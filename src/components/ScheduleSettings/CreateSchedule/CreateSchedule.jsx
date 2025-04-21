@@ -32,14 +32,14 @@ const CreateSchedule = ({ isModalOpen, setIsModalOpen, refetch }) => {
 
             await scheduleService.createLeaveSchedule(newValues);
             message.success('Thêm lịch nghỉ thành công!');
-    
+
             setIsModalOpen(false);
             refetch();
             form.resetFields();
         } catch (error) {
             console.log('Validate Failed:', error);
         }
-    };    
+    };
 
     const handleCancel = () => {
         setIsModalOpen(false);
@@ -59,7 +59,7 @@ const CreateSchedule = ({ isModalOpen, setIsModalOpen, refetch }) => {
                 <Form form={form} layout="vertical" className={cx('vacation-form')}>
                     <Form.Item
                         name="date"
-                        label="Ngày khám"
+                        label="Chọn ngày"
                         rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
                     >
                         <DatePicker
