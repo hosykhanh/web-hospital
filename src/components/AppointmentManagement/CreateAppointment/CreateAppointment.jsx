@@ -165,6 +165,10 @@ const CreateAppointment = ({ onBack, refetch }) => {
 
     const handleChangeClinic = (e) => {
         setClinicId(e.target.value);
+        setFormData((prev) => ({
+            ...prev,
+            clinicId: e.target.value,
+        }));
     };
 
     const handleChangeMedicalService = (e) => {
@@ -270,6 +274,10 @@ const CreateAppointment = ({ onBack, refetch }) => {
             if (selectedDoctor) {
                 setDoctorCode(selectedDoctor.code);
                 setDoctorName(selectedDoctor.userName);
+                setFormData((prev) => ({
+                    ...prev,
+                    responsibilityDoctorId: selectedDoctor._id,
+                }));
             }
         }
     }, [rowSelectedDoctor, dataDoctors]);
@@ -606,7 +614,6 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                                     name="responsibilityDoctorId"
                                                     placeholder="Mã bác sĩ"
                                                     value={doctorCode}
-                                                    onChange={handleChange}
                                                     disabled={true}
                                                     className={cx('formInput')}
                                                 />

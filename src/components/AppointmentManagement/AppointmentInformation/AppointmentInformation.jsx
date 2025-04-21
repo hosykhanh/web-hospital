@@ -283,7 +283,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                                     <DatePicker
                                         format="DD/MM/YYYY"
                                         value={reExaminationDate}
-                                        onChange={(date) => setReExaminationDate(date ? date : null)}
+                                        onChange={(date) => setReExaminationDate(date)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
