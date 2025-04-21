@@ -20,7 +20,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
 
     const [patientStatus, setPatientStatus] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
-    const [reExaminationDate, setReExaminationDate] = useState('');
+    const [reExaminationDate, setReExaminationDate] = useState(null);
     const [noteFromDoctor, setNoteFromDoctor] = useState('');
 
     const {
@@ -63,6 +63,21 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
             reExaminationDate: reExaminationDate,
             noteFromDoctor: noteFromDoctor,
         };
+        const requiredFields = {
+            responsibilityDoctorId: 'Bác sĩ phụ trách',
+            patientStatus: 'Tình trạng bệnh nhân',
+            diagnosis: 'Chẩn đoán',
+        };
+
+        const missingFields = Object.entries(requiredFields).filter(
+            ([key]) => !data[key] || (typeof data[key] === 'string' && data[key].trim() === ''),
+        );
+
+        if (missingFields.length > 0) {
+            const missingLabels = missingFields.map(([_, label]) => label);
+            message.error(`Vui lòng điền: ${missingLabels.join(', ')}`);
+            return;
+        }
         const res = await patientService.completeMedicalConsultationHistory(rowSelectedInfo, data);
         if (res.statusCode === 200) {
             message.success('Hoàn thành lịch khám thành công');
@@ -268,7 +283,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                                     <DatePicker
                                         format="DD/MM/YYYY"
                                         value={reExaminationDate}
-                                        onChange={(date) => setReExaminationDate(date)}
+                                        onChange={(date) => setReExaminationDate(date ? date : null)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>

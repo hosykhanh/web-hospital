@@ -194,8 +194,44 @@ const CreateAppointment = ({ onBack, refetch }) => {
         setIsTimePickerOpen(false);
     };
 
+    const labelMap = {
+        patientId: 'Mã bệnh nhân',
+        patientName: 'Tên bệnh nhân',
+        patientEmail: 'Email',
+        patientPhoneNumber: 'Số điện thoại',
+        patientProvince: 'Tỉnh/Thành phố',
+        patientDistrict: 'Quận/Huyện',
+        patientCommune: 'Phường/Xã',
+        patientAddress: 'Địa chỉ',
+        medicalServiceName: 'Dịch vụ khám',
+        examinationDate: 'Ngày khám',
+        clinicId: 'Phòng khám',
+        clinicScheduleId: 'Lịch khám',
+        patientDateOfBirth: 'Ngày sinh',
+        patientGender: 'Giới tính',
+        medicalFee: 'Phí khám',
+        paymentMethod: 'Phương thức thanh toán',
+        examinationReason: 'Lý do khám',
+        responsibilityDoctorId: 'Bác sĩ phụ trách',
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const emptyFields = Object.entries(formData).filter(
+            ([key, value]) =>
+                value === '' ||
+                value === null ||
+                value === undefined ||
+                (typeof value === 'string' && value.trim() === ''),
+        );
+
+        if (emptyFields.length > 0) {
+            const missingLabels = emptyFields.map(([key]) => labelMap[key] || key);
+            message.error(`Vui lòng điền đầy đủ thông tin: ${missingLabels.join(', ')}`);
+            return;
+        }
+
         const res = await patientService.createMedicalConsultationHistory(formData);
         if (res.statusCode === 200) {
             message.success('Thêm lịch khám thành công!');

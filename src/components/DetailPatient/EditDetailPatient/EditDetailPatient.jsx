@@ -13,10 +13,13 @@ import { useMutation } from 'react-query';
 import * as userService from '../../../services/userServices';
 import * as patientService from '../../../services/patientService';
 import ModalConfirm from '../../ModalConfirm/ModalConfirm';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refetchUser, refetchHealthRecord }) => {
+    const user = useSelector((state) => state.user);
+
     const [rowSelected, setRowSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -64,28 +67,46 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
     const mutationUpdateAll = useMutation({
         mutationFn: async () => {
             try {
-                const updateUserPromise = userService.updateUser(dataUser._id, {
-                    email,
-                    userName,
-                    phoneNumber,
-                    address,
-                    gender,
-                    dateOfBirth,
-                    province,
-                    district,
-                    commune,
-                });
+                if (user?.role === 3) {
+                    const updateUserPromise = userService.updateUser(dataUser._id, {
+                        email,
+                        userName,
+                        phoneNumber,
+                        address,
+                        gender,
+                        dateOfBirth,
+                        province,
+                        district,
+                        commune,
+                    });
 
-                const updateHealthRecordPromise = patientService.updateHealthRecord(dataUser._id, {
-                    bloodType,
-                    height,
-                    weight,
-                    healthHistory,
-                });
+                    const updateHealthRecordPromise = patientService.updateHealthRecord(dataUser._id, {
+                        bloodType,
+                        height,
+                        weight,
+                        healthHistory,
+                    });
 
-                const [userRes, healthRecordRes] = await Promise.all([updateUserPromise, updateHealthRecordPromise]);
+                    const [userRes, healthRecordRes] = await Promise.all([
+                        updateUserPromise,
+                        updateHealthRecordPromise,
+                    ]);
 
-                return { userRes, healthRecordRes };
+                    return { userRes, healthRecordRes };
+                }
+
+                if (user?.role === 2) {
+                    const healthRecordRes = await patientService.updateHealthRecord(dataUser._id, {
+                        bloodType,
+                        height,
+                        weight,
+                        healthHistory,
+                    });
+
+                    return { healthRecordRes };
+                }
+
+                throw new Error('Không có quyền cập nhật thông tin');
             } catch (error) {
                 throw error;
             }
@@ -155,102 +176,106 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                     </button>
                 </div>
                 <div className={cx('form')}>
-                    <div className={cx('form-1')}>
-                        <div className={cx('title-form')}>Thông tin cá nhân</div>
-                        <div className={cx('form-grid-1')}>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
-                                <Input value={dataUser?.code} className={cx('input')} required disabled={true} />
+                    {user?.role === 3 ? (
+                        <div className={cx('form-1')}>
+                            <div className={cx('title-form')}>Thông tin cá nhân</div>
+                            <div className={cx('form-grid-1')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="PatientID">MÃ BỆNH NHÂN</label>
+                                    <Input value={dataUser?.code} className={cx('input')} required disabled={true} />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="User">HỌ VÀ TÊN</label>
+                                    <Input
+                                        value={userName}
+                                        className={cx('input')}
+                                        onChange={(e) => setUserName(e.target.value)}
+                                    />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="dateOfBirth" style={{ marginBottom: '5px' }}>
+                                        NGÀY SINH
+                                    </label>
+                                    <DatePicker
+                                        format="DD/MM/YYYY"
+                                        value={dayjs(dateOfBirth, 'YYYY-MM-DD')}
+                                        onChange={(date) => setDateOfBirth(date)}
+                                    />
+                                </div>
+                                <></>
                             </div>
                             <div className={cx('form-label')}>
-                                <label htmlFor="User">HỌ VÀ TÊN</label>
-                                <Input
-                                    value={userName}
-                                    className={cx('input')}
-                                    onChange={(e) => setUserName(e.target.value)}
-                                />
+                                <label htmlFor="gender">GIỚI TÍNH:</label>
+                                <Radio.Group name="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                                    <Radio value={1}>Nam</Radio>
+                                    <Radio value={2}>Nữ</Radio>
+                                    <Radio value={3}>Khác</Radio>
+                                </Radio.Group>
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="dateOfBirth" style={{ marginBottom: '5px' }}>
-                                    NGÀY SINH
-                                </label>
-                                <DatePicker
-                                    format="DD/MM/YYYY"
-                                    value={dayjs(dateOfBirth, 'YYYY-MM-DD')}
-                                    onChange={(date) => setDateOfBirth(date)}
-                                />
+                            <div className={cx('form-grid-2')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="email">EMAIL:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                    />
+                                </div>
                             </div>
-                            <></>
+                            <div className={cx('form-grid-2')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="conscious">TỈNH/ THÀNH PHỐ:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={province}
+                                        onChange={(e) => setProvince(e.target.value)}
+                                    />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="district">QUẬN/ HUYỆN:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={district}
+                                        onChange={(e) => setDistrict(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className={cx('form-grid-2')}>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="address">ĐỊA CHỈ:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                    />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={commune}
+                                        onChange={(e) => setCommune(e.target.value)}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className={cx('form-label')}>
-                            <label htmlFor="gender">GIỚI TÍNH:</label>
-                            <Radio.Group name="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
-                                <Radio value={1}>Nam</Radio>
-                                <Radio value={2}>Nữ</Radio>
-                                <Radio value={3}>Khác</Radio>
-                            </Radio.Group>
-                        </div>
-                        <div className={cx('form-grid-2')}>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="email">EMAIL:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={phoneNumber}
-                                    onChange={(e) => setPhoneNumber(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className={cx('form-grid-2')}>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="conscious">TỈNH/ THÀNH PHỐ:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={province}
-                                    onChange={(e) => setProvince(e.target.value)}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="district">QUẬN/ HUYỆN:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={district}
-                                    onChange={(e) => setDistrict(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className={cx('form-grid-2')}>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="address">ĐỊA CHỈ:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="commune">PHƯỜNG/ XÃ:</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={commune}
-                                    onChange={(e) => setCommune(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    ) : (
+                        <></>
+                    )}
                     <div className={cx('title-form')}>Hồ sơ sức khỏe</div>
                     <div className={cx('form-grid-2')}>
                         <div>
@@ -272,6 +297,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                                 <label htmlFor="phone">CHIỀU CAO:</label>
                                 <InputNumber
                                     formatter={(value) => `${value} cm`}
+                                    parser={(value) => value.replace(/[^\d]/g, '')}
                                     value={height}
                                     onChange={(e) => setHeight(e)}
                                 />
@@ -280,6 +306,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                                 <label htmlFor="phone">CÂN NẶNG:</label>
                                 <InputNumber
                                     formatter={(value) => `${value} Kg`}
+                                    parser={(value) => value.replace(/[^\d]/g, '')}
                                     value={weight}
                                     onChange={(e) => setWeight(e)}
                                 />

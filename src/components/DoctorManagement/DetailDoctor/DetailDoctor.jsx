@@ -10,16 +10,19 @@ import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate'
 import { ArrowLeftOutlined, CameraOutlined } from '@ant-design/icons';
 import PersonalSchedule from '../PersonalSchedule/PersonalSchedule';
 import * as userService from '../../../services/userServices';
+import * as clinicService from '../../../services/clinicService';
 import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../../utils/checkStatusResponse';
 import InputUpload from '../../InputUpload/InputUpload';
 import TextArea from 'antd/es/input/TextArea';
+import Loading from '../../Loading/Loading';
 
 const cx = classNames.bind(styles);
 
-const DetailDoctor = ({ onBack, rowSelected }) => {
+const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [isModalOpenAvatar, setIsModalOpenAvatar] = useState(false);
+    const [isModalDelete, setIsModalDelete] = useState(false);
 
     const [email, setEmail] = useState('');
     const [userName, setUserName] = useState('');
@@ -41,11 +44,17 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
     };
 
     const {
-        isLoading: isLoadingDoctor,
+        // isLoading: isLoadingDoctor,
         data: dataDoctor,
         refetch: refetchDoctor,
     } = useQuery(['doctor', rowSelected], getDoctor, {
         enabled: !!rowSelected,
+    });
+
+    // --- API GET CLINIC ---
+    const { data: dataClinic } = useQuery(['clinic'], () => clinicService.getClinicById(dataDoctor?.clinicId), {
+        enabled: !!dataDoctor?.clinicId,
+        select: (data) => data?.data,
     });
 
     useEffect(() => {
@@ -86,6 +95,18 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
         },
         onError: (error) => {
             message.error('Có lỗi xảy ra khi cập nhật avatar.');
+        },
+    });
+
+    const mutationDeleteDoctor = useMutation({
+        mutationFn: (data) => userService.deleteUser(data),
+        onSuccess: () => {
+            message.success('Xoá bác sĩ thành công!');
+            onBack();
+            refetch();
+        },
+        onError: () => {
+            message.error('Xoá bác sĩ thất bại!');
         },
     });
 
@@ -192,6 +213,19 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
         setIsModalOpenEdit(false);
     };
 
+    const showModalDelete = () => {
+        setIsModalDelete(true);
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalDelete(false);
+    };
+
+    const handleOkDelete = () => {
+        mutationDeleteDoctor.mutate(rowSelected);
+        setIsModalDelete(false);
+    };
+
     return (
         <div className={cx('wrapper')}>
             <div>
@@ -279,7 +313,7 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="workplace">NƠI CÔNG TÁC</label>
-                                <Input className={cx('input')} required disabled={true} value="Hà Nội" />
+                                <Input className={cx('input')} required disabled={true} value={dataClinic?.address} />
                             </div>
                             <div className={cx('more-info')}>
                                 <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
@@ -289,7 +323,7 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
                                 <Button className={cx('btn-edit')} type="primary" onClick={showModalEdit}>
                                     Chỉnh sửa
                                 </Button>
-                                <Button className={cx('btn-delete')} type="primary" onClick={showModalEdit}>
+                                <Button className={cx('btn-delete')} type="primary" onClick={showModalDelete}>
                                     Xóa
                                 </Button>
                             </div>
@@ -334,121 +368,134 @@ const DetailDoctor = ({ onBack, rowSelected }) => {
                 style={{ top: '5px' }}
                 footer={null}
             >
-                <div className={cx('footer-edit')}>
-                    <div className={cx('content-send')}>
-                        <div className={cx('form')}>
-                            <div className={cx('form-grid-1')}>
+                <Loading isLoading={isLoading}>
+                    <div className={cx('footer-edit')}>
+                        <div className={cx('content-send')}>
+                            <div className={cx('form')}>
+                                <div className={cx('form-grid-1')}>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="User">HỌ VÀ TÊN</label>
+                                        <Input
+                                            value={userName}
+                                            className={cx('input')}
+                                            required
+                                            onChange={handleOnChangeName}
+                                        />
+                                    </div>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="email">EMAIL</label>
+                                        <Input
+                                            className={cx('input')}
+                                            required
+                                            value={email}
+                                            onChange={handleOnChangeEmail}
+                                        />
+                                    </div>
+                                </div>
                                 <div className={cx('form-label')}>
-                                    <label htmlFor="User">HỌ VÀ TÊN</label>
+                                    <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
                                     <Input
-                                        value={userName}
                                         className={cx('input')}
                                         required
-                                        onChange={handleOnChangeName}
+                                        value={phoneNumber}
+                                        onChange={handleOnChangePhone}
+                                    />
+                                </div>
+                                <div className={cx('form-grid-1')}>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="Province">TỈNH/ THÀNH PHỐ</label>
+                                        <Input
+                                            value={province}
+                                            className={cx('input')}
+                                            onChange={handleOnChangeProvince}
+                                        />
+                                    </div>
+                                    <div className={cx('form-label')}>
+                                        <label htmlFor="District">QUẬN/ HUYỆN</label>
+                                        <Input
+                                            className={cx('input')}
+                                            value={district}
+                                            onChange={handleOnChangeDistrict}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="Commune">PHƯỜNG/ XÃ</label>
+                                    <Input className={cx('input')} value={commune} onChange={handleOnChangeCommune} />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="address">ĐỊA CHỈ</label>
+                                    <Input
+                                        className={cx('input')}
+                                        required
+                                        value={address}
+                                        onChange={handleOnChangeAddress}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
-                                    <label htmlFor="email">EMAIL</label>
+                                    <label htmlFor="level">TRÌNH ĐỘ</label>
+                                    <Radio.Group
+                                        name="qualification"
+                                        value={qualification}
+                                        onChange={handleOnChangeQualification}
+                                    >
+                                        <Radio value="Thạc sĩ">THẠC SĨ</Radio>
+                                        <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
+                                        <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
+                                    </Radio.Group>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="gender" disabled={true}>
+                                        GIỚI TÍNH
+                                    </label>
+                                    <Radio.Group name="gender" value={gender} onChange={handleOnChangeGender}>
+                                        <Radio value={1}>Nam</Radio>
+                                        <Radio value={2}>Nữ</Radio>
+                                        <Radio value={3}>Khác</Radio>
+                                    </Radio.Group>
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="dateOfBirth">NGÀY SINH</label>
+                                    <DatePicker
+                                        format="DD/MM/YYYY"
+                                        value={dayjs(convertISODateToLocalDate(dateOfBirth, 'YYYY-MM-DD'))}
+                                        onChange={handleOnChangeDateOfBirth}
+                                    />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="specialty">CHUYÊN KHOA</label>
                                     <Input
                                         className={cx('input')}
                                         required
-                                        value={email}
-                                        onChange={handleOnChangeEmail}
+                                        value={specialty}
+                                        onChange={handleOnChangeSpecialty}
                                     />
                                 </div>
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="phone">SỐ ĐIỆN THOẠI</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={phoneNumber}
-                                    onChange={handleOnChangePhone}
-                                />
-                            </div>
-                            <div className={cx('form-grid-1')}>
-                                <div className={cx('form-label')}>
-                                    <label htmlFor="Province">TỈNH/ THÀNH PHỐ</label>
-                                    <Input value={province} className={cx('input')} onChange={handleOnChangeProvince} />
-                                </div>
-                                <div className={cx('form-label')}>
-                                    <label htmlFor="District">QUẬN/ HUYỆN</label>
-                                    <Input className={cx('input')} value={district} onChange={handleOnChangeDistrict} />
+                                <div className={cx('more-info')}>
+                                    <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
+                                    <TextArea
+                                        className={cx('info')}
+                                        value={description}
+                                        onChange={handleOnChangeDescription}
+                                    ></TextArea>
                                 </div>
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="Commune">PHƯỜNG/ XÃ</label>
-                                <Input className={cx('input')} value={commune} onChange={handleOnChangeCommune} />
+                            <div className={cx('wrapper-btn-save')}>
+                                <Button className={cx('btn')} type="primary" onClick={handleOkEdit}>
+                                    Lưu
+                                </Button>
                             </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="address">ĐỊA CHỈ</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={address}
-                                    onChange={handleOnChangeAddress}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="level">TRÌNH ĐỘ</label>
-                                <Radio.Group
-                                    name="qualification"
-                                    value={qualification}
-                                    onChange={handleOnChangeQualification}
-                                >
-                                    <Radio value="Thạc sĩ">THẠC SĨ</Radio>
-                                    <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
-                                    <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
-                                </Radio.Group>
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="gender" disabled={true}>
-                                    GIỚI TÍNH
-                                </label>
-                                <Radio.Group name="gender" value={gender} onChange={handleOnChangeGender}>
-                                    <Radio value={1}>Nam</Radio>
-                                    <Radio value={2}>Nữ</Radio>
-                                    <Radio value={3}>Khác</Radio>
-                                </Radio.Group>
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="dateOfBirth">NGÀY SINH</label>
-                                <DatePicker
-                                    format="DD/MM/YYYY"
-                                    value={dayjs(convertISODateToLocalDate(dateOfBirth, 'YYYY-MM-DD'))}
-                                    onChange={handleOnChangeDateOfBirth}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="specialty">CHUYÊN KHOA</label>
-                                <Input
-                                    className={cx('input')}
-                                    required
-                                    value={specialty}
-                                    onChange={handleOnChangeSpecialty}
-                                />
-                            </div>
-                            <div className={cx('form-label')}>
-                                <label htmlFor="workplace">NƠI CÔNG TÁC</label>
-                                <Input className={cx('input')} required value="Hà Nội" />
-                            </div>
-                            <div className={cx('more-info')}>
-                                <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
-                                <TextArea
-                                    className={cx('info')}
-                                    value={description}
-                                    onChange={handleOnChangeDescription}
-                                ></TextArea>
-                            </div>
-                        </div>
-                        <div className={cx('wrapper-btn-save')}>
-                            <Button className={cx('btn')} type="primary" onClick={handleOkEdit}>
-                                Lưu
-                            </Button>
                         </div>
                     </div>
-                </div>
+                </Loading>
             </Modal>
+            <Modal
+                title="Bạn có chắc muốn xóa bác sĩ này?"
+                open={isModalDelete}
+                onOk={handleOkDelete}
+                onCancel={handleCancelDelete}
+                okButtonProps={{ style: { backgroundColor: '#ff4d4f' } }}
+            />
         </div>
     );
 };

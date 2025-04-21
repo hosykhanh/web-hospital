@@ -162,7 +162,7 @@ const DetailPatient = ({ onBack, rowSelectedDetail }) => {
                                     </div>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>
-                                        <span>{dataUser?.phone}</span>
+                                        <span>{dataUser?.phoneNumber}</span>
                                     </div>
                                 </div>
                                 <div className={cx('form-grid-3')}>

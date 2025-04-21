@@ -9,7 +9,8 @@ import dayjs from 'dayjs';
 import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 import { useDispatch, useSelector } from 'react-redux';
 import * as userService from '../../services/userServices';
-import { useMutation } from 'react-query';
+import * as clinicService from '../../services/clinicService';
+import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../utils/checkStatusResponse';
 import { updateUser } from '../../redux/slice/userSlice';
 import { CameraOutlined } from '@ant-design/icons';
@@ -90,6 +91,12 @@ const DoctorProfile = () => {
             setDescription(users.description);
         }
     }, [users]);
+
+    // --- API GET CLINIC ---
+    const { data: dataClinic } = useQuery(['clinic'], () => clinicService.getClinicById(users?.clinicId), {
+        enabled: !!users?.clinicId,
+        select: (data) => data?.data,
+    });
 
     const handleOnChangeAvatar = (file) => {
         console.log(file);
@@ -257,7 +264,7 @@ const DoctorProfile = () => {
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="workplace">NƠI CÔNG TÁC</label>
-                                <Input className={cx('input')} disabled={true} value="Hà Nội" />
+                                <Input className={cx('input')} disabled={true} value={dataClinic?.address} />
                             </div>
                             <div className={cx('more-info')}>
                                 <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
@@ -389,10 +396,6 @@ const DoctorProfile = () => {
                                         value={specialty}
                                         onChange={handleOnChangeSpecialty}
                                     />
-                                </div>
-                                <div className={cx('form-label')}>
-                                    <label htmlFor="workplace">NƠI CÔNG TÁC</label>
-                                    <Input className={cx('input')} value="Hà Nội" />
                                 </div>
                                 <div className={cx('more-info')}>
                                     <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
