@@ -10,6 +10,7 @@ import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 import { useDispatch, useSelector } from 'react-redux';
 import * as userService from '../../services/userServices';
 import * as clinicService from '../../services/clinicService';
+import * as doctorService from '../../services/doctorService';
 import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../utils/checkStatusResponse';
 import { updateUser } from '../../redux/slice/userSlice';
@@ -43,7 +44,7 @@ const DoctorProfile = () => {
     const mutation = useMutation({
         mutationFn: (data) => {
             const { id, ...rests } = data;
-            return userService.updateUser(id, rests);
+            return doctorService.updateDoctor(id, rests);
         },
     });
 

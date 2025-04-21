@@ -19,9 +19,14 @@ const createDoctor = async (data) => {
     return res.data;
 };
 
+const updateDoctor = async (id, data) => {
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/user/${id}/update-doctor`, data);
+    return res.data;
+};
+
 const getDotorSchedules = async (id) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/${id}/schedules`);
     return res.data;
 };
 
-export { getAllDoctors, getDoctorsByClicnicId, createDoctor, getDotorSchedules };
+export { getAllDoctors, getDoctorsByClicnicId, createDoctor, updateDoctor, getDotorSchedules };
