@@ -279,10 +279,6 @@ const CreateDoctor = ({ onBack, refetch }) => {
                             placeholder="Nhập chuyên khoa"
                         />
                     </div>
-                    <div className={cx('form-label')}>
-                        <label htmlFor="workplace">NƠI CÔNG TÁC</label>
-                        <Input className={cx('input')} required value="Hà Nội" />
-                    </div>
                     <div className={cx('more-info')}>
                         <label htmlFor="introduce">GIỚI THIỆU THÊM</label>
                         <TextArea

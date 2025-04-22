@@ -210,7 +210,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
         medicalServiceName: 'Dịch vụ khám',
         examinationDate: 'Ngày khám',
         clinicId: 'Phòng khám',
-        clinicScheduleId: 'Lịch khám',
+        clinicScheduleId: 'Ca khám',
         patientDateOfBirth: 'Ngày sinh',
         patientGender: 'Giới tính',
         medicalFee: 'Phí khám',
