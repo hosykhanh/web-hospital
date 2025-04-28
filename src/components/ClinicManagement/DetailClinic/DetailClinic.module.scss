@@ -68,6 +68,10 @@
     .btn-delete:hover {
         color: #e2e2e2;
     }
+
+    .btn-save:hover {
+        color: #e2e2e2;
+    }
 }
 
 .form {
@@ -98,13 +102,21 @@
         font-weight: 450;
         font-size: 0.75rem;
         color: #8a8a8a;
-        margin-right: 20px;
+        margin-right: 10px;
     }
 
     .form-label {
         margin-bottom: 15px;
         display: flex;
         flex-direction: column;
+
+        .edit-icon {
+            cursor: pointer;
+
+            &:hover {
+                color: #2385fd;
+            }
+        }
     }
 
     .form-user-email {
@@ -138,20 +150,25 @@
     color: #2385fd;
     display: flex;
     justify-content: center;
+    border-bottom: 1px solid #e2e2e2;
 }
 
-.modal-medical-content {
+.title-modal-clinic-schedule {
+    font-size: 1.2rem;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #e2e2e2;
+}
+
+.content-modal-time {
+    height: calc(100vh - 280px);
+    overflow-y: auto;
+}
+
+.wrapper-medical-content {
     height: calc(100vh - 130px);
     overflow-y: auto;
-
-    .modal-item {
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        padding: 5px 10px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-    }
 }
 
 .modal-edit-title {
@@ -250,6 +267,7 @@
     .info {
         border: 1px solid #e0e0e0;
         min-height: 100px;
+        max-height: 200px;
         border-radius: 10px;
         padding: 10px;
         overflow-y: auto;

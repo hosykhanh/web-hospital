@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './DetailClinic.module.scss';
-import images from '../../../assets';
 import { Input, message, Modal, Tag } from 'antd';
 import Button from '../../Button/Button';
-import { ArrowLeftOutlined, CameraOutlined, EyeOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CameraOutlined, EditOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import TableComp from '../../TableComp/TableComp';
 import DetailDoctor from '../../DoctorManagement/DetailDoctor/DetailDoctor';
 import * as doctorService from '../../../services/doctorService';
@@ -15,6 +14,8 @@ import * as medicalService from '../../../services/medicalService';
 import { useMutation, useQuery } from 'react-query';
 import Loading from '../../Loading/Loading';
 import InputUpload from '../../InputUpload/InputUpload';
+import ClinicScheduleManager from '../ClinicScheduleManager/ClinicScheduleManager';
+import MedicalServiceManager from '../MedicalServiceManager/MedicalServiceManager';
 
 const cx = classNames.bind(styles);
 
@@ -23,6 +24,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     const [isModalOpenMedicalService, setIsModalOpenMedicalService] = useState(false);
     const [isModalDelete, setIsModalDelete] = useState(false);
     const [isModalOpenLogo, setIsModalOpenLogo] = useState(false);
+    const [isModalOpenClinicSchedule, setIsModalOpenClinicSchedule] = useState(false);
 
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
@@ -37,7 +39,6 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     // --- API GET CLINICS BY ID ---
     const getClinicById = async () => {
         const res = await clinicService.getClinicById(rowSelectedClinic);
-        console.log('res', res);
         return res.data;
     };
 
@@ -119,6 +120,18 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
         },
     });
 
+    const mutationDeleteClinic = useMutation({
+        mutationFn: (data) => clinicService.deleteClinic(data),
+        onSuccess: () => {
+            message.success('Xoá phòng khám thành công!');
+            onBack();
+            refetch();
+        },
+        onError: () => {
+            message.error('Xoá phòng khám thất bại!');
+        },
+    });
+
     const handleOnChangeLogo = (file) => {
         setLogo(file);
     };
@@ -158,6 +171,14 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
         setIsModalOpenEdit(false);
     };
 
+    const showModalClinicSchedule = () => {
+        setIsModalOpenClinicSchedule(true);
+    };
+
+    const cancelModalClinicSchedule = () => {
+        setIsModalOpenClinicSchedule(false);
+    };
+
     const showModalMedicalService = () => {
         setIsModalOpenMedicalService(true);
     };
@@ -178,18 +199,6 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
         mutationDeleteClinic.mutate(rowSelectedClinic);
         setIsModalDelete(false);
     };
-
-    const mutationDeleteClinic = useMutation({
-        mutationFn: (data) => clinicService.deleteClinic(data),
-        onSuccess: () => {
-            message.success('Xoá phòng khám thành công!');
-            onBack();
-            refetch();
-        },
-        onError: () => {
-            message.error('Xoá phòng khám thất bại!');
-        },
-    });
 
     const renderAction = () => {
         return (
@@ -225,6 +234,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
             render: renderAction,
         },
     ];
+
     return (
         <div>
             {isDetailVisible ? (
@@ -294,7 +304,13 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                 />
                                             </div>
                                             <div className={cx('form-label')}>
-                                                <label htmlFor="address">THỜI GIAN LÀM VIỆC</label>
+                                                <div className={cx('time-work')}>
+                                                    <label htmlFor="time">THỜI GIAN LÀM VIỆC</label>
+                                                    <EditOutlined
+                                                        onClick={showModalClinicSchedule}
+                                                        className={cx('edit-icon')}
+                                                    />
+                                                </div>
                                                 <div className="mt-4">
                                                     {dataClinicSchedule?.map((time) => (
                                                         <Tag
@@ -307,6 +323,27 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                     ))}
                                                 </div>
                                             </div>
+                                            <Modal
+                                                title={
+                                                    <div className={cx('title-modal-clinic-schedule')}>
+                                                        Chỉnh sửa thời gian làm việc
+                                                    </div>
+                                                }
+                                                open={isModalOpenClinicSchedule}
+                                                onCancel={cancelModalClinicSchedule}
+                                                footer={null}
+                                                width="45%"
+                                            >
+                                                <div className={cx('content-modal-time')}>
+                                                    <ClinicScheduleManager
+                                                        dataClinicSchedule={dataClinicSchedule}
+                                                        isLoadingClinicSchedule={isLoadingClinicSchedule}
+                                                        rowSelectedClinic={rowSelectedClinic}
+                                                        refetchClinicSchedule={refetchClinicSchedule}
+                                                    />
+                                                </div>
+                                            </Modal>
+
                                             <div className={cx('form-label')}>
                                                 <label htmlFor="service">DỊCH VỤ KHÁM</label>
                                                 <Button className={cx('btn-service')} onClick={showModalMedicalService}>
@@ -326,35 +363,12 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                 width="45%"
                                                 style={{ top: 5 }}
                                             >
-                                                <div className={cx('modal-medical-content')}>
-                                                    <Loading isLoading={isLoadingMedicalService}>
-                                                        <div className={cx('modal-list')}>
-                                                            {dataMedicalService?.map((service) => (
-                                                                <div key={service?._id} className={cx('modal-item')}>
-                                                                    <div className={cx('modal-item-left')}>
-                                                                        <div className={cx('modal-item-name')}>
-                                                                            {service?.name}
-                                                                        </div>
-                                                                        <div className={cx('modal-item-price')}>
-                                                                            Giá gốc: {service?.originalPrice} VNĐ
-                                                                        </div>
-                                                                        <div className={cx('modal-item-price')}>
-                                                                            Giá hiện tại: {service?.currentPrice} VNĐ
-                                                                        </div>
-                                                                    </div>
-                                                                    <EyeOutlined
-                                                                        className="modal-item-icon"
-                                                                        style={{
-                                                                            // color: '#1890ff',
-                                                                            cursor: 'pointer',
-                                                                            fontSize: 20,
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </Loading>
-                                                </div>
+                                                <MedicalServiceManager
+                                                    dataMedicalService={dataMedicalService}
+                                                    isLoadingMedicalService={isLoadingMedicalService}
+                                                    rowSelectedClinic={rowSelectedClinic}
+                                                    refetchMedicalService={refetchMedicalService}
+                                                />
                                             </Modal>
                                             <div className={cx('wrapper-btn')}>
                                                 <Button
@@ -496,7 +510,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                         name="description"
                                         value={description}
                                         onChange={handleChange}
-                                        rows={4}
+                                        rows={6}
                                     />
                                 </div>
                             </div>

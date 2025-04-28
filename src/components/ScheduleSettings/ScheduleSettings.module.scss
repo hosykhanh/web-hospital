@@ -1,16 +1,11 @@
 .scheduleContainer {
     margin: 0 auto;
     padding: 20px;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 110px);
     overflow-y: auto;
-}
-
-.scheduleCard {
-    width: 100%;
     background-color: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    margin: 20px;
 }
 
 .cardHeader {
@@ -344,6 +339,21 @@
     &.canceledBadge {
         background-color: #ff4d4f;
         color: white;
+    }
+}
+
+.cancelButton {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+
+    &:hover {
+        background-color: #d9363e !important;
+        color: white !important;
     }
 }
 

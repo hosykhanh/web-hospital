@@ -283,7 +283,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                                 <label htmlFor="blood">NHÓM MÁU:</label>
                                 <Select
                                     style={{
-                                        width: 80,
+                                        width: 150,
                                     }}
                                     value={bloodType}
                                     onChange={(e) => setBloodType(e)}
@@ -296,29 +296,36 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                             <div className={cx('form-label')}>
                                 <label htmlFor="phone">CHIỀU CAO:</label>
                                 <InputNumber
-                                    formatter={(value) => `${value} cm`}
+                                    addonAfter="cm"
                                     parser={(value) => value.replace(/[^\d]/g, '')}
                                     value={height}
                                     onChange={(e) => setHeight(e)}
+                                    style={{
+                                        width: 150,
+                                    }}
                                 />
                             </div>
                             <div className={cx('form-label')}>
                                 <label htmlFor="phone">CÂN NẶNG:</label>
                                 <InputNumber
-                                    formatter={(value) => `${value} Kg`}
+                                    addonAfter="Kg"
                                     parser={(value) => value.replace(/[^\d]/g, '')}
                                     value={weight}
                                     onChange={(e) => setWeight(e)}
+                                    style={{
+                                        width: 150,
+                                    }}
                                 />
                             </div>
                         </div>
                         <div className={cx('form-label')} style={{ display: 'flex', flexDirection: 'column' }}>
                             <label>TIỀN SỬ BỆNH LÝ:</label>
-                            <textarea
+                            <Input.TextArea
                                 className={cx('medical-history')}
                                 value={healthHistory}
                                 onChange={(e) => setHealthHistory(e.target.value)}
-                            ></textarea>
+                                rows={4}
+                            />
                         </div>
                     </div>
                     <div className={cx('wrapper-btn')}>

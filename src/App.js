@@ -37,7 +37,7 @@ function App() {
         setIsLoading(true);
         let { storageData, userData } = handleDecoded();
 
-        if (userData?.id) {
+        if (userData.id) {
             handleGetDetailUser(userData?.id, storageData);
         }
         setIsLoading(false);

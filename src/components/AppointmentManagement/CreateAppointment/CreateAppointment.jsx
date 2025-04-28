@@ -117,17 +117,13 @@ const CreateAppointment = ({ onBack, refetch }) => {
     });
 
     // --- API GET ALL DOCTORS ---
-    const getAllDoctors = async () => {
-        const res = await doctorService.getAllDoctors();
-        return res.data.items;
-    };
-
     const {
         isLoading: isLoadingDoctors,
         data: dataDoctors,
         refetch: refetchDoctors,
-    } = useQuery(['doctor'], getAllDoctors, {
-        enabled: !!user?.id,
+    } = useQuery(['doctor', clinicId], () => doctorService.getDoctorsByClicnicId(clinicId), {
+        enabled: !!clinicId,
+        select: (data) => data?.data,
     });
 
     // Load provinces on component mount
@@ -232,7 +228,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
 
         if (emptyFields.length > 0) {
             const missingLabels = emptyFields.map(([key]) => labelMap[key] || key);
-            message.error(`Vui lòng điền đầy đủ thông tin: ${missingLabels.join(', ')}`);
+            message.warning(`Vui lòng điền đầy đủ thông tin: ${missingLabels.join(', ')}`);
             return;
         }
 

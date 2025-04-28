@@ -8,6 +8,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styles from './ScheduleSettings.module.scss';
 import CreateSchedule from './CreateSchedule/CreateSchedule';
 import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
+import { Button, message, Modal } from 'antd';
+import * as scheduleService from '../../services/scheduleService';
+import Loading from '../Loading/Loading';
 
 const cx = classNames.bind(styles);
 
@@ -18,123 +21,109 @@ export default function ScheduleSettings({ isLoading, data, refetch }) {
     const [date, setDate] = useState(new Date());
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenCancel, setIsModalOpenCancel] = useState(false);
+    const [rowSelected, setRowSelected] = useState(null);
 
     const toggleFilter = () => {
         setIsFilterOpen(!isFilterOpen);
     };
 
-    const formatDate = (isoString) => {
-        return new Date(isoString).toISOString().split('T')[0]; // Lấy phần YYYY-MM-DD
+    const showModalCancelSchedule = () => {
+        setIsModalOpenCancel(true);
     };
 
-    const approvedDates = new Set(data?.filter((item) => item.status === 1).map((item) => formatDate(item.date)));
-    const canceledDates = new Set(data?.filter((item) => item.status === 2).map((item) => formatDate(item.date)));
+    const handleBackCancelSchedule = () => {
+        setIsModalOpenCancel(false);
+    };
 
-    // Hàm để gán class cho ngày trong lịch
-    const dayClassName = (day) => {
-        const formattedDate = day.toISOString().split('T')[0]; // Format YYYY-MM-DD
-
-        if (approvedDates.has(formattedDate)) {
-            return 'react-datepicker__day--approved';
+    const onOkModalCancelSchedule = async () => {
+        try {
+            await scheduleService.inActiveLeaveSchedule(rowSelected);
+            setIsModalOpenCancel(false);
+            message.success('Hủy lịch nghỉ thành công!');
+            refetch();
+        } catch (error) {
+            message.error(`Hủy lịch nghỉ thất bại! ${error.response.data.message}`);
         }
-        if (canceledDates.has(formattedDate)) {
-            return 'react-datepicker__day--canceled';
-        }
-        return ''; // Ngày bình thường
     };
 
     return (
         <div className={cx('scheduleContainer')}>
-            <div className={cx('scheduleCard')}>
-                <div className={cx('cardHeader')}>
-                    <h2 className={cx('cardTitle')}>Cài đặt lịch</h2>
-                </div>
-                <div className={cx('cardContent')}>
-                    <h3 className={cx('sectionTitle')}>Danh sách lịch nghỉ</h3>
+            <div className={cx('cardHeader')}>
+                <h2 className={cx('cardTitle')}>Cài đặt lịch</h2>
+            </div>
+            <div className={cx('cardContent')}>
+                <h3 className={cx('sectionTitle')}>Danh sách lịch nghỉ</h3>
 
-                    <div className={cx('mainContent')}>
-                        {/* Calendar Section */}
-                        <div className={cx('calendarSection')}>
-                            <div className={cx('calendarWrapper')}>
-                                <DatePicker
-                                    selected={date}
-                                    onChange={(date) => setDate(date)}
-                                    inline
-                                    locale="vi"
-                                    showMonthDropdown
-                                    showYearDropdown
-                                    dropdownMode="select"
-                                    className={cx('fullCalendar')}
-                                    dayClassName={dayClassName}
-                                />
+                <div className={cx('mainContent')}>
+                    {/* Calendar Section */}
+                    <div className={cx('calendarSection')}>
+                        <div className={cx('calendarWrapper')}>
+                            <DatePicker
+                                selected={date}
+                                onChange={(date) => setDate(date)}
+                                inline
+                                locale="vi"
+                                showMonthDropdown
+                                showYearDropdown
+                                dropdownMode="select"
+                                className={cx('fullCalendar')}
+                            />
+                        </div>
+                    </div>
+
+                    {/* List Section */}
+                    <div className={cx('listSection')}>
+                        <div className={cx('toolbarContainer')}>
+                            <div className={cx('leftActions')}>
+                                <button className={cx('createButton')} onClick={() => setIsModalOpen(true)}>
+                                    <Plus size={16} />
+                                    <span>Tạo lịch nghỉ</span>
+                                </button>
                             </div>
-                            <div className={cx('legendContainer')}>
-                                <div className={cx('legendItem')}>
-                                    <div className={cx('legendColor', 'currentColor')}></div>
-                                    <span>Ngày hiện tại</span>
-                                </div>
-                                <div className={cx('legendItem')}>
-                                    <div className={cx('legendColor', 'successColor')}></div>
-                                    <span>Nghỉ đã duyệt</span>
-                                </div>
-                                <div className={cx('legendItem')}>
-                                    <div className={cx('legendColor', 'canceledColor')}></div>
-                                    <span>Đã hủy</span>
+                            <CreateSchedule
+                                isModalOpen={isModalOpen}
+                                setIsModalOpen={setIsModalOpen}
+                                refetch={refetch}
+                            />
+                            <div className={cx('rightActions')}>
+                                <div className={cx('filterContainer')}>
+                                    <button className={cx('filterButton')} onClick={toggleFilter}>
+                                        <Filter size={16} />
+                                        <span>Lọc</span>
+                                        <ChevronDown size={16} />
+                                    </button>
+                                    {isFilterOpen && (
+                                        <div className={cx('filterContent')}>
+                                            <div className={cx('filterOptions')}>
+                                                <div className={cx('filterOption')}>
+                                                    <label>Trạng thái</label>
+                                                    <select className={cx('selectInput')}>
+                                                        <option value="all">Tất cả</option>
+                                                        <option value="success">Thành công</option>
+                                                        <option value="canceled">Đã hủy</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className={cx('filterActions')}>
+                                                <button className={cx('resetButton')}>Đặt lại</button>
+                                                <button className={cx('applyButton')}>Áp dụng</button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-
-                        {/* List Section */}
-                        <div className={cx('listSection')}>
-                            <div className={cx('toolbarContainer')}>
-                                <div className={cx('leftActions')}>
-                                    <button className={cx('createButton')} onClick={() => setIsModalOpen(true)}>
-                                        <Plus size={16} />
-                                        <span>Tạo lịch nghỉ</span>
-                                    </button>
-                                </div>
-                                <CreateSchedule
-                                    isModalOpen={isModalOpen}
-                                    setIsModalOpen={setIsModalOpen}
-                                    refetch={refetch}
-                                />
-                                <div className={cx('rightActions')}>
-                                    <div className={cx('filterContainer')}>
-                                        <button className={cx('filterButton')} onClick={toggleFilter}>
-                                            <Filter size={16} />
-                                            <span>Lọc</span>
-                                            <ChevronDown size={16} />
-                                        </button>
-                                        {isFilterOpen && (
-                                            <div className={cx('filterContent')}>
-                                                <div className={cx('filterOptions')}>
-                                                    <div className={cx('filterOption')}>
-                                                        <label>Trạng thái</label>
-                                                        <select className={cx('selectInput')}>
-                                                            <option value="all">Tất cả</option>
-                                                            <option value="success">Thành công</option>
-                                                            <option value="canceled">Đã hủy</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div className={cx('filterActions')}>
-                                                    <button className={cx('resetButton')}>Đặt lại</button>
-                                                    <button className={cx('applyButton')}>Áp dụng</button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
+                        <Loading isLoading={isLoading}>
                             <div className={cx('tableContainer')}>
                                 <table className={cx('scheduleTable')}>
                                     <colgroup>
-                                        <col style={{ width: '10%' }} />
-                                        <col style={{ width: '20%' }} />
+                                        <col style={{ width: '5%' }} />
+                                        <col style={{ width: '15%' }} />
                                         <col style={{ width: '20%' }} />
                                         <col style={{ width: '30%' }} />
-                                        <col style={{ width: '20%' }} />
+                                        <col style={{ width: '15%' }} />
+                                        <col style={{ width: '15%' }} />
                                     </colgroup>
                                     <thead>
                                         <tr>
@@ -143,17 +132,19 @@ export default function ScheduleSettings({ isLoading, data, refetch }) {
                                             <th>Giờ nghỉ</th>
                                             <th>Lý do</th>
                                             <th>Trạng thái</th>
+                                            <th>Hoạt động</th>
                                         </tr>
                                     </thead>
                                 </table>
                                 <div className={cx('tableBodyWrapper')}>
                                     <table className={cx('scheduleTable')}>
                                         <colgroup>
-                                            <col style={{ width: '10%' }} />
-                                            <col style={{ width: '20%' }} />
+                                            <col style={{ width: '5%' }} />
+                                            <col style={{ width: '15%' }} />
                                             <col style={{ width: '20%' }} />
                                             <col style={{ width: '30%' }} />
-                                            <col style={{ width: '20%' }} />
+                                            <col style={{ width: '15%' }} />
+                                            <col style={{ width: '15%' }} />
                                         </colgroup>
                                         <tbody className={cx('tableBody')}>
                                             {data?.map((item, index) => (
@@ -175,13 +166,40 @@ export default function ScheduleSettings({ isLoading, data, refetch }) {
                                                             {item?.status === 1 ? 'Thành công' : 'Đã hủy'}
                                                         </span>
                                                     </td>
+                                                    <td onClick={() => setRowSelected(item?._id)}>
+                                                        {item?.status === 1 ? (
+                                                            <Button
+                                                                className={cx('cancelButton')}
+                                                                onClick={showModalCancelSchedule}
+                                                            >
+                                                                Hủy lịch nghỉ
+                                                            </Button>
+                                                        ) : (
+                                                            <></>
+                                                        )}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        </Loading>
+                        <Modal
+                            title="Bạn có chắc muốn hủy lịch nghỉ này?"
+                            open={isModalOpenCancel}
+                            onOk={onOkModalCancelSchedule}
+                            onCancel={handleBackCancelSchedule}
+                            okButtonProps={{ style: { backgroundColor: '#ff4d4f' } }}
+                            footer={[
+                                <Button key="back" onClick={handleBackCancelSchedule}>
+                                    Quay lại
+                                </Button>,
+                                <Button key="submit" type="primary" onClick={onOkModalCancelSchedule}>
+                                    Xác nhận hủy
+                                </Button>,
+                            ]}
+                        />
                     </div>
                 </div>
             </div>

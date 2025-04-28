@@ -20,7 +20,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
 
     const [patientStatus, setPatientStatus] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
-    const [reExaminationDate, setReExaminationDate] = useState(null);
+    const [reExaminateDate, setReExaminateDate] = useState(null);
     const [noteFromDoctor, setNoteFromDoctor] = useState('');
 
     const {
@@ -60,7 +60,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
             responsibilityDoctorId: dataInfo?.responsibilityDoctorId,
             patientStatus: patientStatus,
             diagnosis: diagnosis,
-            reExaminationDate: reExaminationDate,
+            reExaminateDate: reExaminateDate,
             noteFromDoctor: noteFromDoctor,
         };
         const requiredFields = {
@@ -197,7 +197,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                             </div>
                             <div className={cx('form-label')}>
                                 <label>NGÀY TÁI KHÁM:</label>
-                                <span>{convertISODateToLocalDate(dataInfo?.reExaminationDate)}</span>
+                                <span>{convertISODateToLocalDate(dataInfo?.reExaminateDate)}</span>
                             </div>
                         </>
                     ) : (
@@ -282,8 +282,8 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                                     <label>NGÀY TÁI KHÁM</label>
                                     <DatePicker
                                         format="DD/MM/YYYY"
-                                        value={reExaminationDate}
-                                        onChange={(date) => setReExaminationDate(date)}
+                                        value={reExaminateDate}
+                                        onChange={(date) => setReExaminateDate(date)}
                                     />
                                 </div>
                                 <div className={cx('form-label')}>
