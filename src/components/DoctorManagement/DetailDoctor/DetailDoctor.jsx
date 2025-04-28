@@ -356,7 +356,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                         <div className={cx('content-right-specialty')}>{dataDoctor?.qualification}</div>
                     </div>
                     <div className={cx('schedule')}>
-                        <PersonalSchedule />
+                        <PersonalSchedule doctorId={rowSelected} />
                     </div>
                 </div>
             </div>

@@ -29,4 +29,20 @@ const getDotorSchedules = async (id) => {
     return res.data;
 };
 
-export { getAllDoctors, getDoctorsByClicnicId, createDoctor, updateDoctor, getDotorSchedules };
+const getDoctorWorkingSchedules = async (id, date) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/${id}/working-schedules`, {
+        params: {
+            date,
+        },
+    });
+    return res.data;
+};
+
+export {
+    getAllDoctors,
+    getDoctorsByClicnicId,
+    createDoctor,
+    updateDoctor,
+    getDotorSchedules,
+    getDoctorWorkingSchedules,
+};

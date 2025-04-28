@@ -1,93 +1,92 @@
-import { useState } from "react"
-import classNames from "classnames/bind"
-import { DatePicker, ConfigProvider } from "antd"
-import locale from "antd/lib/locale/vi_VN"
-import styles from "./PersonalSchedule.module.scss"
-import { Calendar } from "lucide-react"
+import { useState } from 'react';
+import classNames from 'classnames/bind';
+import { DatePicker, ConfigProvider } from 'antd';
+import locale from 'antd/lib/locale/vi_VN';
+import styles from './PersonalSchedule.module.scss';
+import { Calendar } from 'lucide-react';
+import * as doctorService from '../../../services/doctorService';
 
-const cx = classNames.bind(styles)
+const cx = classNames.bind(styles);
 
-export default function PersonalSchedule() {
-  const [selectedDate, setSelectedDate] = useState(null)
+export default function PersonalSchedule({ doctorId }) {
+    const [dataTime, setDataTime] = useState([]);
 
-  // Sample time slots with status
-  const timeSlots = [
-    { id: 1, time: "9:30 - 10:30", status: "empty" },
-    { id: 2, time: "9:30 - 10:30", status: "appointment" },
-    { id: 3, time: "9:30 - 10:30", status: "off" },
-  ]
+    const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const [selectedSlot, setSelectedSlot] = useState(null)
+    const handleDateChange = async (date) => {
+        if (!date) {
+            setDataTime([]);
+            setSelectedSlot(null);
+            return;
+        }
+        const res = await doctorService.getDoctorWorkingSchedules(doctorId, date.format('YYYY-MM-DD'));
+        setDataTime(res.data);
+    };
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date)
-  }
+    const handleSlotSelect = (id) => {
+        setSelectedSlot(id);
+    };
 
-  const formatDate = (date) => {
-    if (!date) return "Chọn ngày"
-    return date.format("DD/MM/YYYY")
-  }
+    const getSlotStatus = (slot) => {
+        if (slot.isLeave) return 'off';
+        if (slot.isWorking) return 'appointment';
+        return 'empty';
+    };
 
-  const handleSlotSelect = (id) => {
-    setSelectedSlot(id)
-  }
+    const getSlotClassName = (slot, isSelected) => {
+        const status = getSlotStatus(slot);
+        return cx('time-slot', {
+            'time-slot-empty': status === 'empty',
+            'time-slot-appointment': status === 'appointment',
+            'time-slot-off': status === 'off',
+            selected: isSelected,
+        });
+    };
 
-  // Get class name based on slot status
-  const getSlotClassName = (status, isSelected) => {
-    return cx("time-slot", {
-      "time-slot-empty": status === "empty",
-      "time-slot-appointment": status === "appointment",
-      "time-slot-off": status === "off",
-      selected: isSelected,
-    })
-  }
+    return (
+        <div className={cx('container')}>
+            <div className={cx('header')}>
+                <h2 className={cx('title')}>Lịch trình cá nhân</h2>
+                <ConfigProvider locale={locale}>
+                    <DatePicker
+                        className={cx('ant-date-picker')}
+                        onChange={handleDateChange}
+                        format="DD/MM/YYYY"
+                        placeholder="Chọn ngày"
+                        suffixIcon={<Calendar className={cx('calendar-icon')} size={16} />}
+                        allowClear={true}
+                    />
+                </ConfigProvider>
+            </div>
 
-  return (
-    <div className={cx("container")}>
-      <div className={cx("header")}>
-        <h2 className={cx("title")}>Lịch trình cá nhân</h2>
-        <ConfigProvider locale={locale}>
-          <DatePicker
-            className={cx("ant-date-picker")}
-            onChange={handleDateChange}
-            format="DD/MM/YYYY"
-            placeholder="Chọn ngày"
-            suffixIcon={<Calendar className={cx("calendar-icon")} size={16} />}
-            allowClear={false}
-          />
-        </ConfigProvider>
-      </div>
+            <div className={cx('legend')}>
+                <div className={cx('legend-item')}>
+                    <div className={cx('legend-color', 'legend-empty')}></div>
+                    <span>Lịch trống</span>
+                </div>
+                <div className={cx('legend-item')}>
+                    <div className={cx('legend-color', 'legend-appointment')}></div>
+                    <span>Lịch khám</span>
+                </div>
+                <div className={cx('legend-item')}>
+                    <div className={cx('legend-color', 'legend-off')}></div>
+                    <span>Lịch nghỉ</span>
+                </div>
+            </div>
 
-      {/* Legend for schedule types */}
-      <div className={cx("legend")}>
-        <div className={cx("legend-item")}>
-          <div className={cx("legend-color", "legend-empty")}></div>
-          <span>Lịch trống</span>
+            <div className={cx('schedule-container')}>
+                <div className={cx('time-slots')}>
+                    {dataTime?.map((slot) => (
+                        <button
+                            key={slot._id}
+                            className={getSlotClassName(slot, selectedSlot === slot._id)}
+                            onClick={() => handleSlotSelect(slot._id)}
+                        >
+                            {slot.startTime} ~ {slot.endTime}
+                        </button>
+                    ))}
+                </div>
+            </div>
         </div>
-        <div className={cx("legend-item")}>
-          <div className={cx("legend-color", "legend-appointment")}></div>
-          <span>Lịch khám</span>
-        </div>
-        <div className={cx("legend-item")}>
-          <div className={cx("legend-color", "legend-off")}></div>
-          <span>Lịch nghỉ</span>
-        </div>
-      </div>
-
-      <div className={cx("schedule-container")}>
-        <div className={cx("time-slots")}>
-          {timeSlots.map((slot) => (
-            <button
-              key={slot.id}
-              className={getSlotClassName(slot.status, selectedSlot === slot.id)}
-              onClick={() => handleSlotSelect(slot.id)}
-            >
-              {slot.time}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
+    );
 }
-
