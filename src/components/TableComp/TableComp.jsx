@@ -80,11 +80,11 @@ function TableComp({
     ];
     return (
         <Loading isLoading={isUpdateLoading || isLoading}>
-            {rowSelectedKey.length > 0 && (
+            {/* {rowSelectedKey.length > 0 && (
                 <Dropdown menu={{ items }} placement="bottom">
                     <Button>Hoạt động</Button>
                 </Dropdown>
-            )}
+            )} */}
 
             <Table
                 rowSelection={{

@@ -10,6 +10,7 @@ import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate'
 import { ArrowLeftOutlined, CameraOutlined } from '@ant-design/icons';
 import PersonalSchedule from '../PersonalSchedule/PersonalSchedule';
 import * as userService from '../../../services/userServices';
+import * as doctorService from '../../../services/doctorService';
 import * as clinicService from '../../../services/clinicService';
 import { useMutation, useQuery } from 'react-query';
 import checkStatusResponse from '../../../utils/checkStatusResponse';
@@ -37,6 +38,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
     const [qualification, setQualification] = useState('');
     const [specialty, setSpecialty] = useState('');
     const [description, setDescription] = useState('');
+    const [clinicId, setClinicId] = useState('');
 
     const getDoctor = async () => {
         const res = await userService.getUser(rowSelected);
@@ -57,6 +59,12 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
         select: (data) => data?.data,
     });
 
+    // --- API GET ALL CLINICS ---
+    const { data: dataAllClinic } = useQuery(['all-clinic'], () => clinicService.getAllClinics(), {
+        enabled: !!rowSelected,
+        select: (data) => data?.data?.items || [],
+    });
+
     useEffect(() => {
         if (dataDoctor) {
             setEmail(dataDoctor.email);
@@ -72,13 +80,14 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
             setQualification(dataDoctor.qualification);
             setSpecialty(dataDoctor.specialty);
             setDescription(dataDoctor.description);
+            setClinicId(dataDoctor.clinicId);
         }
     }, [dataDoctor]);
 
     const mutation = useMutation({
         mutationFn: (data) => {
             const { id, ...rests } = data;
-            return userService.updateUser(id, rests);
+            return doctorService.updateDoctor(id, rests);
         },
     });
 
@@ -129,10 +138,6 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
         setUserName(e.target.value);
     };
 
-    const handleOnChangeEmail = (e) => {
-        setEmail(e.target.value);
-    };
-
     const handleOnChangePhone = (e) => {
         setPhoneNumber(e.target.value);
     };
@@ -173,6 +178,10 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
         setDescription(e.target.value);
     };
 
+    const handleChangeClinic = (e) => {
+        setClinicId(e.target.value);
+    };
+
     const showModalAvatar = () => {
         setIsModalOpenAvatar(true);
     };
@@ -195,7 +204,6 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
         mutation.mutate({
             id: dataDoctor?._id,
             userName,
-            email,
             phoneNumber,
             address,
             province,
@@ -206,6 +214,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
             qualification,
             specialty,
             description,
+            clinicId,
         });
     };
 
@@ -308,6 +317,10 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                                 />
                             </div>
                             <div className={cx('form-label')}>
+                                <label htmlFor="clinic">PHÒNG KHÁM</label>
+                                <Input className={cx('input')} required disabled={true} value={dataClinic?.name} />
+                            </div>
+                            <div className={cx('form-label')}>
                                 <label htmlFor="specialty">CHUYÊN KHOA</label>
                                 <Input className={cx('input')} required disabled={true} value={dataDoctor?.specialty} />
                             </div>
@@ -384,12 +397,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                                     </div>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="email">EMAIL</label>
-                                        <Input
-                                            className={cx('input')}
-                                            required
-                                            value={email}
-                                            onChange={handleOnChangeEmail}
-                                        />
+                                        <Input className={cx('input')} required value={email} disabled={true} />
                                     </div>
                                 </div>
                                 <div className={cx('form-label')}>
@@ -458,9 +466,25 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                                     <label htmlFor="dateOfBirth">NGÀY SINH</label>
                                     <DatePicker
                                         format="DD/MM/YYYY"
-                                        value={dayjs(convertISODateToLocalDate(dateOfBirth, 'YYYY-MM-DD'))}
+                                        value={dayjs(dateOfBirth, 'YYYY-MM-DD')}
                                         onChange={handleOnChangeDateOfBirth}
                                     />
+                                </div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="clinic">PHÒNG KHÁM</label>
+                                    <select
+                                        name="clinic"
+                                        value={clinicId}
+                                        onChange={handleChangeClinic}
+                                        className={cx('formInput', 'formSelect')}
+                                    >
+                                        <option value={''}>Chọn phòng khám</option>
+                                        {dataAllClinic?.map((service) => (
+                                            <option key={service._id} value={service._id}>
+                                                {service.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="specialty">CHUYÊN KHOA</label>

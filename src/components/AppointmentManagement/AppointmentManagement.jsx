@@ -107,7 +107,7 @@ const AppointmentManagement = ({ isLoading, data, refetch }) => {
             sorter: (a, b) => a.code.localeCompare(b.code),
         },
         {
-            title: 'Họ và tên',
+            title: 'Họ và tên bệnh nhân',
             dataIndex: 'patientName',
         },
         {

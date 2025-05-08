@@ -52,7 +52,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
 
     // --- API GET ALL DOCTORS BY CLINIC ---
     const getAllDoctorsByClinic = async () => {
-        const res = await doctorService.getDoctorsByClicnicId(rowSelectedClinic);
+        const res = await doctorService.getDoctorsByClinicId(rowSelectedClinic);
         return res.data;
     };
 
@@ -360,7 +360,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                 open={isModalOpenMedicalService}
                                                 onCancel={cancelModalMedicalService}
                                                 footer={null}
-                                                width="45%"
+                                                width="55%"
                                                 style={{ top: 5 }}
                                             >
                                                 <MedicalServiceManager

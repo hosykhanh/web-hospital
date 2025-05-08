@@ -69,7 +69,6 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
             try {
                 if (user?.role === 3) {
                     const updateUserPromise = userService.updateUser(dataUser._id, {
-                        email,
                         userName,
                         phoneNumber,
                         address,
@@ -215,12 +214,7 @@ const EditDetailPatient = ({ onBack, dataUser, dataTable, dataHealthRecord, refe
                             <div className={cx('form-grid-2')}>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="email">EMAIL:</label>
-                                    <Input
-                                        className={cx('input')}
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
+                                    <Input className={cx('input')} required value={email} disabled={true} />
                                 </div>
                                 <div className={cx('form-label')}>
                                     <label htmlFor="phone">SỐ ĐIỆN THOẠI:</label>

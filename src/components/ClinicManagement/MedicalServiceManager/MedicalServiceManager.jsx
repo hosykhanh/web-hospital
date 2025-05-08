@@ -3,6 +3,10 @@ import { message } from 'antd';
 import * as medicalService from '../../../services/medicalService';
 import MedicalServiceForm from '../MedicalServiceForm/MedicalServiceForm';
 import MedicalServiceList from '../MedicalServiceList/MedicalServiceList';
+import classNames from 'classnames/bind';
+import styles from './MedicalServiceManager.module.scss';
+
+const cx = classNames.bind(styles);
 
 const MedicalServiceManager = ({
     dataMedicalService,
@@ -18,6 +22,8 @@ const MedicalServiceManager = ({
     const [originalPrice, setOriginalPrice] = useState(0);
     const [currentPrice, setCurrentPrice] = useState(0);
     const [type, setType] = useState(0);
+    const [doctorIds, setDoctorIds] = useState([]);
+    const [dataDoctors, setDataDoctors] = useState([]);
 
     const onClickBackMedicalService = () => {
         setIsEditMedicalService(false);
@@ -27,6 +33,8 @@ const MedicalServiceManager = ({
         setOriginalPrice(0);
         setCurrentPrice(0);
         setType(0);
+        setDoctorIds([]);
+        setDataDoctors([]);
     };
 
     const onClickCreateMedicalService = (type) => {
@@ -41,6 +49,7 @@ const MedicalServiceManager = ({
             currentPrice,
             type,
             clinicId: rowSelectedClinic,
+            doctorIds,
         };
         try {
             await medicalService.createMedicalService(data);
@@ -62,6 +71,8 @@ const MedicalServiceManager = ({
             setCurrentPrice(selectedItem.currentPrice);
             setType(selectedItem.type);
             setIsEditMedicalService(true);
+            setDataDoctors(selectedItem.doctors);
+            setDoctorIds(selectedItem.doctors.map((doctor) => doctor._id));
         }
     };
 
@@ -72,6 +83,7 @@ const MedicalServiceManager = ({
             currentPrice,
             type,
             clinicId: rowSelectedClinic,
+            doctorIds,
         };
         try {
             await medicalService.updateMedicalService(serviceId, data);
@@ -81,6 +93,18 @@ const MedicalServiceManager = ({
             onClickBackMedicalService();
         } catch (error) {
             message.error('Cập nhật dịch vụ khám thất bại!');
+        }
+    };
+
+    const handleDeleteMedicalService = async () => {
+        try {
+            await medicalService.deleteMedicalService(serviceId);
+            message.success('Xoá dịch vụ khám thành công!');
+            setIsEditMedicalService(false);
+            refetchMedicalService();
+            onClickBackMedicalService();
+        } catch (error) {
+            message.error('Xoá dịch vụ khám thất bại!');
         }
     };
 
@@ -96,6 +120,12 @@ const MedicalServiceManager = ({
                 currentPrice={currentPrice}
                 setCurrentPrice={setCurrentPrice}
                 onSubmit={handleOkEditMedicalService}
+                rowSelectedClinic={rowSelectedClinic}
+                doctorIds={doctorIds}
+                setDoctorIds={setDoctorIds}
+                dataDoctors={dataDoctors}
+                setDataDoctors={setDataDoctors}
+                onDelete={handleDeleteMedicalService}
             />
         );
     }
@@ -112,12 +142,17 @@ const MedicalServiceManager = ({
                 currentPrice={currentPrice}
                 setCurrentPrice={setCurrentPrice}
                 onSubmit={handleOkCreateMedicalService}
+                rowSelectedClinic={rowSelectedClinic}
+                doctorIds={doctorIds}
+                setDoctorIds={setDoctorIds}
+                dataDoctors={dataDoctors}
+                setDataDoctors={setDataDoctors}
             />
         );
     }
 
     return (
-        <div className="wrapper-medical-content">
+        <div className={cx('wrapper-medical-content')}>
             <MedicalServiceList
                 title="Dịch vụ gói khám"
                 type={1}

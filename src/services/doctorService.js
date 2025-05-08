@@ -9,8 +9,10 @@ const getAllDoctors = async () => {
     return res.data;
 };
 
-const getDoctorsByClicnicId = async (id) => {
-    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/clinic/${id}/doctors`);
+const getDoctorsByClinicId = async (id, params) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/clinic/${id}/doctors`, {
+        params,
+    });
     return res.data;
 };
 
@@ -40,7 +42,7 @@ const getDoctorWorkingSchedules = async (id, date) => {
 
 export {
     getAllDoctors,
-    getDoctorsByClicnicId,
+    getDoctorsByClinicId,
     createDoctor,
     updateDoctor,
     getDotorSchedules,

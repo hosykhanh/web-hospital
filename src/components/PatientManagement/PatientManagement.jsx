@@ -3,12 +3,12 @@ import classNames from 'classnames/bind';
 
 import styles from './PatientManagement.module.scss';
 import TableComp from '../TableComp/TableComp';
-import { DeleteOutlined } from '@ant-design/icons';
+// import { DeleteOutlined } from '@ant-design/icons';
 import DetailPatient from '../DetailPatient/DetailPatient';
 import Search from 'antd/es/transfer/search';
-import ModalConfirm from '../ModalConfirm/ModalConfirm';
-import { useMutation } from 'react-query';
-import * as userService from '../../services/userServices';
+// import ModalConfirm from '../ModalConfirm/ModalConfirm';
+// import { useMutation } from 'react-query';
+// import * as userService from '../../services/userServices';
 import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 
 const cx = classNames.bind(styles);
@@ -16,7 +16,7 @@ const cx = classNames.bind(styles);
 const PatientManagement = ({ isLoading, data, refetch }) => {
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    // const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [searchValue, setSearchValue] = useState('');
 
@@ -32,10 +32,10 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
                 <button className={cx('view')} onClick={() => setIsDetailVisible(true)}>
                     Chi tiết
                 </button>
-                <DeleteOutlined
+                {/* <DeleteOutlined
                     style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }}
                     onClick={() => setIsDeleteModalOpen(true)}
-                />
+                /> */}
             </div>
         );
     };
@@ -62,9 +62,9 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
         },
     ];
 
-    const mutation = useMutation({
-        mutationFn: (data) => userService.deleteUser(data),
-    });
+    // const mutation = useMutation({
+    //     mutationFn: (data) => userService.deleteUser(data),
+    // });
 
     return (
         <div className={cx('wrapper')}>
@@ -102,14 +102,14 @@ const PatientManagement = ({ isLoading, data, refetch }) => {
                             defaultPageSize={8}
                         />
                     </div>
-                    <ModalConfirm
+                    {/* <ModalConfirm
                         isOpen={isDeleteModalOpen}
                         setIsOpen={setIsDeleteModalOpen}
                         rowSelected={rowSelected}
                         title="Bạn có chắc chắn xóa bệnh nhân này?"
                         refetch={refetch}
                         mutation={mutation || {}}
-                    />
+                    /> */}
                 </>
             )}
         </div>

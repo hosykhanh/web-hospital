@@ -1,3 +1,13 @@
+@mixin focus-state {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(#1a73e8, 0.2);
+}
+
+@mixin hover-state {
+    border-color: darken(#ffffff, 10%);
+}
+
 .wrapper {
     border-radius: 10px;
     height: calc(100vh - 80px);
@@ -111,6 +121,33 @@
         margin-bottom: 15px;
         font-size: 0.9rem;
         font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .formInput {
+        width: 100%;
+        padding: 7px 14px;
+        border: 1px solid #dadce0;
+        border-radius: 5px;
+        font-size: 14px;
+        color: #202124;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+
+        &:hover {
+            @include hover-state;
+        }
+
+        &:focus {
+            @include focus-state;
+        }
+
+        &::placeholder {
+            color: lighten(#5f6368, 15%);
+        }
+    }
+
+    .formSelect {
+        padding: 7px 14px !important;
     }
 }
 

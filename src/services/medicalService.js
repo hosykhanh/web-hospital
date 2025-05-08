@@ -22,4 +22,15 @@ const updateMedicalService = async (id, data) => {
     return res.data;
 };
 
-export { getAllMedicalService, getMedicalServiceById, createMedicalService, updateMedicalService };
+const deleteMedicalService = async (id) => {
+    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/medical-service/${id}/delete`);
+    return res.data;
+};
+
+export {
+    getAllMedicalService,
+    getMedicalServiceById,
+    createMedicalService,
+    updateMedicalService,
+    deleteMedicalService,
+};

@@ -107,10 +107,6 @@ const DoctorProfile = () => {
         setUserName(e.target.value);
     };
 
-    const handleOnChangeEmail = (e) => {
-        setEmail(e.target.value);
-    };
-
     const handleOnChangePhone = (e) => {
         setPhoneNumber(e.target.value);
     };
@@ -173,7 +169,6 @@ const DoctorProfile = () => {
         mutation.mutate({
             id: users?.id,
             userName,
-            email,
             phoneNumber,
             address,
             province,
@@ -324,7 +319,7 @@ const DoctorProfile = () => {
                                     </div>
                                     <div className={cx('form-label')}>
                                         <label htmlFor="email">EMAIL</label>
-                                        <Input className={cx('input')} value={email} onChange={handleOnChangeEmail} />
+                                        <Input className={cx('input')} value={email} disabled={true} />
                                     </div>
                                 </div>
                                 <div className={cx('form-label')}>
