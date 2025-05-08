@@ -243,13 +243,17 @@ const CreateAppointment = ({ onBack, refetch }) => {
             return;
         }
 
-        const res = await patientService.createMedicalConsultationHistory(formData);
-        if (res.statusCode === 200) {
-            message.success('Thêm lịch khám thành công!');
-            onBack();
-            refetch();
-        } else {
-            message.error('Thêm lịch khám thất bại!', res.message);
+        try {
+            const res = await patientService.createMedicalConsultationHistory(formData);
+            if (res.statusCode === 200) {
+                message.success('Thêm lịch khám thành công!');
+                onBack();
+                refetch();
+            } else {
+                message.error('Thêm lịch khám thất bại! ' + (res.message || ''));
+            }
+        } catch (error) {
+            message.error('Đã xảy ra lỗi khi tạo lịch khám!' + (error.response?.data?.message || ''));
         }
     };
 
