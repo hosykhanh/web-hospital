@@ -22,6 +22,17 @@ const updateMedicalService = async (id, data) => {
     return res.data;
 };
 
+const updateLogoMedicalService = async (id, logo) => {
+    const formData = new FormData();
+    formData.append('file', logo.logo);
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/medical-service/${id}/update-logo`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return res.data;
+};
+
 const deleteMedicalService = async (id) => {
     const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/medical-service/${id}/delete`);
     return res.data;
@@ -32,5 +43,6 @@ export {
     getMedicalServiceById,
     createMedicalService,
     updateMedicalService,
+    updateLogoMedicalService,
     deleteMedicalService,
 };

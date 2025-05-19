@@ -90,10 +90,14 @@ const CreateAppointment = ({ onBack, refetch }) => {
 
     // --- API GET CLINIC SCHEDULE ---
     const { data: dataClinicSchedule } = useQuery(
-        ['leaveSchedule'],
-        () => scheduleService.getClinicSchedule(clinicId),
+        ['leaveSchedule', medicalServiceId, formData.examinationDate, formData.responsibilityDoctorId],
+        () =>
+            scheduleService.getSchedulesByMedicalService(medicalServiceId, {
+                date: formData.examinationDate,
+                doctorId: formData.responsibilityDoctorId,
+            }),
         {
-            enabled: !!clinicId,
+            enabled: !!medicalServiceId && !!formData.examinationDate && !!formData.responsibilityDoctorId,
             select: (data) => data?.data || [],
         },
     );
@@ -123,15 +127,13 @@ const CreateAppointment = ({ onBack, refetch }) => {
         data: dataDoctors,
         refetch: refetchDoctors,
     } = useQuery(
-        ['doctor', clinicId, formData.examinationDate, formData.clinicScheduleId, medicalServiceId],
+        ['doctor', clinicId, medicalServiceId],
         () =>
             doctorService.getDoctorsByClinicId(clinicId, {
-                date: formData.examinationDate,
-                clinicScheduleId: formData.clinicScheduleId,
                 medicalServiceId,
             }),
         {
-            enabled: !!clinicId && !!formData?.examinationDate && !!formData?.clinicScheduleId && !!medicalServiceId,
+            enabled: !!clinicId && !!medicalServiceId,
             select: (data) => data?.data,
         },
     );
@@ -580,71 +582,6 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                 </select>
                             </div>
                         </div>
-                        <div className={cx('formRow')}>
-                            <div className={cx('formGroup')}>
-                                <label className={cx('requiredField')}>Thanh toán bằng</label>
-                                <select
-                                    type="number"
-                                    name="paymentMethod"
-                                    value={formData.paymentMethod}
-                                    onChange={handleChange}
-                                    className={cx('formInput', 'formSelect')}
-                                >
-                                    <option value={0}>Chọn phương thức thanh toán</option>
-                                    <option value={1}>Tiền mặt</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className={cx('formRow')}>
-                            <div className={cx('formGroup')}>
-                                <label className={cx('requiredField')}>Ngày khám</label>
-                                <Input
-                                    type="text"
-                                    name="examinationDate"
-                                    placeholder="Chọn ngày khám"
-                                    value={
-                                        formData.examinationDate
-                                            ? format(new Date(formData.examinationDate), 'dd/MM/yyyy')
-                                            : ''
-                                    }
-                                    onClick={() => setIsDatePickerOpen(true)}
-                                    readOnly
-                                    className={cx('formInput', 'dateInput')}
-                                />
-                                <CustomDatePicker
-                                    isOpen={isDatePickerOpen}
-                                    onClose={() => setIsDatePickerOpen(false)}
-                                    onSelect={handleDateSelect}
-                                    selectedDate={formData.examinationDate ? new Date(formData.examinationDate) : null}
-                                />
-                            </div>
-                        </div>
-
-                        <div className={cx('formRow')}>
-                            <div className={cx('formGroup')}>
-                                <label className={cx('requiredField')}>Ca khám</label>
-                                <Input
-                                    type="text"
-                                    readOnly
-                                    placeholder="Chọn ca khám"
-                                    value={
-                                        selectedTimeSlot
-                                            ? `${selectedTimeSlot.startTime} - ${selectedTimeSlot.endTime}`
-                                            : ''
-                                    }
-                                    onClick={() => setIsTimePickerOpen(true)}
-                                    className={cx('formInput')}
-                                />
-                                <TimeSlotPicker
-                                    isOpen={isTimePickerOpen}
-                                    onClose={() => setIsTimePickerOpen(false)}
-                                    onSelect={handleTimeSlotSelect}
-                                    selectedSlot={selectedTimeSlot}
-                                    dataClinicSchedule={dataClinicSchedule}
-                                />
-                            </div>
-                        </div>
 
                         {user?.role === 2 || user?.role === 1 ? (
                             <></>
@@ -712,6 +649,72 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                 )}
                             </>
                         )}
+
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label className={cx('requiredField')}>Thanh toán bằng</label>
+                                <select
+                                    type="number"
+                                    name="paymentMethod"
+                                    value={formData.paymentMethod}
+                                    onChange={handleChange}
+                                    className={cx('formInput', 'formSelect')}
+                                >
+                                    <option value={0}>Chọn phương thức thanh toán</option>
+                                    <option value={1}>Tiền mặt</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label className={cx('requiredField')}>Ngày khám</label>
+                                <Input
+                                    type="text"
+                                    name="examinationDate"
+                                    placeholder="Chọn ngày khám"
+                                    value={
+                                        formData.examinationDate
+                                            ? format(new Date(formData.examinationDate), 'dd/MM/yyyy')
+                                            : ''
+                                    }
+                                    onClick={() => setIsDatePickerOpen(true)}
+                                    readOnly
+                                    className={cx('formInput', 'dateInput')}
+                                />
+                                <CustomDatePicker
+                                    isOpen={isDatePickerOpen}
+                                    onClose={() => setIsDatePickerOpen(false)}
+                                    onSelect={handleDateSelect}
+                                    selectedDate={formData.examinationDate ? new Date(formData.examinationDate) : null}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label className={cx('requiredField')}>Ca khám</label>
+                                <Input
+                                    type="text"
+                                    readOnly
+                                    placeholder="Chọn ca khám"
+                                    value={
+                                        selectedTimeSlot
+                                            ? `${selectedTimeSlot.startTime} - ${selectedTimeSlot.endTime}`
+                                            : ''
+                                    }
+                                    onClick={() => setIsTimePickerOpen(true)}
+                                    className={cx('formInput')}
+                                />
+                                <TimeSlotPicker
+                                    isOpen={isTimePickerOpen}
+                                    onClose={() => setIsTimePickerOpen(false)}
+                                    onSelect={handleTimeSlotSelect}
+                                    selectedSlot={selectedTimeSlot}
+                                    dataClinicSchedule={dataClinicSchedule}
+                                />
+                            </div>
+                        </div>
 
                         <div className={cx('formRow')}>
                             <div className={cx('formGroup')}>

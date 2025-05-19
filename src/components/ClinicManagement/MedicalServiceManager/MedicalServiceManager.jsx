@@ -22,6 +22,9 @@ const MedicalServiceManager = ({
     const [originalPrice, setOriginalPrice] = useState(0);
     const [currentPrice, setCurrentPrice] = useState(0);
     const [type, setType] = useState(0);
+    const [logo, setLogo] = useState(null);
+    const [isLogo, setIsLogo] = useState(false);
+
     const [doctorIds, setDoctorIds] = useState([]);
     const [dataDoctors, setDataDoctors] = useState([]);
 
@@ -33,6 +36,8 @@ const MedicalServiceManager = ({
         setOriginalPrice(0);
         setCurrentPrice(0);
         setType(0);
+        setLogo(null);
+        setIsLogo(false);
         setDoctorIds([]);
         setDataDoctors([]);
     };
@@ -70,6 +75,8 @@ const MedicalServiceManager = ({
             setOriginalPrice(selectedItem.originalPrice);
             setCurrentPrice(selectedItem.currentPrice);
             setType(selectedItem.type);
+            setLogo(selectedItem.logo);
+            setIsLogo(true);
             setIsEditMedicalService(true);
             setDataDoctors(selectedItem.doctors);
             setDoctorIds(selectedItem.doctors.map((doctor) => doctor._id));
@@ -125,6 +132,10 @@ const MedicalServiceManager = ({
                 setDoctorIds={setDoctorIds}
                 dataDoctors={dataDoctors}
                 setDataDoctors={setDataDoctors}
+                logo={logo}
+                setLogo={setLogo}
+                isLogo={isLogo}
+                serviceId={serviceId}
                 onDelete={handleDeleteMedicalService}
             />
         );

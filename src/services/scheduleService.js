@@ -15,6 +15,13 @@ const inActiveLeaveSchedule = async (id) => {
     return res.data;
 };
 
+const getSchedulesByMedicalService = async (medicalServiceId, params) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/medical-service/${medicalServiceId}/schedules`, {
+        params,
+    });
+    return res.data;
+};
+
 const getClinicSchedule = async (clinicId) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/clinic-schedule/${clinicId}`);
     return res.data;
@@ -34,6 +41,7 @@ export {
     getLeaveSchedule,
     createLeaveSchedule,
     inActiveLeaveSchedule,
+    getSchedulesByMedicalService,
     getClinicSchedule,
     createClinicSchedule,
     deleteClinicSchedule,

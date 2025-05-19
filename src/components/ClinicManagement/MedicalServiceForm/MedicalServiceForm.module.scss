@@ -46,6 +46,58 @@
     }
 }
 
+.wrapper-avatar {
+    display: flex;
+    justify-content: center;
+
+    .avatar-btn-logo {
+        display: flex;
+        justify-content: center;
+        width: 60%;
+        flex-direction: column;
+    }
+
+    .avatar {
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .wrapper-btn-logo {
+        display: flex;
+        justify-content: right;
+    }
+
+    .btn-edit-logo {
+        font-size: 12px;
+        background-color: #8a8a8a;
+        color: #ffffff;
+        font-weight: 450;
+    }
+
+    .upload-avatar {
+        width: 60%;
+        background-color: #ffffff;
+        border: 1px solid #d9d9d9;
+        border-radius: 5px;
+        min-height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .upload {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            .upload-text {
+                color: #8a8a8a;
+                font-size: 12px;
+            }
+        }
+    }
+}
+
 .list-doctor {
     .title-list {
         font-size: 1.2rem;

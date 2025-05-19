@@ -1,11 +1,13 @@
-import { Input, InputNumber, Button, Modal } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Input, InputNumber, Button, Modal, message } from 'antd';
+import { ArrowLeftOutlined, CameraOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
 import styles from './MedicalServiceForm.module.scss';
 import TableComp from '../../TableComp/TableComp';
 import * as doctorService from '../../../services/doctorService';
-import { useQuery } from 'react-query';
+import * as medicalService from '../../../services/medicalService';
+import { useMutation, useQuery } from 'react-query';
 import { useState } from 'react';
+import InputUpload from '../../InputUpload/InputUpload';
 
 const cx = classNames.bind(styles);
 
@@ -24,6 +26,10 @@ const MedicalServiceForm = ({
     setDoctorIds,
     dataDoctors,
     setDataDoctors,
+    logo,
+    setLogo,
+    isLogo,
+    serviceId,
     onDelete,
 }) => {
     const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
@@ -31,6 +37,7 @@ const MedicalServiceForm = ({
     const [rowSelectedDoctorAdd, setRowSelectedDoctorAdd] = useState(null);
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isModalOpenLogo, setIsModalOpenLogo] = useState(false);
 
     // --- API GET ALL DOCTORS BY CLINIC ---
     const getAllDoctorsByClinic = async () => {
@@ -64,6 +71,37 @@ const MedicalServiceForm = ({
             setIsDoctorModalOpen(false);
             setRowSelectedDoctorAdd(null);
         }
+    };
+
+    const mutationLogo = useMutation({
+        mutationFn: (data) => {
+            const { id, ...logo } = data;
+            return medicalService.updateLogoMedicalService(id, logo);
+        },
+        onSuccess: (data) => {
+            message.success('Logo cập nhật thành công!');
+            setLogo(data.data.logo);
+        },
+        onError: (error) => {
+            message.error('Có lỗi xảy ra khi cập nhật logo.');
+        },
+    });
+
+    const handleOnChangeLogo = (file) => {
+        setLogo(file);
+    };
+
+    const showModalLogo = () => {
+        setIsModalOpenLogo(true);
+    };
+
+    const handleOkLogo = () => {
+        setIsModalOpenLogo(false);
+        mutationLogo.mutate({ id: serviceId, logo });
+    };
+
+    const handleCancelLogo = () => {
+        setIsModalOpenLogo(false);
     };
 
     const handleDeleteDoctor = () => {
@@ -157,6 +195,39 @@ const MedicalServiceForm = ({
             </div>
             <div className={cx('edit-medical-service-text')}>{title}</div>
             <div className={cx('modal-edit')}>
+                {isLogo === true ? (
+                    <div className={cx('wrapper-avatar')}>
+                        {logo ? (
+                            <div className={cx('avatar-btn-logo')}>
+                                <img className={cx('avatar')} src={logo} alt="avatar" />
+                                <div className={cx('wrapper-btn-logo')}>
+                                    <Button className={cx('btn-edit-logo')} onClick={showModalLogo}>
+                                        <CameraOutlined />
+                                        &nbsp; Chỉnh sửa ảnh
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={cx('upload-avatar')}>
+                                <div className={cx('upload')} onClick={showModalLogo}>
+                                    <CameraOutlined
+                                        style={{
+                                            fontSize: '30px',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                        }}
+                                    />
+                                    <div className={cx('upload-text')}>Tải ảnh lên</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <></>
+                )}
+                <Modal title="Chỉnh sửa logo" open={isModalOpenLogo} onOk={handleOkLogo} onCancel={handleCancelLogo}>
+                    <InputUpload type="file" avatar={logo} onChange={handleOnChangeLogo} />
+                </Modal>
                 <div className={cx('modal-edit-item')}>
                     <label htmlFor="name">Tên dịch vụ khám</label>
                     <Input

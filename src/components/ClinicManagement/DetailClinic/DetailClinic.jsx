@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './DetailClinic.module.scss';
-import { Input, message, Modal, Tag } from 'antd';
+import { Input, message, Modal, Radio, Tag } from 'antd';
 import Button from '../../Button/Button';
 import { ArrowLeftOutlined, CameraOutlined, EditOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import TableComp from '../../TableComp/TableComp';
@@ -25,6 +25,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     const [isModalDelete, setIsModalDelete] = useState(false);
     const [isModalOpenLogo, setIsModalOpenLogo] = useState(false);
     const [isModalOpenClinicSchedule, setIsModalOpenClinicSchedule] = useState(false);
+    const [isModalOpenStatus, setIsModalOpenStatus] = useState(false);
 
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
@@ -35,6 +36,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     const [address, setAddress] = useState('');
     const [description, setDescription] = useState('');
     const [logo, setLogo] = useState(null);
+    const [status, setStatus] = useState(1);
 
     // --- API GET CLINICS BY ID ---
     const getClinicById = async () => {
@@ -92,6 +94,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
             setAddress(dataClinic.address);
             setDescription(dataClinic.description);
             setLogo(dataClinic.logo);
+            setStatus(dataClinic.status);
         }
     }, [dataClinic]);
 
@@ -169,6 +172,35 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     const handleOkEdit = () => {
         mutationEdit.mutate({ name, email, hotline, address, description });
         setIsModalOpenEdit(false);
+    };
+
+    const showModalStatus = () => {
+        setIsModalOpenStatus(true);
+    };
+
+    const cancelModalStatus = () => {
+        setIsModalOpenStatus(false);
+    };
+
+    const handleOkModalStatus = () => {
+        if (status === 1) {
+            const res = clinicService.activeClinic(rowSelectedClinic);
+            res.then(() => {
+                message.success('Cập nhật trạng thái thành công!');
+                refetchClinic();
+            }).catch(() => {
+                message.error('Cập nhật trạng thái thất bại!');
+            });
+        } else {
+            const res = clinicService.inActiveClinic(rowSelectedClinic);
+            res.then(() => {
+                message.success('Cập nhật trạng thái thành công!');
+                refetchClinic();
+            }).catch(() => {
+                message.error('Cập nhật trạng thái thất bại!');
+            });
+        }
+        setIsModalOpenStatus(false);
     };
 
     const showModalClinicSchedule = () => {
@@ -265,7 +297,13 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                     />
                                                 </div>
                                                 <div className={cx('form-label')}>
-                                                    <label htmlFor="Status">TRẠNG THÁI</label>
+                                                    <div>
+                                                        <label htmlFor="Status">TRẠNG THÁI</label>
+                                                        <EditOutlined
+                                                            onClick={showModalStatus}
+                                                            className={cx('edit-icon')}
+                                                        />
+                                                    </div>
                                                     <Input
                                                         className={cx('input')}
                                                         required
@@ -273,6 +311,27 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                         disabled
                                                     />
                                                 </div>
+                                                <Modal
+                                                    title="Chỉnh sửa trạng thái"
+                                                    open={isModalOpenStatus}
+                                                    onCancel={cancelModalStatus}
+                                                    onOk={handleOkModalStatus}
+                                                >
+                                                    <div className={cx('modal-edit')}>
+                                                        <div className={cx('modal-edit-item')}>
+                                                            <label htmlFor="status">Trạng thái</label>
+                                                            <Radio.Group
+                                                                onChange={(e) => {
+                                                                    setStatus(e.target.value);
+                                                                }}
+                                                                value={status}
+                                                            >
+                                                                <Radio value={1}>Đang hoạt động</Radio>
+                                                                <Radio value={0}>Tạm dừng</Radio>
+                                                            </Radio.Group>
+                                                        </div>
+                                                    </div>
+                                                </Modal>
                                             </div>
                                             <div className={cx('form-user-email')}>
                                                 <div className={cx('form-label')}>

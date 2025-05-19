@@ -31,9 +31,28 @@ const updateLogo = async (id, logo) => {
     return res.data;
 };
 
+const activeClinic = async (id) => {
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/clinic/${id}/active`);
+    return res.data;
+};
+
+const inActiveClinic = async (id) => {
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/clinic/${id}/inActive`);
+    return res.data;
+};
+
 const deleteClinic = async (id) => {
     const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/clinic/${id}/delete`);
     return res.data;
 };
 
-export { getAllClinics, getClinicById, createClinic, updateClinic, updateLogo, deleteClinic };
+export {
+    getAllClinics,
+    getClinicById,
+    createClinic,
+    updateClinic,
+    updateLogo,
+    activeClinic,
+    inActiveClinic,
+    deleteClinic,
+};
