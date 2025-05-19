@@ -19,6 +19,35 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isCreateClinic, setIsCreateClinic] = useState(false);
 
+    const [searchValue, setSearchValue] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [filterOption, setFilterOption] = useState('');
+
+    const handleSearch = (e) => {
+        setSearchValue(e.target.value);
+    };
+
+    const handleOpenFilter = (e) => {
+        setAnchorEl(e.currentTarget);
+    };
+
+    const handleCloseFilter = (option) => {
+        setFilterOption(option);
+        setAnchorEl(null);
+    };
+
+    const filteredData = data?.filter((item) => {
+        const searchVal = searchValue.toLowerCase().trim();
+
+        if (filterOption === 'Họ tên') {
+            return item.name?.toLowerCase().includes(searchVal);
+        } else if (filterOption === 'Địa chỉ') {
+            return item.address?.toLowerCase().includes(searchVal);
+        } else {
+            return item.name?.toLowerCase().includes(searchVal) || item.address?.toLowerCase().includes(searchVal);
+        }
+    });
+
     const renderAction = () => {
         return (
             <div className={cx('action')}>
@@ -27,18 +56,6 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
                 </button>
             </div>
         );
-    };
-
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [filter, setFilter] = useState('');
-
-    const handleOpenFilter = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseFilter = (option) => {
-        if (option) setFilter(option);
-        setAnchorEl(null);
     };
 
     const columns = [
@@ -92,6 +109,8 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Tìm kiếm..."
+                                onChange={handleSearch}
+                                value={searchValue}
                                 InputProps={{
                                     style: { height: '40px', fontSize: '16px', backgroundColor: 'white' },
                                     startAdornment: (
@@ -113,7 +132,7 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
                             />
                             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => handleCloseFilter(null)}>
                                 <MenuItem onClick={() => handleCloseFilter('Họ tên')}>Họ tên</MenuItem>
-                                <MenuItem onClick={() => handleCloseFilter('Chuyên khoa')}>Chuyên khoa</MenuItem>
+                                <MenuItem onClick={() => handleCloseFilter('Địa chi')}>Địa chỉ</MenuItem>
                             </Menu>
                         </div>
                     </div>
@@ -126,7 +145,7 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
                     <div className={cx('table')}>
                         <TableComp
                             columns={columns}
-                            data={data}
+                            data={filteredData}
                             isLoading={isLoading}
                             onRow={(record, rowIndex) => {
                                 return {
@@ -137,7 +156,7 @@ const ClinicManagement = ({ isLoading, data, refetch }) => {
                             }}
                             // mutation={mutationDelMany}
                             refetch={refetch}
-                            defaultPageSize={7}
+                            defaultPageSize={8}
                         />
                     </div>
                 </>

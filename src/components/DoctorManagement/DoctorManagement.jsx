@@ -145,7 +145,7 @@ const DoctorManagement = ({ isLoading, data, refetch }) => {
                             }}
                             // mutation={mutationDelMany}
                             refetch={refetch}
-                            defaultPageSize={7}
+                            defaultPageSize={8}
                         />
                     </div>
                 </>
