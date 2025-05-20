@@ -30,6 +30,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
         patientCommune: '',
         patientAddress: '',
         medicalServiceName: '',
+        medicalServiceId: '',
         examinationDate: '',
         clinicId: '',
         clinicScheduleId: '',
@@ -186,6 +187,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
             ...prevState,
             [name]: selectedItem?.name,
             medicalFee: selectedItem?.currentPrice,
+            medicalServiceId: value,
         }));
         setMedicalServiceId(value);
     };

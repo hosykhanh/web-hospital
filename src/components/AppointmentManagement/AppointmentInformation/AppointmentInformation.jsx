@@ -57,7 +57,7 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
 
     const onSubmitComplete = async () => {
         const data = {
-            responsibilityDoctorId: dataInfo?.responsibilityDoctorId,
+            ...dataInfo,
             patientStatus: patientStatus,
             diagnosis: diagnosis,
             reExaminateDate: reExaminateDate,
@@ -78,14 +78,18 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
             message.error(`Vui lòng điền: ${missingLabels.join(', ')}`);
             return;
         }
-        const res = await patientService.completeMedicalConsultationHistory(rowSelectedInfo, data);
-        if (res.statusCode === 200) {
-            message.success('Hoàn thành lịch khám thành công');
-            setIsCompleteModalOpen(false);
-            refetchInfo();
-            refetchHealthRecord();
-        } else {
-            message.error('Hoàn thành lịch khám thất bại', res.message);
+        try {
+            const res = await patientService.completeMedicalConsultationHistory(rowSelectedInfo, data);
+            if (res.statusCode === 200) {
+                message.success('Hoàn thành lịch khám thành công');
+                setIsCompleteModalOpen(false);
+                refetchInfo();
+                refetchHealthRecord();
+            } else {
+                message.error('Hoàn thành lịch khám thất bại', res.message);
+            }
+        } catch (error) {
+            message.error('Có lỗi xảy ra khi hoàn thành lịch khám');
         }
     };
 
