@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import { DatePicker, ConfigProvider } from 'antd';
 import locale from 'antd/lib/locale/vi_VN';
 import styles from './PersonalSchedule.module.scss';
 import { Calendar } from 'lucide-react';
 import * as doctorService from '../../../services/doctorService';
+import dayjs from 'dayjs';
 
 const cx = classNames.bind(styles);
 
@@ -12,8 +13,10 @@ export default function PersonalSchedule({ doctorId }) {
     const [dataTime, setDataTime] = useState([]);
 
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(dayjs());
 
     const handleDateChange = async (date) => {
+        setSelectedDate(date);
         if (!date) {
             setDataTime([]);
             setSelectedSlot(null);
@@ -22,6 +25,13 @@ export default function PersonalSchedule({ doctorId }) {
         const res = await doctorService.getDoctorWorkingSchedules(doctorId, date.format('YYYY-MM-DD'));
         setDataTime(res.data);
     };
+
+    useEffect(() => {
+        if (doctorId) {
+            handleDateChange(dayjs());
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [doctorId]);
 
     const handleSlotSelect = (id) => {
         setSelectedSlot(id);
@@ -50,6 +60,7 @@ export default function PersonalSchedule({ doctorId }) {
                 <ConfigProvider locale={locale}>
                     <DatePicker
                         className={cx('ant-date-picker')}
+                        value={selectedDate}
                         onChange={handleDateChange}
                         format="DD/MM/YYYY"
                         placeholder="Chọn ngày"

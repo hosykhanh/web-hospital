@@ -38,10 +38,11 @@ const MedicalServiceForm = ({
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isModalOpenLogo, setIsModalOpenLogo] = useState(false);
+    let isNotInAnotherMedicalService = 1;
 
     // --- API GET ALL DOCTORS BY CLINIC ---
     const getAllDoctorsByClinic = async () => {
-        const res = await doctorService.getDoctorsByClinicId(rowSelectedClinic);
+        const res = await doctorService.getDoctorsByClinicId(rowSelectedClinic, { isNotInAnotherMedicalService });
         return res.data;
     };
 
@@ -49,7 +50,7 @@ const MedicalServiceForm = ({
         isLoading: isLoadingDoctorsAdd,
         data: dataDoctorsAdd,
         refetch: refetchDoctorsAdd,
-    } = useQuery(['doctors', rowSelectedClinic], getAllDoctorsByClinic, {
+    } = useQuery(['doctorsAdd', rowSelectedClinic], getAllDoctorsByClinic, {
         enabled: !!rowSelectedClinic,
     });
 

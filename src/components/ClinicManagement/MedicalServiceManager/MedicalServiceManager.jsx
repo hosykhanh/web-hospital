@@ -26,7 +26,7 @@ const MedicalServiceManager = ({
     const [isLogo, setIsLogo] = useState(false);
 
     const [doctorIds, setDoctorIds] = useState([]);
-    const [dataDoctors, setDataDoctors] = useState([]);
+    const [dataDoctorsMedicalService, setDataDoctorsMedicalService] = useState([]);
 
     const onClickBackMedicalService = () => {
         setIsEditMedicalService(false);
@@ -39,7 +39,7 @@ const MedicalServiceManager = ({
         setLogo(null);
         setIsLogo(false);
         setDoctorIds([]);
-        setDataDoctors([]);
+        setDataDoctorsMedicalService([]);
     };
 
     const onClickCreateMedicalService = (type) => {
@@ -78,7 +78,7 @@ const MedicalServiceManager = ({
             setLogo(selectedItem.logo);
             setIsLogo(true);
             setIsEditMedicalService(true);
-            setDataDoctors(selectedItem.doctors);
+            setDataDoctorsMedicalService(selectedItem.doctors);
             setDoctorIds(selectedItem.doctors.map((doctor) => doctor._id));
         }
     };
@@ -130,8 +130,8 @@ const MedicalServiceManager = ({
                 rowSelectedClinic={rowSelectedClinic}
                 doctorIds={doctorIds}
                 setDoctorIds={setDoctorIds}
-                dataDoctors={dataDoctors}
-                setDataDoctors={setDataDoctors}
+                dataDoctors={dataDoctorsMedicalService}
+                setDataDoctors={setDataDoctorsMedicalService}
                 logo={logo}
                 setLogo={setLogo}
                 isLogo={isLogo}
@@ -156,8 +156,8 @@ const MedicalServiceManager = ({
                 rowSelectedClinic={rowSelectedClinic}
                 doctorIds={doctorIds}
                 setDoctorIds={setDoctorIds}
-                dataDoctors={dataDoctors}
-                setDataDoctors={setDataDoctors}
+                dataDoctors={dataDoctorsMedicalService}
+                setDataDoctors={setDataDoctorsMedicalService}
             />
         );
     }

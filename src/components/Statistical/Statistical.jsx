@@ -9,6 +9,9 @@ const cx = classNames.bind(styles);
 const Statistical = () => {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [showYearDropdown, setShowYearDropdown] = useState(false);
+    const [selectedMonth, setSelectedMonth] = useState(null); // null = cả năm
+    const [showMonthDropdown, setShowMonthDropdown] = useState(false);
+
     const [dataChart, setDataChart] = useState([]);
     const [chartTitle, setChartTitle] = useState('Thống kê bệnh nhân');
     const [years, setYears] = useState([]);
@@ -50,26 +53,30 @@ const Statistical = () => {
     }, []);
 
     useEffect(() => {
-        const fetchDataForYear = async () => {
+        const fetchData = async () => {
             let res;
+            const payload = { year: selectedYear };
+            if (selectedMonth) payload.month = selectedMonth;
+
             switch (currentCard) {
                 case 'doctor':
                     setChartTitle('Thống kê bác sĩ');
-                    res = await dashboardService.getDashboardDoctor({ year: selectedYear });
+                    res = await dashboardService.getDashboardDoctor(payload);
                     break;
                 case 'medical':
                     setChartTitle('Thống kê lịch khám');
-                    res = await dashboardService.getDashboardMedicalConsultationHistory({ year: selectedYear });
+                    res = await dashboardService.getDashboardMedicalConsultationHistory(payload);
                     break;
                 default:
                     setChartTitle('Thống kê bệnh nhân');
-                    res = await dashboardService.getDashboardPatient({ year: selectedYear });
+                    res = await dashboardService.getDashboardPatient(payload);
             }
+
             setDataChart(res.data);
         };
 
-        fetchDataForYear();
-    }, [selectedYear, currentCard]);
+        fetchData();
+    }, [selectedYear, selectedMonth, currentCard]);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -148,6 +155,11 @@ const Statistical = () => {
         setShowYearDropdown(false);
     };
 
+    const handleMonthChange = (month) => {
+        setSelectedMonth(month);
+        setShowMonthDropdown(false);
+    };
+
     return (
         <div className={cx('statistical-container')}>
             <div className={cx('stats-cards')}>
@@ -174,23 +186,53 @@ const Statistical = () => {
             <div className={cx('chart-container')}>
                 <div className={cx('chart-header')}>
                     <h2 className={cx('chart-title')}>{chartTitle}</h2>
-                    <div className={cx('year-selector')}>
-                        <button className={cx('year-button')} onClick={() => setShowYearDropdown(!showYearDropdown)}>
-                            Năm {selectedYear} <ChevronDown size={16} />
-                        </button>
-                        {showYearDropdown && (
-                            <div className={cx('year-dropdown')}>
-                                {years.map((year) => (
-                                    <div
-                                        key={year}
-                                        className={cx('year-option')}
-                                        onClick={() => handleYearChange(year)}
-                                    >
-                                        {year}
+                    <div className={cx('selector-group')}>
+                        <div className={cx('year-selector')}>
+                            <button
+                                className={cx('year-button')}
+                                onClick={() => setShowYearDropdown(!showYearDropdown)}
+                            >
+                                Năm {selectedYear} <ChevronDown size={16} />
+                            </button>
+                            {showYearDropdown && (
+                                <div className={cx('year-dropdown')}>
+                                    {years.map((year) => (
+                                        <div
+                                            key={year}
+                                            className={cx('year-option')}
+                                            onClick={() => handleYearChange(year)}
+                                        >
+                                            {year}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={cx('month-selector')}>
+                            <button
+                                className={cx('month-button')}
+                                onClick={() => setShowMonthDropdown(!showMonthDropdown)}
+                            >
+                                {selectedMonth ? `Tháng ${selectedMonth}` : 'Cả năm'} <ChevronDown size={16} />
+                            </button>
+                            {showMonthDropdown && (
+                                <div className={cx('month-dropdown')}>
+                                    <div className={cx('month-option')} onClick={() => handleMonthChange(null)}>
+                                        Cả năm
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    {[...Array(12)].map((_, i) => (
+                                        <div
+                                            key={i + 1}
+                                            className={cx('month-option')}
+                                            onClick={() => handleMonthChange(i + 1)}
+                                        >
+                                            Tháng {i + 1}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -199,10 +241,10 @@ const Statistical = () => {
                         <LineChart data={dataChart} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis
-                                dataKey="month"
+                                dataKey={selectedMonth ? 'day' : 'month'}
                                 axisLine={false}
                                 tickLine={false}
-                                tickFormatter={(month) => `Tháng ${month}`}
+                                tickFormatter={(value) => (selectedMonth ? `Ngày ${value}` : `Tháng ${value}`)}
                             />
                             <YAxis axisLine={false} tickLine={false} />
                             <Tooltip />
