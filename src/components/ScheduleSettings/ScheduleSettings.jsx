@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Filter, Plus } from 'lucide-react';
+import { Plus, SearchIcon } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import { registerLocale } from 'react-datepicker';
 import vi from 'date-fns/locale/vi';
@@ -11,6 +11,8 @@ import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 import { Button, message, Modal } from 'antd';
 import * as scheduleService from '../../services/scheduleService';
 import Loading from '../Loading/Loading';
+import { IconButton, InputAdornment, Menu, MenuItem, TextField } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 const cx = classNames.bind(styles);
 
@@ -19,14 +21,44 @@ registerLocale('vi', vi);
 
 export default function ScheduleSettings({ isLoading, data, refetch }) {
     const [date, setDate] = useState(new Date());
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalOpenCancel, setIsModalOpenCancel] = useState(false);
     const [rowSelected, setRowSelected] = useState(null);
 
-    const toggleFilter = () => {
-        setIsFilterOpen(!isFilterOpen);
+    const [searchValue, setSearchValue] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [filterOption, setFilterOption] = useState('');
+
+    const handleSearch = (e) => {
+        setSearchValue(e.target.value);
     };
+
+    const handleOpenFilter = (e) => {
+        setAnchorEl(e.currentTarget);
+    };
+
+    const handleCloseFilter = (option) => {
+        setFilterOption(option);
+        setAnchorEl(null);
+    };
+
+    const filteredData = data?.filter((item) => {
+        const searchVal = searchValue.toLowerCase().trim();
+
+        if (filterOption === 'Ngày') {
+            return item.date && convertISODateToLocalDate(item.date).toLowerCase().includes(searchVal);
+        } else if (filterOption === 'Giờ nghỉ') {
+            return (
+                item.clinicSchedule?.startTime?.toLowerCase().includes(searchVal) ||
+                item.clinicSchedule?.endTime?.toLowerCase().includes(searchVal)
+            );
+        } else {
+            return (
+                (item.date && convertISODateToLocalDate(item.date).toLowerCase().includes(searchVal)) ||
+                item.specialty?.toLowerCase().includes(searchVal)
+            );
+        }
+    });
 
     const showModalCancelSchedule = () => {
         setIsModalOpenCancel(true);
@@ -87,30 +119,42 @@ export default function ScheduleSettings({ isLoading, data, refetch }) {
                                 refetch={refetch}
                             />
                             <div className={cx('rightActions')}>
-                                <div className={cx('filterContainer')}>
-                                    <button className={cx('filterButton')} onClick={toggleFilter}>
-                                        <Filter size={16} />
-                                        <span>Lọc</span>
-                                        <ChevronDown size={16} />
-                                    </button>
-                                    {isFilterOpen && (
-                                        <div className={cx('filterContent')}>
-                                            <div className={cx('filterOptions')}>
-                                                <div className={cx('filterOption')}>
-                                                    <label>Trạng thái</label>
-                                                    <select className={cx('selectInput')}>
-                                                        <option value="all">Tất cả</option>
-                                                        <option value="success">Thành công</option>
-                                                        <option value="canceled">Đã hủy</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className={cx('filterActions')}>
-                                                <button className={cx('resetButton')}>Đặt lại</button>
-                                                <button className={cx('applyButton')}>Áp dụng</button>
-                                            </div>
-                                        </div>
-                                    )}
+                                <div className={cx('search')}>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <TextField
+                                            fullWidth
+                                            variant="outlined"
+                                            placeholder="Tìm kiếm..."
+                                            onChange={handleSearch}
+                                            value={searchValue}
+                                            InputProps={{
+                                                style: { height: '40px', fontSize: '16px', backgroundColor: 'white' },
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            onClick={handleOpenFilter}
+                                                            style={{ height: '40px', fontSize: '16px' }}
+                                                        >
+                                                            <FilterListIcon /> Lọc
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                        <Menu
+                                            anchorEl={anchorEl}
+                                            open={Boolean(anchorEl)}
+                                            onClose={() => handleCloseFilter(null)}
+                                        >
+                                            <MenuItem onClick={() => handleCloseFilter('Ngày')}>Ngày</MenuItem>
+                                            <MenuItem onClick={() => handleCloseFilter('Giờ nghỉ')}>Giờ nghỉ</MenuItem>
+                                        </Menu>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +191,7 @@ export default function ScheduleSettings({ isLoading, data, refetch }) {
                                             <col style={{ width: '15%' }} />
                                         </colgroup>
                                         <tbody className={cx('tableBody')}>
-                                            {data?.map((item, index) => (
+                                            {filteredData?.map((item, index) => (
                                                 <tr key={item?._id}>
                                                     <td>{index + 1}</td>
                                                     <td>{convertISODateToLocalDate(item?.date)}</td>

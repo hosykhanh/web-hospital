@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './CreateAppointment.module.scss';
 import { districts, wards, getProvinces } from 'vietnam-provinces';
 import { format } from 'date-fns';
 import classNames from 'classnames/bind';
 import CustomDatePicker from './custom-date-picke';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Input, message, Modal } from 'antd';
+import { ArrowLeftOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input, message, Modal, Space } from 'antd';
 import TimeSlotPicker from './time-slot-picker';
 import TableComp from '../../TableComp/TableComp';
 import { useSelector } from 'react-redux';
@@ -61,6 +61,10 @@ const CreateAppointment = ({ onBack, refetch }) => {
 
     const [clinicId, setClinicId] = useState('');
     const [medicalServiceId, setMedicalServiceId] = useState('');
+
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
 
     useEffect(() => {
         if (user?.role === 2) {
@@ -317,20 +321,72 @@ const CreateAppointment = ({ onBack, refetch }) => {
         );
     };
 
+    const handleSearch = (selectedKeys, confirm, dataIndex, setSearchText, setSearchedColumn) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters, setSearchText) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex, searchInputRef, setSearchText, setSearchedColumn) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            <div style={{ padding: 8 }}>
+                <Input
+                    ref={searchInputRef}
+                    placeholder={`Tìm theo ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() =>
+                        handleSearch(selectedKeys, confirm, dataIndex, setSearchText, setSearchedColumn)
+                    }
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex, setSearchText, setSearchedColumn)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Tìm
+                    </Button>
+                    <Button onClick={() => handleReset(clearFilters, setSearchText)} size="small" style={{ width: 90 }}>
+                        Xóa
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+        onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInputRef.current?.select(), 100);
+            }
+        },
+    });
+
     const columnsPatients = [
         {
             title: 'Mã bệnh nhân',
             dataIndex: 'code',
             sorter: (a, b) => a.code.localeCompare(b.code),
+            ...getColumnSearchProps('code', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Họ và tên',
             dataIndex: 'userName',
+            ...getColumnSearchProps('userName', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Ngày sinh',
             dataIndex: 'dateOfBirth',
             render: (text, record) => convertISODateToLocalDate(record.dateOfBirth),
+            ...getColumnSearchProps('dateOfBirth', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Hoạt động',
@@ -344,15 +400,18 @@ const CreateAppointment = ({ onBack, refetch }) => {
             title: 'Mã bác sĩ',
             dataIndex: 'code',
             sorter: (a, b) => a.code.localeCompare(b.code),
+            ...getColumnSearchProps('code', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Họ và tên',
             dataIndex: 'userName',
+            ...getColumnSearchProps('userName', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Ngày sinh',
             dataIndex: 'dateOfBirth',
             render: (text, record) => convertISODateToLocalDate(record.dateOfBirth),
+            ...getColumnSearchProps('dateOfBirth', searchInput, setSearchText, setSearchedColumn),
         },
         {
             title: 'Hoạt động',
