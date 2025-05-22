@@ -39,7 +39,6 @@ const MedicalServiceManager = ({
         setLogo(null);
         setIsLogo(false);
         setDoctorIds([]);
-        setDataDoctorsMedicalService([]);
     };
 
     const onClickCreateMedicalService = (type) => {
