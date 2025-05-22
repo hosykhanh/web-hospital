@@ -2,26 +2,38 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './AppointmentInformation.module.scss';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
 import { DatePicker, Input, message, Modal, Radio } from 'antd';
 
 import Button from '../../Button/Button';
 import * as patientService from '../../../services/patientService';
 import * as userService from '../../../services/userServices';
+import * as doctorService from '../../../services/doctorService';
 import { useQuery } from 'react-query';
 import convertISODateToLocalDate from '../../../utils/convertISODateToLocalDate';
+import { useSelector } from 'react-redux';
+import { useColumnSearch } from '../../../hooks/useColumnSearch';
+import TableComp from '../../TableComp/TableComp';
 
 const cx = classNames.bind(styles);
 
 const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
+    const user = useSelector((state) => state.user);
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+    const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
     const [doctor, setDoctor] = useState([]);
+    const [rowSelectedDoctor, setRowSelectedDoctor] = useState('');
 
     const [patientStatus, setPatientStatus] = useState('');
     const [diagnosis, setDiagnosis] = useState('');
     const [reExaminateDate, setReExaminateDate] = useState(null);
     const [noteFromDoctor, setNoteFromDoctor] = useState('');
+
+    const [clinicId, setClinicId] = useState('');
+    const [medicalServiceId, setMedicalServiceId] = useState('');
+
+    const getColumnSearchProps = useColumnSearch();
 
     const {
         data: dataInfo,
@@ -45,6 +57,30 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
         select: (data) => data?.data || null,
     });
 
+    // --- API GET ALL DOCTORS ---
+    const {
+        isLoading: isLoadingDoctors,
+        data: dataDoctors,
+        refetch: refetchDoctors,
+    } = useQuery(
+        ['doctor', clinicId, medicalServiceId],
+        () =>
+            doctorService.getDoctorsByClinicId(clinicId, {
+                medicalServiceId,
+            }),
+        {
+            enabled: !!clinicId && !!medicalServiceId,
+            select: (data) => data?.data,
+        },
+    );
+
+    useEffect(() => {
+        if (dataInfo) {
+            setMedicalServiceId(dataInfo?.medicalServiceId);
+            setClinicId(dataInfo?.clinicId);
+        }
+    }, [dataInfo]);
+
     useEffect(() => {
         if (dataInfo?.responsibilityDoctorId) {
             const getDoctor = async () => {
@@ -54,6 +90,30 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
             getDoctor();
         }
     }, [dataInfo]);
+
+    useEffect(() => {
+        if (rowSelectedDoctor) {
+            const updateResponsibilityDoctor = async () => {
+                try {
+                    const res = await patientService.updateMedicalConsultationHistory(rowSelectedInfo, {
+                        ...dataInfo,
+                        responsibilityDoctorId: rowSelectedDoctor,
+                    });
+                    if (res.statusCode === 200) {
+                        message.success('Thay đổi bác sĩ phụ trách thành công');
+                        setIsDoctorModalOpen(false);
+                        refetchInfo();
+                    } else {
+                        message.error('Thay đổi bác sĩ phụ trách thất bại', res.message);
+                    }
+                } catch (error) {
+                    message.error('Có lỗi xảy ra khi thay đổi bác sĩ phụ trách');
+                }
+            };
+            updateResponsibilityDoctor();
+        }
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rowSelectedDoctor]);
 
     const onSubmitComplete = async () => {
         const data = {
@@ -110,6 +170,41 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
         refetch();
     };
 
+    const renderActionDoctor = () => {
+        return (
+            <div className={cx('action')}>
+                <button className={cx('add')} onClick={() => setIsDoctorModalOpen(false)}>
+                    Thay đổi
+                </button>
+            </div>
+        );
+    };
+
+    const columnsDoctors = [
+        {
+            title: 'Mã bác sĩ',
+            dataIndex: 'code',
+            sorter: (a, b) => a.code.localeCompare(b.code),
+            ...getColumnSearchProps('code'),
+        },
+        {
+            title: 'Họ và tên',
+            dataIndex: 'userName',
+            ...getColumnSearchProps('userName'),
+        },
+        {
+            title: 'Ngày sinh',
+            dataIndex: 'dateOfBirth',
+            render: (text, record) => convertISODateToLocalDate(record.dateOfBirth),
+            ...getColumnSearchProps('dateOfBirth'),
+        },
+        {
+            title: 'Hoạt động',
+            dataIndex: 'action',
+            render: renderActionDoctor,
+        },
+    ];
+
     return (
         <div>
             <div className={cx('title')}>Thông tin lịch khám</div>
@@ -159,6 +254,52 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                         <label htmlFor="service">DỊCH VỤ KHÁM:</label>
                         <span>{dataInfo?.medicalServiceName}</span>
                     </div>
+                    <div className={cx('form-grid-1')}>
+                        <div className={cx('form-label')}>
+                            <label style={{ marginRight: '5px' }}>BÁC SĨ PHỤ TRÁCH</label>
+                            {user?.role === 2 || user?.role === 1 ? (
+                                <></>
+                            ) : (
+                                <>
+                                    <EditOutlined
+                                        onClick={() => setIsDoctorModalOpen(true)}
+                                        className={cx('edit-icon')}
+                                    />
+                                    <Modal
+                                        title={<div className={cx('title-patient')}>Thay đổi bác sĩ phụ trách </div>}
+                                        forceRender
+                                        open={isDoctorModalOpen}
+                                        onCancel={() => setIsDoctorModalOpen(false)}
+                                        footer={null}
+                                        width="50%"
+                                    >
+                                        <TableComp
+                                            columns={columnsDoctors}
+                                            data={dataDoctors}
+                                            isLoading={isLoadingDoctors}
+                                            onRow={(record, rowIndex) => {
+                                                return {
+                                                    onClick: (event) => {
+                                                        setRowSelectedDoctor(record._id);
+                                                    },
+                                                };
+                                            }}
+                                            // mutation={mutationDelMany}
+                                            refetch={refetchDoctors}
+                                            defaultPageSize={8}
+                                        />
+                                    </Modal>
+                                </>
+                            )}
+                            <Input
+                                value={doctor?.userName}
+                                className={cx('input')}
+                                required
+                                disabled={true}
+                                width="25%"
+                            />
+                        </div>
+                    </div>
                     <div className={cx('form-label')}>
                         <label htmlFor="status">TRẠNG THÁI:</label>
                         <Radio.Group name="gender" value={dataInfo?.status} disabled={true}>
@@ -179,10 +320,6 @@ const AppointmentInformation = ({ onBack, rowSelectedInfo, refetch }) => {
                     </div>
                     {dataInfo?.status === 2 || dataInfo?.status === 3 ? (
                         <>
-                            <div className={cx('form-label')}>
-                                <label>BÁC SĨ PHỤ TRÁCH:</label>
-                                <span>{doctor?.userName}</span>
-                            </div>
                             <div className={cx('form-label')}>
                                 <label>NGÀY KHÁM:</label>
                                 <span>{convertISODateToLocalDate(dataInfo?.examinationDate)}</span>
