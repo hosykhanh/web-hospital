@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from './CreateAppointment.module.scss';
 import { districts, wards, getProvinces } from 'vietnam-provinces';
 import { format } from 'date-fns';
@@ -105,6 +105,31 @@ const CreateAppointment = ({ onBack, refetch }) => {
             select: (data) => data?.data || [],
         },
     );
+
+    const { data: doctorWorkingSchedules } = useQuery(
+        ['workingSchedule', formData.responsibilityDoctorId, formData.examinationDate],
+        () => doctorService.getDoctorWorkingSchedules(formData.responsibilityDoctorId, formData.examinationDate),
+        {
+            enabled: !!formData.examinationDate && !!formData.responsibilityDoctorId,
+            select: (res) => res?.data || [],
+        },
+    );
+
+    const filteredSchedules = useMemo(() => {
+        if (!dataClinicSchedule || !doctorWorkingSchedules) return [];
+        console.log('Clinic Schedule:', dataClinicSchedule);
+        console.log('Doctor Working Schedules:', doctorWorkingSchedules);
+
+        // Lấy danh sách thời gian cần loại bỏ (có isLeave hoặc isWorking)
+        const timesToRemove = doctorWorkingSchedules
+            .filter((item) => item.isLeave === true || item.isWorking === true)
+            .map((item) => `${item.startTime}-${item.endTime}`);
+
+        return dataClinicSchedule.filter((clinicItem) => {
+            const timeKey = `${clinicItem.startTime}-${clinicItem.endTime}`;
+            return !timesToRemove.includes(timeKey); // chỉ giữ lại nếu KHÔNG nằm trong danh sách loại
+        });
+    }, [dataClinicSchedule, doctorWorkingSchedules]);
 
     // --- API GET ALL PATIENTS ---
     const getAllPatients = async () => {
@@ -722,7 +747,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
                                     onClose={() => setIsTimePickerOpen(false)}
                                     onSelect={handleTimeSlotSelect}
                                     selectedSlot={selectedTimeSlot}
-                                    dataClinicSchedule={dataClinicSchedule}
+                                    dataClinicSchedule={filteredSchedules}
                                 />
                             </div>
                         </div>
