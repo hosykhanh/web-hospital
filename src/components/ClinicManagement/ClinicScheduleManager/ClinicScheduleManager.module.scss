@@ -30,5 +30,107 @@
         padding: 10px;
         border-radius: 5px;
         width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .wrapper-title-btn-add {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+
+        .btn-add {
+            font-size: 0.8rem;
+            background-color: #41cb8b;
+            color: #ffffff;
+        }
+    }
+}
+
+.action {
+    display: flex;
+    align-items: center;
+
+    .view {
+        font-size: 0.8rem;
+        background-color: #6faffd;
+        border-radius: 5px;
+        border: 1px solid #e0e0e0;
+        padding: 6px 10px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #4892fa;
+        }
+    }
+}
+
+.title-modal {
+    font-size: 1.1rem;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #e2e2e2;
+}
+
+.form-label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    margin-top: 5px;
+
+    label {
+        font-weight: 450;
+        font-size: 0.9rem;
+        // color: #8a8a8a;
+        margin-bottom: 5px;
+    }
+}
+
+.input {
+    width: 100%;
+    // padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+    color: #333333;
+
+    &:focus {
+        outline: none;
+        border-color: #2385fd;
+    }
+}
+
+.btn-add-schedule {
+    font-size: 0.8rem;
+    background-color: #c9c9c9;
+    color: #474747;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+
+    &:hover {
+        color: #ffffff;
+        background-color: #a4a4a4;
+    }
+}
+
+.btn-save-schedule {
+    font-size: 0.9rem;
+    background-color: #2385fd;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #1a6bbf;
+        color: #e2e2e2;
     }
 }

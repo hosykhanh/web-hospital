@@ -37,12 +37,42 @@ const deleteClinicSchedule = async (id) => {
     return res.data;
 };
 
+const getAllRequestChangeScheduleByClinic = async (params) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/request-change-schedule`, { params });
+    return res.data;
+};
+
+const createRequestChangeSchedule = async (data) => {
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/request-change-schedule`, data);
+    return res.data;
+};
+
+const getRequestChangeSchedule = async (id) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/request-change-schedule/${id}`);
+    return res.data;
+};
+
+const updateRequestChangeSchedule = async (id, data) => {
+    const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/request-change-schedule/${id}`, data);
+    return res.data;
+};
+
+const deleteRequestChangeSchedule = async (id) => {
+    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/request-change-schedule/${id}/delete`);
+    return res.data;
+};
+
 export {
     getLeaveSchedule,
     createLeaveSchedule,
     inActiveLeaveSchedule,
     getSchedulesByMedicalService,
     getClinicSchedule,
+    getAllRequestChangeScheduleByClinic,
+    createRequestChangeSchedule,
+    getRequestChangeSchedule,
+    deleteRequestChangeSchedule,
+    updateRequestChangeSchedule,
     createClinicSchedule,
     deleteClinicSchedule,
 };

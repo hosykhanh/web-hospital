@@ -391,7 +391,8 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                 open={isModalOpenClinicSchedule}
                                                 onCancel={cancelModalClinicSchedule}
                                                 footer={null}
-                                                width="45%"
+                                                style={{ top: 5 }}
+                                                width="50%"
                                             >
                                                 <div className={cx('content-modal-time')}>
                                                     <ClinicScheduleManager
