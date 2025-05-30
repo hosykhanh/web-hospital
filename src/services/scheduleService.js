@@ -58,7 +58,7 @@ const updateRequestChangeSchedule = async (id, data) => {
 };
 
 const deleteRequestChangeSchedule = async (id) => {
-    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/request-change-schedule/${id}/delete`);
+    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_URL}/request-change-schedule/${id}`);
     return res.data;
 };
 
