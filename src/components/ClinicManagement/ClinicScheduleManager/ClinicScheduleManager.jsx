@@ -13,12 +13,7 @@ import dayjs from 'dayjs';
 
 const cx = classNames.bind(styles);
 
-const ClinicScheduleManager = ({
-    dataClinicSchedule,
-    isLoadingClinicSchedule,
-    rowSelectedClinic,
-    refetchClinicSchedule,
-}) => {
+const ClinicScheduleManager = ({ rowSelectedClinic }) => {
     const [startTime, setStartTime] = useState(null);
     const [endTime, setEndTime] = useState(null);
 
@@ -71,39 +66,6 @@ const ClinicScheduleManager = ({
         }
     };
 
-    const handleOkCreateTimeClinicSchedule = async () => {
-        if (!startTime || !endTime) {
-            message.warning('Vui lòng chọn thời gian làm việc!');
-            return;
-        }
-
-        const data = {
-            startTime: startTime.format('HH:mm:ss'),
-            endTime: endTime.format('HH:mm:ss'),
-            clinicId: rowSelectedClinic,
-        };
-
-        try {
-            await scheduleService.createClinicSchedule(data);
-            message.success('Thêm thời gian làm việc thành công!');
-            refetchClinicSchedule();
-            setStartTime(null);
-            setEndTime(null);
-        } catch (error) {
-            message.error('Thêm thời gian làm việc thất bại!');
-        }
-    };
-
-    const handleDeleteTimeClinicSchedule = async (id) => {
-        try {
-            await scheduleService.deleteClinicSchedule(id);
-            message.success('Xoá thời gian làm việc thành công!');
-            refetchClinicSchedule();
-        } catch (error) {
-            message.error('Xoá thời gian làm việc thất bại!');
-        }
-    };
-
     const handleOkCreateScheduleWorking = async () => {
         if (!startTime || !endTime) {
             message.warning('Vui lòng chọn thời gian làm việc!');
@@ -114,7 +76,7 @@ const ClinicScheduleManager = ({
             startTime: startTime.format('HH:mm:ss'),
             endTime: endTime.format('HH:mm:ss'),
             clinicId: rowSelectedClinic,
-            ísActive: false,
+            isActive: false,
         };
 
         try {
@@ -262,45 +224,6 @@ const ClinicScheduleManager = ({
 
     return (
         <div className={cx('content-modal-time')}>
-            <div className={cx('title-time')}>Danh sách các khoảng thời gian làm việc</div>
-            <div className={cx('list-time')}>
-                <Loading isLoading={isLoadingClinicSchedule}>
-                    {dataClinicSchedule?.map((time) => (
-                        <Tag
-                            key={time?._id}
-                            color="blue"
-                            style={{
-                                marginRight: 5,
-                                marginTop: 5,
-                                fontSize: 14,
-                            }}
-                        >
-                            {time?.startTime} - {time?.endTime}{' '}
-                            <DeleteOutlined
-                                style={{ color: 'red', cursor: 'pointer' }}
-                                onClick={() => handleDeleteTimeClinicSchedule(time?._id)}
-                            />
-                        </Tag>
-                    ))}
-                </Loading>
-            </div>
-
-            <div className={cx('title-time')}>Thêm thời gian làm việc</div>
-            <div className={cx('form-label')}>
-                <label htmlFor="time">Thời gian làm việc</label>
-                <TimePicker.RangePicker
-                    className={cx('input')}
-                    required
-                    value={startTime && endTime ? [startTime, endTime] : []}
-                    format="HH:mm:ss"
-                    onChange={handleChangeTimeClinicSchedule}
-                />
-            </div>
-            <div>
-                <Button className={cx('btn-add-time')} onClick={handleOkCreateTimeClinicSchedule}>
-                    Thêm
-                </Button>
-            </div>
             <div className={cx('wrapper-title-btn-add')}>
                 <div className={cx('title-time')}>Quản lý lịch làm việc</div>
                 <Button
@@ -446,7 +369,7 @@ const ClinicScheduleManager = ({
                 isLoading={isLoadingRequestChangeSchedule}
                 // mutation={mutationDelMany}
                 refetch={refetchRequestChangeSchedule}
-                defaultPageSize={8}
+                defaultPageSize={10}
             />
             <Modal
                 title="Bạn có chắc muốn xóa lịch chỉnh sửa thời gian làm việc này?"

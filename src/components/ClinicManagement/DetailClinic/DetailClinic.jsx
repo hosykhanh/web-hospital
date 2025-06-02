@@ -79,8 +79,8 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
     // --- API GET ALL SCHEDULE BY CLINIC ID ---
     const {
         data: dataClinicSchedule,
-        isLoading: isLoadingClinicSchedule,
-        refetch: refetchClinicSchedule,
+        // isLoading: isLoadingClinicSchedule,
+        // refetch: refetchClinicSchedule,
     } = useQuery(['clinicSchedule', rowSelectedClinic], () => scheduleService.getClinicSchedule(rowSelectedClinic), {
         enabled: !!rowSelectedClinic,
         select: (data) => data?.data,
@@ -395,12 +395,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
                                                 width="50%"
                                             >
                                                 <div className={cx('content-modal-time')}>
-                                                    <ClinicScheduleManager
-                                                        dataClinicSchedule={dataClinicSchedule}
-                                                        isLoadingClinicSchedule={isLoadingClinicSchedule}
-                                                        rowSelectedClinic={rowSelectedClinic}
-                                                        refetchClinicSchedule={refetchClinicSchedule}
-                                                    />
+                                                    <ClinicScheduleManager rowSelectedClinic={rowSelectedClinic} />
                                                 </div>
                                             </Modal>
 
