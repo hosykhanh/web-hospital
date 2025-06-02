@@ -36,6 +36,19 @@ const ClinicScheduleManager = ({
     const getColumnSearchProps = useColumnSearch();
 
     const {
+        data: dataTimeClinicSchedule,
+        isLoading: isLoadingTimeClinicSchedule,
+        refetch: refetchTimeClinicSchedule,
+    } = useQuery(
+        ['timeClinicSchedule', rowSelectedClinic],
+        () => scheduleService.getClinicSchedule(rowSelectedClinic, { disableIsActiveFilter: 1 }),
+        {
+            enabled: !!rowSelectedClinic,
+            select: (data) => data?.data,
+        },
+    );
+
+    const {
         data: dataRequestChangeSchedule,
         isLoading: isLoadingRequestChangeSchedule,
         refetch: refetchRequestChangeSchedule,
@@ -88,6 +101,30 @@ const ClinicScheduleManager = ({
             refetchClinicSchedule();
         } catch (error) {
             message.error('Xoá thời gian làm việc thất bại!');
+        }
+    };
+
+    const handleOkCreateScheduleWorking = async () => {
+        if (!startTime || !endTime) {
+            message.warning('Vui lòng chọn thời gian làm việc!');
+            return;
+        }
+
+        const data = {
+            startTime: startTime.format('HH:mm:ss'),
+            endTime: endTime.format('HH:mm:ss'),
+            clinicId: rowSelectedClinic,
+            ísActive: false,
+        };
+
+        try {
+            await scheduleService.createClinicSchedule(data);
+            message.success('Thêm thời gian làm việc thành công!');
+            refetchTimeClinicSchedule();
+            setStartTime(null);
+            setEndTime(null);
+        } catch (error) {
+            message.error('Thêm thời gian làm việc thất bại!');
         }
     };
 
@@ -337,30 +374,53 @@ const ClinicScheduleManager = ({
                         <Modal
                             title={<div className={cx('title-modal')}>Chọn lịch làm việc</div>}
                             open={isModalAddTimeOpen}
-                            footer={null}
+                            onOk={() => setIsModalAddTimeOpen(false)}
                             onCancel={() => setIsModalAddTimeOpen(false)}
                             width="45%"
                         >
                             <div>
-                                {dataClinicSchedule?.map((time) => {
-                                    const isSelected = newValue.some((t) => t._id === time._id);
+                                <div className={cx('modal-node')}>
+                                    Vui lòng chọn lịch làm việc có sẵn hoặc thêm lịch làm việc mới!
+                                </div>
+                                <div style={{ marginBottom: 10 }}>
+                                    <Loading isLoading={isLoadingTimeClinicSchedule}>
+                                        {dataTimeClinicSchedule?.map((time) => {
+                                            const isSelected = newValue.some((t) => t._id === time._id);
 
-                                    return (
-                                        <Tag
-                                            key={time?._id}
-                                            color={isSelected ? 'green' : 'blue'}
-                                            style={{
-                                                marginRight: 5,
-                                                marginTop: 5,
-                                                fontSize: 14,
-                                                cursor: 'pointer',
-                                            }}
-                                            onClick={() => handleToggleTime(time)}
-                                        >
-                                            {time?.startTime} - {time?.endTime}
-                                        </Tag>
-                                    );
-                                })}
+                                            return (
+                                                <Tag
+                                                    key={time?._id}
+                                                    color={isSelected ? 'green' : 'blue'}
+                                                    style={{
+                                                        marginRight: 5,
+                                                        marginTop: 5,
+                                                        fontSize: 14,
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => handleToggleTime(time)}
+                                                >
+                                                    {time?.startTime} - {time?.endTime}
+                                                </Tag>
+                                            );
+                                        })}
+                                    </Loading>
+                                </div>
+                                <div className={cx('title-time')}>Thêm lịch làm việc</div>
+                                <div className={cx('form-label')}>
+                                    <label htmlFor="time">Thời gian làm việc</label>
+                                    <TimePicker.RangePicker
+                                        className={cx('input')}
+                                        required
+                                        value={startTime && endTime ? [startTime, endTime] : []}
+                                        format="HH:mm:ss"
+                                        onChange={handleChangeTimeClinicSchedule}
+                                    />
+                                </div>
+                                <div>
+                                    <Button className={cx('btn-add-time')} onClick={handleOkCreateScheduleWorking}>
+                                        Thêm
+                                    </Button>
+                                </div>
                             </div>
                         </Modal>
                     </div>

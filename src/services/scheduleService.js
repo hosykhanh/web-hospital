@@ -22,8 +22,10 @@ const getSchedulesByMedicalService = async (medicalServiceId, params) => {
     return res.data;
 };
 
-const getClinicSchedule = async (clinicId) => {
-    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/clinic-schedule/${clinicId}`);
+const getClinicSchedule = async (clinicId, params) => {
+    const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/clinic-schedule/${clinicId}`, {
+        params,
+    });
     return res.data;
 };
 

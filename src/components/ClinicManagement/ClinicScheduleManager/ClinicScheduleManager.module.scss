@@ -1,10 +1,4 @@
 .content-modal-time {
-    .title-time {
-        font-size: 1.1rem;
-        font-weight: 450;
-        color: #2385fd;
-    }
-
     .list-time {
         margin-bottom: 30px;
     }
@@ -23,16 +17,6 @@
         }
     }
 
-    .btn-add-time {
-        font-size: 0.8rem;
-        background-color: #41cb8b;
-        color: #ffffff;
-        padding: 10px;
-        border-radius: 5px;
-        width: 100%;
-        margin-bottom: 30px;
-    }
-
     .wrapper-title-btn-add {
         display: flex;
         justify-content: space-between;
@@ -44,6 +28,22 @@
             color: #ffffff;
         }
     }
+}
+
+.title-time {
+    font-size: 1.1rem;
+    font-weight: 450;
+    color: #2385fd;
+}
+
+.btn-add-time {
+    font-size: 0.8rem;
+    background-color: #41cb8b;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 30px;
 }
 
 .action {
@@ -133,4 +133,10 @@
         background-color: #1a6bbf;
         color: #e2e2e2;
     }
+}
+
+.modal-node {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
 }
