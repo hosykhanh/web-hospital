@@ -1,8 +1,8 @@
 import axiosJWT from './axiosService';
 
-const getAllMedicalService = async (clinicId) => {
+const getAllMedicalService = async (clinicId, doctorId) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/medical-service`, {
-        params: { clinicId },
+        params: { clinicId, doctorId },
     });
     return res.data;
 };

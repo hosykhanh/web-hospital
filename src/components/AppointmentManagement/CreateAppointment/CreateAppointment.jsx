@@ -85,7 +85,7 @@ const CreateAppointment = ({ onBack, refetch }) => {
     // --- API GET ALL MEDICAL SERVICE BY CLINIC ID ---
     const { data: dataMedicalService } = useQuery(
         ['medicalService', clinicId],
-        () => medicalService.getAllMedicalService(clinicId),
+        () => medicalService.getAllMedicalService(clinicId, formData.responsibilityDoctorId),
         {
             enabled: !!clinicId,
             select: (data) => data?.data?.items,
