@@ -145,21 +145,6 @@ const CustomDatePicker = ({ isOpen, onClose, onSelect, selectedDate }) => {
                         })}
                     </div>
                 </div>
-
-                <div className={cx('legend')}>
-                    <div className={cx('legendItem')}>
-                        <div className={cx('legendBox', 'today')}></div>
-                        <span>Hôm nay</span>
-                    </div>
-                    <div className={cx('legendItem')}>
-                        <div className={cx('legendBox', 'available')}></div>
-                        <span>Còn trống</span>
-                    </div>
-                    <div className={cx('legendItem')}>
-                        <div className={cx('legendBox', 'full')}></div>
-                        <span>Kín lịch</span>
-                    </div>
-                </div>
             </div>
         </div>
     );

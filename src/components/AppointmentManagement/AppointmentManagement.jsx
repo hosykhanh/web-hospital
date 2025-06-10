@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 
 import styles from './AppointmentManagement.module.scss';
 import TableComp from '../TableComp/TableComp';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons';
+import { FormOutlined } from '@ant-design/icons';
 import ModalConfirm from '../ModalConfirm/ModalConfirm';
 import Button from '../Button/Button';
 import { TextField, InputAdornment, IconButton, Menu, MenuItem } from '@mui/material';
@@ -15,13 +15,10 @@ import convertISODateToLocalDate from '../../utils/convertISODateToLocalDate';
 import { Tag } from 'antd';
 import * as patientService from '../../services/patientService';
 import { useMutation } from 'react-query';
-import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 const AppointmentManagement = ({ isLoading, data, refetch }) => {
-    const user = useSelector((state) => state.user);
-
     const [rowSelected, setRowSelected] = useState('');
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [isCreateAppointment, setIsCreateAppointment] = useState(false);
@@ -88,14 +85,6 @@ const AppointmentManagement = ({ isLoading, data, refetch }) => {
                 <button className={cx('view')} onClick={() => setIsDetailVisible(true)}>
                     Chi tiết
                 </button>
-                {user.role === 3 ? (
-                    <DeleteOutlined
-                        style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }}
-                        onClick={() => setIsDeleteModalOpen(true)}
-                    />
-                ) : (
-                    <></>
-                )}
             </div>
         );
     };
