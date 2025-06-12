@@ -296,7 +296,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                                 <Radio.Group name="qualification" value={dataDoctor?.qualification} disabled={true}>
                                     <Radio value="Thạc sĩ">THẠC SĨ</Radio>
                                     <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
-                                    <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
+                                    <Radio value="Bác sỹ chuyên khoa">CBÁC SĨ CHUYÊN KHOA</Radio>
                                 </Radio.Group>
                             </div>
                             <div className={cx('form-label')}>
@@ -449,7 +449,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
                                     >
                                         <Radio value="Thạc sĩ">THẠC SĨ</Radio>
                                         <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
-                                        <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
+                                        <Radio value="Bác sỹ chuyên khoa">BÁC SĨ CHUYÊN KHOA</Radio>
                                     </Radio.Group>
                                 </div>
                                 <div className={cx('form-label')}>

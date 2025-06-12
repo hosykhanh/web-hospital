@@ -237,7 +237,7 @@ const CreateDoctor = ({ onBack, refetch }) => {
                         >
                             <Radio value="Thạc sĩ">THẠC SĨ</Radio>
                             <Radio value="Tiến sĩ">TIẾN SĨ</Radio>
-                            <Radio value="Chuyên khoa A">CHUYÊN KHOA A</Radio>
+                            <Radio value="Bác sỹ chuyên khoa">BÁC SĨ CHUYÊN KHOA</Radio>
                         </Radio.Group>
                     </div>
                     <div className={cx('form-label')}>

@@ -103,6 +103,7 @@ const DetailClinic = ({ onBack, rowSelectedClinic, refetch }) => {
         onSuccess: () => {
             message.success('Cập nhật phòng khám thành công!');
             refetchClinic();
+            refetch();
         },
         onError: () => {
             message.error('Cập nhật phòng khám thất bại!');
