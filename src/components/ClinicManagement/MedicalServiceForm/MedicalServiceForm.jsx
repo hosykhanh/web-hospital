@@ -246,7 +246,24 @@ const MedicalServiceForm = ({
                         placeholder="Nhập tên dịch vụ"
                     />
                 </div>
-                <div className={cx('modal-edit-item')}>
+                {dataDetailService ? (
+                    <>
+                        <div className={cx('modal-edit-item')}>
+                            <label>Mô tả</label>
+                            <Input.TextArea className={cx('input')} value={dataDetailService.description} rows={4} />
+                        </div>
+                        <div className={cx('modal-edit-item')}>
+                            <label>Dịch vụ liên quan</label>
+                            <Input.TextArea className={cx('input')} value={dataDetailService.relatedService} rows={4} />
+                        </div>
+                        <div className={cx('modal-edit-item')}>
+                            <label>Triệu chứng liên quan</label>
+                            <Input.TextArea className={cx('input')} value={dataDetailService.symptom} rows={4} />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                     <div className={cx('modal-edit-item')}>
                     <label htmlFor="description">Mô tả dịch vụ khám</label>
                     <Input
                         className={cx('input')}
@@ -276,6 +293,8 @@ const MedicalServiceForm = ({
                         placeholder="Nhập dịch vụ liên quan"
                     />
                 </div>
+                    </>
+                )}
                 <div className={cx('modal-edit-item')}>
                     <label>Giá gốc</label>
                     <InputNumber
@@ -296,24 +315,6 @@ const MedicalServiceForm = ({
                         style={{ width: '50%' }}
                     />
                 </div>
-                {dataDetailService ? (
-                    <>
-                        <div className={cx('modal-edit-item')}>
-                            <label>Mô tả</label>
-                            <Input.TextArea className={cx('input')} value={dataDetailService.description} rows={4} />
-                        </div>
-                        <div className={cx('modal-edit-item')}>
-                            <label>Dịch vụ liên quan</label>
-                            <Input.TextArea className={cx('input')} value={dataDetailService.relatedService} rows={4} />
-                        </div>
-                        <div className={cx('modal-edit-item')}>
-                            <label>Triệu chứng liên quan</label>
-                            <Input.TextArea className={cx('input')} value={dataDetailService.symptom} rows={4} />
-                        </div>
-                    </>
-                ) : (
-                    <></>
-                )}
                 <div className={cx('list-doctor')}>
                     <div className={cx('wrapper-title-btn')}>
                         <div className={cx('title-list')}>Danh sách bác sĩ</div>
