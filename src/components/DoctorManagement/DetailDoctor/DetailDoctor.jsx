@@ -123,6 +123,7 @@ const DetailDoctor = ({ onBack, rowSelected, refetch }) => {
         if (isSuccess && checkStatusResponse(data)) {
             message.success('Cập nhật thành công');
             refetchDoctor();
+            refetch();
         } else if (isError) {
             message.error('Cập nhật thất bại');
         }

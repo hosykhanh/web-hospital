@@ -83,10 +83,17 @@ const DoctorManagement = ({ isLoading, data, refetch }) => {
             render: renderAction,
         },
     ];
+
+    const onBack = () => {
+        setIsDetailVisible(false);
+        refetch();
+        setRowSelected('');
+    };
+
     return (
         <div className={cx('wrapper')}>
             {isDetailVisible ? (
-                <DetailDoctor onBack={() => setIsDetailVisible(false)} rowSelected={rowSelected} refetch={refetch} />
+                <DetailDoctor onBack={onBack} rowSelected={rowSelected} refetch={refetch} />
             ) : isCreateDoctor ? (
                 <CreateDoctor onBack={() => setIsCreateDoctor(false)} refetch={refetch} />
             ) : (

@@ -27,6 +27,7 @@ const MedicalServiceManager = ({
 
     const [doctorIds, setDoctorIds] = useState([]);
     const [dataDoctorsMedicalService, setDataDoctorsMedicalService] = useState([]);
+    const [dataDetailService, setDataDetailService] = useState([]);
 
     const onClickBackMedicalService = () => {
         setIsEditMedicalService(false);
@@ -79,6 +80,7 @@ const MedicalServiceManager = ({
             setIsEditMedicalService(true);
             setDataDoctorsMedicalService(selectedItem.doctors);
             setDoctorIds(selectedItem.doctors.map((doctor) => doctor._id));
+            setDataDetailService(selectedItem);
         }
     };
 
@@ -136,6 +138,7 @@ const MedicalServiceManager = ({
                 isLogo={isLogo}
                 serviceId={serviceId}
                 onDelete={handleDeleteMedicalService}
+                dataDetailService={dataDetailService}
             />
         );
     }
