@@ -32,6 +32,12 @@ const MedicalServiceForm = ({
     serviceId,
     onDelete,
     dataDetailService,
+    description,
+    setDescription,
+    symptom,
+    setSymptom,
+    relatedService,
+    setRelatedService,
 }) => {
     const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
     const [rowSelectedDoctor, setRowSelectedDoctor] = useState(null);
@@ -238,6 +244,36 @@ const MedicalServiceForm = ({
                         value={serviceName}
                         onChange={(e) => setServiceName(e.target.value)}
                         placeholder="Nhập tên dịch vụ"
+                    />
+                </div>
+                <div className={cx('modal-edit-item')}>
+                    <label htmlFor="description">Mô tả dịch vụ khám</label>
+                    <Input
+                        className={cx('input')}
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Nhập mô tả"
+                    />
+                </div>
+                <div className={cx('modal-edit-item')}>
+                    <label htmlFor="symptom">Triệu chứng</label>
+                    <Input
+                        className={cx('input')}
+                        id="symptom"
+                        value={symptom}
+                        onChange={(e) => setSymptom(e.target.value)}
+                        placeholder="Nhập triệu chứng"
+                    />
+                </div>
+                <div className={cx('modal-edit-item')}>
+                    <label htmlFor="relatedService">Dịch vụ liên quan</label>
+                    <Input
+                        className={cx('input')}
+                        id="relatedService"
+                        value={relatedService}
+                        onChange={(e) => setRelatedService(e.target.value)}
+                        placeholder="Nhập dịch vụ liên quan"
                     />
                 </div>
                 <div className={cx('modal-edit-item')}>

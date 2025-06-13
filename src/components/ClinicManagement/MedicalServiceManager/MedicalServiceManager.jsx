@@ -24,6 +24,9 @@ const MedicalServiceManager = ({
     const [type, setType] = useState(0);
     const [logo, setLogo] = useState(null);
     const [isLogo, setIsLogo] = useState(false);
+    const [description, setDescription] = useState('');
+    const [symptom, setSymptom] = useState('');
+    const [relatedService, setRelatedService] = useState("");
 
     const [doctorIds, setDoctorIds] = useState([]);
     const [dataDoctorsMedicalService, setDataDoctorsMedicalService] = useState([]);
@@ -55,6 +58,9 @@ const MedicalServiceManager = ({
             type,
             clinicId: rowSelectedClinic,
             doctorIds,
+            description,
+            symptom,
+            relatedService,
         };
         try {
             await medicalService.createMedicalService(data);
@@ -139,6 +145,12 @@ const MedicalServiceManager = ({
                 serviceId={serviceId}
                 onDelete={handleDeleteMedicalService}
                 dataDetailService={dataDetailService}
+                description={description}
+                setDescription={setDescription}
+                symptom={symptom}
+                setSymptom={setSymptom}
+                relatedService={relatedService}
+                setRelatedService={setRelatedService}
             />
         );
     }
@@ -160,6 +172,12 @@ const MedicalServiceManager = ({
                 setDoctorIds={setDoctorIds}
                 dataDoctors={dataDoctorsMedicalService}
                 setDataDoctors={setDataDoctorsMedicalService}
+                description={description}
+                setDescription={setDescription}
+                symptom={symptom}
+                setSymptom={setSymptom}
+                relatedService={relatedService}
+                setRelatedService={setRelatedService}
             />
         );
     }
